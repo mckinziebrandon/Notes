@@ -1,0 +1,139 @@
+\documentclass[11pt]{article}
+\usepackage{fullpage,amsmath,amssymb,graphicx}
+
+\usepackage{bm}
+\usepackage{cancel}
+\usepackage{comment}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage[top=1in, bottom=1in, left=0.8in, right=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{lmodern} % Nice fonts?
+\usepackage{mathtools} 
+\usepackage{needspace}
+\usepackage{paralist}
+\usepackage[parfill]{parskip} % no indents on new paragraphs.
+\usepackage{pifont}
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+
+% Muh packagez :)
+\usepackage{../../Packages/MathCommands}
+\usepackage{../../Packages/BrandonColors}
+\usepackage{../../Packages/BrandonBoxes}
+\usepackage{../../Packages/NoteTaker}
+
+\newcommand{\bx}{{\boldsymbol{x}}}
+\newcommand{\by}{{\boldsymbol{y}}}
+\newcommand{\bz}{{\boldsymbol{z}}}
+\newcommand{\bmu}{{\boldsymbol{\mu}}}
+\newcommand{\bb}{{\boldsymbol{b}}}
+\newcommand{\abs}[1]{\left| #1\right|}
+
+\newcommand{\points}[1]{{\textbf{[#1 points]}}}
+\newcommand{\ruleskip}{\bigskip\hrule\bigskip}
+\newcommand{\nodify}[1]{{\sc #1}} 
+\newcommand{\Size}[2]{{\rm SIZE}_{#1}(#2)}
+\newcommand{\KL}[0]{D_{\mathrm{KL}}}
+\newcommand{\csisep}[4]{\emph{CSI-sep}_{#1}({#2};{#3} \mid {#4})}
+
+
+\renewcommand{\arraystretch}{1.5}
+
+
+\begin{document}
+
+\begin{center}
+	{\Large CS 330 Autumn 2020 Homework 2}
+	
+	\begin{tabular}{rl}
+		SUNet ID: & 06009508 \\
+		Name: & Brandon McKinzie \\
+		Collaborators: & N/A
+	\end{tabular}
+\end{center}
+
+\p By turning in this assignment, I agree by the Stanford honor code and declare
+that all of this is my own work.
+
+\rule{\linewidth}{0.4pt}
+
+\href{https://colab.research.google.com/drive/1PrzOviODVhm239IKFWUFEbuQ5fndDOAx?usp=sharing}{[LINK TO COLAB NOTEBOOK]}
+
+Raw URL: https://colab.research.google.com/drive/1PrzOviODVhm239IKFWUFEbuQ5fndDOAx?usp=sharing
+
+
+\myspace 
+\section*{Problem 1: Model-Agnostic Meta-Learning (MAML)}
+
+\subsection*{Problem 1.3}
+
+Below are the requested plots for validation accuracy and average test accuracies for each learning rate. Informally, we'd expect larger inner update learning rates to be able to improve on the meta-training task more quickly than lower learning rates. As long as the loss landscape is relatively smooth, taking larger steps for each inner update should result in better performance on average. 
+
+Note that for all plots that follow, experiments were only run for the first 6k steps due to time constraints.
+
+\myfig[0.6\textwidth]{figs/lr4.0.png}
+
+Mean meta-test accuracy/loss, stddev, and confidence intervals
+(0.665, 0.1907223, 0.015260962502169649)
+
+\vspace*{5em}
+
+\myfig[0.6\textwidth]{figs/lr0.4.png}
+
+Mean meta-test accuracy/loss, stddev, and confidence intervals
+(0.634, 0.19229491, 0.015386797425409438)
+
+\vspace*{5em}
+
+\myfig[0.6\textwidth]{figs/lr0.04.png}
+Mean meta-test accuracy/loss, stddev, and confidence intervals
+(0.56600004, 0.19675027, 0.01574330029683868)
+
+
+\clearpage
+\subsection*{Problem 1.4}
+
+Below are the requested plots for validation accuracy and average test accuracies for each learning rate. It does appear that learning the inner update LR improves the speed of improvement in meta-training performance. For example, with an initial inner LR of 0.4, learning the inner LR improved our performance from 63\% in the previous sub-problem to the 68.7\% seen below. 
+
+Unfortunately, the plot data for LR 4.0 was lost, but the meta-validation accuracies at step  2200 were as follows: 
+
+\texttt{pre-inner-loop train accuracy: 0.20800, meta-validation post-inner-loop test accuracy: 0.60800}
+
+Mean meta-test accuracy/loss, stddev, and confidence intervals
+(0.65833336, 0.18937764, 0.015153366822607843)
+
+\vspace*{5em}
+
+\myfig[0.6\textwidth]{figs/lr0.4_true.png}
+Mean meta-test accuracy/loss, stddev, and confidence intervals
+(0.68733335, 0.18286486, 0.014632236206270313)
+
+
+\clearpage
+\vspace*{5em}
+
+
+\myfig[0.6\textwidth]{figs/lr0.04_true.png}
+Mean meta-test accuracy/loss, stddev, and confidence intervals
+(0.67100006, 0.1853618, 0.014832033247872434)
+
+
+\clearpage
+\section*{Problem 2.3}
+
+As requested, below is the validation accuracy over iterations as reported by \texttt{run\_protonet}, as well as the average test accuracy and standard deviation. No analysis was requested. 
+
+\myfig[0.9\textwidth]{figs/2.3.png}
+
+Average Meta-Test Accuracy: 0.94622, Meta-Test Accuracy Std: 0.02798
+
+
+
+
+
+
+
+
+\end{document}

@@ -1,0 +1,41 @@
+\begin{thebibliography}{5}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bahri et~al.(2021)Bahri, Dyer, Kaplan, Lee, and Sharma]{Bahri}
+Yasaman Bahri, Ethan Dyer, Jared Kaplan, Jaehoon Lee, and Utkarsh Sharma.
+\newblock Explaining neural scaling laws.
+\newblock \emph{CoRR}, abs/2102.06701, 2021.
+\newblock URL \url{https://arxiv.org/abs/2102.06701}.
+
+\bibitem[Canatar et~al.(2021)Canatar, Bordelon, and Pehlevan]{canatar2021}
+Abdulkadir Canatar, Blake Bordelon, and Cengiz Pehlevan.
+\newblock Spectral bias and task-model alignment explain generalization in
+  kernel regression and infinitely wide neural networks.
+\newblock \emph{Nature Communications}, 12\penalty0 (1), May 2021.
+\newblock ISSN 2041-1723.
+\newblock \doi{10.1038/s41467-021-23103-1}.
+\newblock URL \url{http://dx.doi.org/10.1038/s41467-021-23103-1}.
+
+\bibitem[Lee et~al.(2019)Lee, Xiao, Schoenholz, Bahri, Novak, Sohl-Dickstein,
+  and Pennington]{lee2019}
+Jaehoon Lee, Lechao Xiao, Samuel~S. Schoenholz, Yasaman Bahri, Roman Novak,
+  Jascha Sohl-Dickstein, and Jeffrey Pennington.
+\newblock Wide neural networks of any depth evolve as linear models under
+  gradient descent, 2019.
+
+\bibitem[Neal(1996)]{neal1996}
+Radford~M. Neal.
+\newblock Bayesian learning for neural networks.
+\newblock 1996.
+\newblock \doi{https://doi.org/10.1007/978-1-4612-0745-0}.
+
+\bibitem[Simon et~al.(2021)Simon, Dickens, and DeWeese]{simon2021}
+James~B. Simon, Madeline Dickens, and Michael~R. DeWeese.
+\newblock Neural tangent kernel eigenvalues accurately predict generalization,
+  2021.
+
+\end{thebibliography}

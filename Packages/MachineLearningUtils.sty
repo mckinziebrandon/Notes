@@ -1,0 +1,34 @@
+
+% Note -- Need to put after other packages i guess.
+\ProvidesPackage{MachineLearningUtils}[2016/10/19 NoteTaker]
+
+\RequirePackage{amsmath}
+\RequirePackage{amsfonts}
+\RequirePackage{graphicx}
+\RequirePackage{minitoc}
+\RequirePackage{tikz}
+	\usetikzlibrary{shapes,snakes, arrows}
+\RequirePackage{xspace}
+
+\ProcessOptions\relax
+
+\newcommand\pa[1]{\ensuremath{\left(#1\right)}}
+\newcommand\tree[1]{\begin{tikzpicture}[
+	grow=right,
+	level 1/.style = {sibling distance = 6em, level distance = 12em},
+	level 2/.style = {sibling distance = 6em, level distance = 12em},
+	edge from parent/.style = {very thick, draw = blue!40!black!60, shorten >= 5pt, shorten <=5pt},
+	edge from parent path= {(\tikzparentnode.east) -- (\tikzchildnode.west)},
+	kant/.style 		= {text width = 2cm, text centered, sloped},
+	every node/.style	= {text ragged, inner sep=2mm, font=\scriptsize},
+	punkt/.style		= {	rectangle, 
+							rounded corners, 
+							shade, 
+							top color = white, 
+							bottom color = blue!50!black!20, 
+							draw=blue!40!black!60, 
+							very thick } ]#1\end{tikzpicture}}
+
+
+
+\endinput

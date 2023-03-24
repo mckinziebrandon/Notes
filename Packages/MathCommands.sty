@@ -1,0 +1,164 @@
+
+% Note -- Need to put after other packages i guess.
+\ProvidesPackage{MathCommands}[2016/10/19 ClassCommands]
+
+\RequirePackage{amssymb}
+\RequirePackage{amsmath}
+\RequirePackage{bm}
+\RequirePackage{dsfont} % \mathds{1} for indicator fn.
+\usepackage{xparse} % DeclareDocumentCommand
+\ProcessOptions\relax
+
+% Set notation (\mathbb{...} stuff)
+% Provide command allows us to use renewcommand below,
+% for cases where the command does not exist yet.
+\providecommand\R{}
+\providecommand\Q{}
+\providecommand\Z{}
+\providecommand\C{}
+\renewcommand\R{\mathbb{R}}
+\newcommand\N{\mathbb{N}}
+\renewcommand\Q{\mathbb{Q}}
+\renewcommand\Z{\mathbb{Z}}
+\renewcommand\C{\mathbb{C}}
+
+\newcommand{\ind}{\mathds{1}}
+\newcommand\Loss{\mathcal{L}}
+
+\newcommand\Theorem[1][]{\purple{Theorem:} \textit{#1}}
+\newcommand\Lemma{\blue{Lemma: }}
+\newcommand\Part[1]{\textbf{\textit{\red{#1}}}}
+\newcommand\Prob[2][]{\text{Pr}_{#1}\left[#2\right]}
+\newcommand\Cov[2]{\mathrm{Cov}\left[#1,~ #2\right]}
+\newcommand\Var[1]{\mathrm{Var}\left[#1\right]}
+
+% DL BOOK CONVENTIONS
+\newcommand\tens[2][]{\bm{\mathsf{#2}}_{#1}}
+\newcommand\matr[2][]{\bm{#2}_{#1}}
+\newcommand\diag[1]{\mathrm{diag}\left(#1\right)}
+\renewcommand\vec[2][]{\bm{#2}_{#1}}
+\newcommand\rvec[2][]{\mathbf{#2}_{#1}} % vector-valued random variable
+\newcommand\rmat[2][]{\mathbf{#2}_{#1}} % matrix-valued random variable
+%\newcommand\set[1]{\mathbb{#1}}
+\newcommand{\X}{\matr{X}}
+\newcommand{\NP}{\mathcal{N}\mathcal{P}}
+
+% Muh 189 commandz
+\newcommand\corr[1]{\langle#1\rangle}
+\newcommand\corrXY[2]{\frac{\E{#1 #2}}{ \sqrt{\E{#1} \E{#2} } } } % assuming zero-mean!
+\newcommand\E[2][]{\mathbb{E}_{#1}\left[#2\right]}
+% \newcommand\y{\mathbf{y}}
+\newcommand\yhat{\hat{\mathbf{y}}}
+\newcommand\bhat{\hat{\beta}}
+\newcommand\F{\mathcal{F}} % Event Space. 
+\newcommand\norm[2][2]{\left|\left| #2 \right|\right|_{#1}}
+\newcommand\inftynorm[1]{||#1||_{\infty}}
+\newcommand\sqnorm[1]{||#1||^2}
+\newcommand\gradJ[1]{\nabla J(#1)}
+
+% Calculus.
+\newcommand\pderiv[2]{\frac{\partial #1}{\partial #2}}
+\newcommand\ppderiv[2]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand\deriv[2]{\frac{d#1}{d#2}}
+\newcommand\dderiv[2]{\frac{d^2#1}{d#2^2}}
+
+% Summation and fraction utils.
+\newcommand\onehalf{\frac{1}{2}}
+\newcommand\inv[1]{\frac{1}{#1}}
+\newcommand\insum{\sum_{i=1}^{n}}
+\newcommand\imsum{\sum_{i=1}^{m}}
+\newcommand\jnsum{\sum_{j=1}^{n}}
+\newcommand\knsum{\sum_{k=1}^{n}}
+\newcommand\idsum{\sum_{i=1}^{d}}
+\newcommand\jdsum{\sum_{j=1}^{d}}
+\newcommand\kdsum{\sum_{k=1}^{d}}
+\newcommand\jpsum{\sum_{j=1}^{p}}
+\newcommand\ipsum{\sum_{i=1}^{p}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+% dot product
+\makeatletter
+\newcommand*\dotp{\mathpalette\dotp@{.5}}
+\newcommand*\dotp@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+
+% Use $X \eq x$ if you want it to render like "X=x" instead of X = x" (space yo). 
+\newcommand\eq{ {=} }
+
+% Index-superscripted vector.
+\DeclareDocumentCommand{\ival}{ o O{} m }{
+	#3_{#2}\IfNoValueTF{#1}{}{^{(#1)}} 
+}
+% Index-superscripted vector.
+\DeclareDocumentCommand{\ivec}{ o O{} m }{
+	\bm{#3}_{#2}\IfNoValueTF{#1}{}{^{(#1)}} 
+}
+
+% \dotseq{x}{T} == x_1, \ldots, x_T
+\DeclareDocumentCommand{\dotseq}{ m m }{ 
+	#1_1, \ldots, #1_{#2} 
+}
+
+% \rdotseq{x}{T} == x_T, \ldots, x_1
+\DeclareDocumentCommand{\rdotseq}{ m m }{
+	#1_{#2}, \ldots, #1_1
+}
+
+% O{T} means "optional with default value of `T`"
+% m means mandatory argument
+\DeclareDocumentCommand{\vecseq}{ O{T} m }{ 
+	\{  \vec[1]{#2}, \ldots, \vec[#1]{#2}   \} 
+}
+
+\DeclareDocumentCommand{\seq}{ O{T} O{1} m }{ 
+	\{ #3_{#2}, \ldots #3_{#1} \} 
+}
+
+\DeclareDocumentCommand{\slice}{ O{t} O{1} m }{
+	\vec[\langle #2 \ldots #1 \rangle]{#3}
+}
+
+
+\DeclareDocumentCommand{\vinv}{ O{} m }{  
+	\vec[#1]{#2}^{-1}
+}
+
+% vecfn: func that accepts and returns a vector.
+\DeclareDocumentCommand{\vecfn}{ O{} m m }{ 
+	\vec[#1]{#2}\lr{\vec{#3}} 
+}
+
+% \innerprod{x}{y} == \vec{x}^T \vec{y}
+\DeclareDocumentCommand{\innerprod}{ m m }{ 
+	\vec{#1}^T \vec{#2} 
+}
+
+% \dotprod{x}{y} == \vec{x} \dotp \vec{y}
+\DeclareDocumentCommand{\dotprod}{ m m }{ 
+	\vec{#1} \dotp \vec{#2} 
+}
+
+% MATRIX UTILS.
+\newcommand\matgrad[2]{\nabla_{\mathbf{#2}} #1}
+\newcommand{\minv}[1]{\matr{#1}^{-1}}
+
+% ------------------
+% Added during CS236
+% ------------------
+% KL divergence
+\newcommand\dkl[2]{D_{KL}\left( #1 || #2  \right)  }
+% Jensen-shannon divergence
+\newcommand\djsd[2]{D_{JSD}\left( #1 || #2  \right)  }
+% f-divergence
+\newcommand\df[2]{D_f\left(  #1 || #2 \right)}
+% \lr: left-right parens
+\newcommand\lr[1]{ \left( #1 \right) }
+\newcommand\Gauss[1]{\mathcal{N}\left( #1 \right)}
+
+\newcommand\elbo{\mathcal L(x; \theta, \phi)}
+\newcommand\textprob[2]{p_{\text{#1}}\left( #2 \right)}
+\newcommand\ptheta[1]{p_{\theta}\left( #1 \right)}
+
+
+\endinput

@@ -1,0 +1,936 @@
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+% P  R  E  A  M  B  L  E
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\documentclass[11pt]{article}
+\usepackage{amsbsy, amsmath, amssymb, authblk}
+
+%\usepackage{array} 
+%\usepackage{algorithm2e}
+
+\usepackage{booktabs, bm}
+\usepackage[small,labelfont=bf,up,singlelinecheck=false]{caption}
+\usepackage{cancel}
+\usepackage{comment}
+%\usepackage{fancyhdr}
+%\usepackage[default]{lato}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+%\usepackage[utf8]{inputenc}
+%	\inputencoding{latin1}
+%	\inputencoding{utf8}
+%\usepackage{lettrine}
+%\usepackage[sc]{mathpazo}
+\usepackage{lmodern} % Nice fonts?
+%\usepackage{mathrsfs}
+\usepackage{mathtools} 
+%\usepackage{marvosym} % silly bullet-point symbols (misc symbols)
+%\usepackage{microtype}
+\usepackage{minitoc}         % left in case it is needed elsewhere
+\setcounter{secttocdepth}{5} % idem
+\usepackage{etoc} % for toc before each section.
+%\usepackage{multicol}
+\usepackage{needspace}
+\usepackage{paralist}
+%\usepackage{polynom} 			% typesetting polynomial long division
+%\usepackage{setspace}
+%	\onehalfspacing 
+\usepackage{stmaryrd}  % \llbracket, \rrbracket
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{ulem} 				% for strikeout \sout command.
+%\usepackage{verbatim}
+
+% Muh packagez :)
+\usepackage{../Packages/MathCommands}
+\usepackage{../Packages/BrandonColors}
+\usepackage{../Packages/BrandonBoxes}
+\usepackage{../Packages/NoteTaker}
+%\usepackage{../Packages/MachineLearningUtils}
+
+
+%\usepackage{program}
+% DL BOOK CONVENTIONS
+\renewcommand\vec[2][]{\bm{#2}_{#1}}
+
+\DeclareDocumentCommand{\slice}
+	{ O{t} O{1} m }
+	{\vec[\langle #2 \ldots #1 \rangle]{#3}}
+
+\newcommand\myfig[2][0.3\textwidth]{\begin{figure}[h!]\centering\includegraphics[width=#1]{#2}\end{figure}}
+\newcommand\myspace[1][]{\vspace{#1\bigskipamount}}
+\newcommand\p{\Needspace{10\baselineskip} \noindent}
+\newcommand\tlab[1]{\tag{#1}\label{#1}}
+\newcommand\Var[1]{\mathrm{Var}\left[#1\right]}
+
+
+%\usepackage{program}
+
+\usepackage{layout} % Type \layout() anywhere to see values of layout frame.
+%\usepackage{showframe} % Displays layout frame on all pages
+\usepackage{marginnote}
+\renewcommand*{\marginfont}{\scriptsize}
+
+\usepackage{listings}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Java,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows, automata, shapes, snakes, positioning}
+\usetikzlibrary{bayesnet}
+
+
+\titleformat*{\subsubsection}{\small\scshape}
+\newcommand\subsub[1]{\Needspace{15\baselineskip}\hrule\subsubsection{#1}\hrule}
+
+ \renewcommand\dotseq[2]
+ {#1^{(1)}, \ldots, #1^{(#2)}}
+ \renewcommand\rdotseq[2]
+ {#1^{(#2)}, \ldots, #1^{(1)}} % reversed
+	
+\newcommand\QA[2]{\item \red{Q}: #1
+	\begin{compactitem}
+		\item \green{A}: #2
+	\end{compactitem}}
+	
+\newcommand\myref[1]{\purple{[#1]}}
+
+\definecolor{forgeblue}{HTML}{018C9F}
+% Gray table borders
+\makeatletter
+\def\rulecolor#1#{\CT@arc{#1}}
+\def\CT@arc#1#2{%
+	\ifdim\baselineskip=\z@\noalign\fi
+	{\gdef\CT@arc@{\color#1{#2}}}}
+\let\CT@arc@\relax
+\rulecolor{forgeblue}
+\makeatother
+
+
+%\setlength{\parskip}{1pt}
+%\setlength{\columnseprule}{0.1pt}
+%\setlength{\columnsep}{0.6cm}
+%\setlength\tabcolsep{0.1cm}
+\renewcommand{\arraystretch}{1.2}
+
+
+\DeclareDocumentEnvironment{definition}{O{-0.5em} o}{
+	\IfNoValueTF{#2}{}{\textbf{#2}}
+	\vspace*{#1}
+	\begin{quote}
+		\itshape\small}
+	{\end{quote}}
+
+\makeatletter
+\newcommand*\dotp{\mathpalette\dotp@{.5}}
+\newcommand*\dotp@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+
+% bluesec
+\newcommand\bluesec[1]{\myspace \p \blue{#1}}
+
+% Title
+\title{\vspace{-10mm}\fontsize{24pt}{8pt}\selectfont\textbf{Fall 2016 Course Notes}\vspace*{-4mm}}
+% Author
+\author{Brandon McKinzie}
+% Date
+\date{}
+
+% --------------------------------------------------------------
+% --------------------------------------------------------------
+
+
+\renewcommand\cftsecfont{\small\bfseries}
+\renewcommand\cftsubsecfont{\scriptsize}
+\renewcommand\cftsubsubsecfont{\scriptsize}
+
+\renewcommand\cftsecafterpnum{\vskip-5pt}
+\renewcommand\cftsubsecafterpnum{\vskip-7pt}
+\renewcommand\cftsubsubsecafterpnum{\vskip-7pt}
+
+\begin{document}
+\dosecttoc
+\tableofcontents
+
+% ==================================================================================
+% ==================================================================================
+% ==================================================================================
+% NLP WITH DEEEEEEEEEEEEEEEEEEP LEARNING
+% ==================================================================================
+% ==================================================================================
+% ==================================================================================
+\mysection{NLP with Deep Learning}\label{NLP with Deep Learning}
+
+
+% ======================================================================================
+\lecture{NLP with Deep Learning}{Word Vector Representations (Lec 2)}{May 08}
+% ======================================================================================
+
+\p \blue{Meaning of a word}. Common answer is to use a \textit{taxonomy} like WordNet that has hypernyms (is-a) relationships. Problems with this \underline{discrete} representation: misses nuances, e.g. the words in a set of synonyms can actually have quite different meanings/connotations. Furthermore, viewing words as atomic symbols is a bit like using one-hot vectors of words in a vocabulary space (inefficient).
+
+\myspace
+\p \blue{Distributed representations}. Want a way to encode word vectors such that two similar words have a similar structure/representation. The \green{distributional similarity-based}\footnote{Note that this is distinct from the way ``distributed'' is meant in ``distributed representation.'' In contrast, distributional similarity-based representations refers to the notion that you can describe the meaning of words by understanding the context in which they appear.} approach represents words by means of its \textit{neighbors} in the sentences in which it appears. You end up with a \underline{dense} ``vector for each word type, chosen so that it is good at predicting other words appearing in its context.''
+
+\myspace
+\p \blue{Skip-gram prediction}. Given a word $w_t$ at position $t$ in a sentence, learn to predict [probability of] some number of surrounding words, given $w_t$. Standard minimization with negative log-likelihood:
+\graybox{
+	J(\theta) &= - \frac{1}{T} \sum_{t = 1}^{T} \sum_{-m \le j \le m} \log \Pr(w_{t + j} | w_t) \\
+	\Pr(o \mid c) 
+	&= \frac{ e^{\vec[o]{u}^T \vec[c]{v}}   }{  \sum_{w = 1}^{\text{vocab size}}e^{\vec[w]{u}^T \vec[c]{v}  }} \label{skip-loss}
+}
+where\marginnote{I cannot believe this actually works.}[-4em]
+\begin{compactitem}
+	\item The params $\theta$ are the vector representation of the words (they are the \textit{only} learnable parameters here).
+	\item $m$ is our radius/window size. 
+	\item $o$ and $c$ are indices into our vocabulary (somewhat inconsistent notation). 
+	\item Yes, they are using different vector representations for $\vec{u}$ (context words) and $\vec{v}$ (center words). I'm assuming one reason this is done is because it makes the model architecture simpler/easier to build.
+\end{compactitem}
+
+
+Some subtleties:
+\begin{compactitem}
+	\item Looks like e.g. $Pr(w_{t + j} \mid w_t)$ doesn't really care what the value of $j$ is, it is just modeling the probability that it is \textit{somewhere} in the context window. The $w_t$ are one-hot vectors into the vocabulary. Standard tricks for simplifying the cross-entropy loss apply.
+	
+	\item Equation~\ref{skip-loss} should be interpreted as the probability that the o$^{th}$ word in our vocabulary occurs in the context window of the c$^{th}$ word in our vocabulary. 
+	
+	\item The model architecture is \textit{identical} to an autoencoder. However, the (big) difference is the training procedure and interpretation of the model parameters going ``in'' versus the parameters going ``out''.
+\end{compactitem}
+
+\myspace
+\p \blue{Sentence Embeddings}. It turns out that simply taking a weighted average of word vectors and doing some PCA/SVD is a competitive way of getting unsupervised word embeddings. Apparently it \textit{beats} supervised learning with LSTMs (?!). The authors claim the theoretical explanation for this method lies in a latent variable generative model for sentences (of course).\marginnote{Discussion based on paper by Arora et al., (2017).}[-2em] Approach:
+\begin{compactenum}
+	\item Compute the weighted average of the word vectors in the sentence:\marginnote{The authors call their weighted average the \green{Smooth Inverse Frequency (SIF)}.}[2em]
+	\begin{align}
+		\frac{1}{N} \sum_{i}^{N} \frac{a}{a + p(\vec[i]{w})} \vec[i]{w}
+	\end{align}
+	where $\vec[i]{w}$ is the word vector for the $i$th word in the sentence, $a$ is a parameter, and $p(\vec[i]{w})$ is the (estimated) word frequency [over the entire corpus]. 
+	
+	\item Remove the projections of the average vectors on their first principal component (``common component removal'') (y tho?).
+\end{compactenum}
+
+1\myfig[0.8\textwidth]{AroraEmbeddingAlg.png}
+
+
+
+
+\myspace
+\p \blue{Further Reading}. 
+\begin{compactitem}
+	\item \href{https://www.iro.umontreal.ca/~vincentp/ift3395/lectures/backprop_old.pdf}{Learning representations by back-propagating errors} (Rumelhard et al., 1986)
+	
+	\item \href{http://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf}{A Neural Probabilistic Language Model} (Bengio et al., 2003)
+	
+	\item \href{https://arxiv.org/abs/1103.0398}{NLP (almost) from Scratch} (Collobert \& Watson, 2008)
+	
+	\item Word2Vec (Miklov et al. 2013)
+\end{compactitem}
+
+
+
+
+
+% ======================================================================================
+\lecture{NLP with Deep Learning}{GloVe (Lec 3)}{May 08}
+% ======================================================================================
+
+\p \blue{Skip-gram and negative sampling}. Main idea: 
+\begin{compactitem}
+	\item Split the loss function from last lecture into two (additive) terms corresponding to the numerator and denominator respectively (you've done this a trillion times).
+	\item The second term is an expectation over all the words in your vocab space. That is huge, so instead we only use a subsample of size $k$ (the negative samples)\marginnote{To sample the negative samples, draw from $P(w) = U(w)^{3/4}/Z$, where $U$ is the \green{unigram distribution}.}[-2em].
+	\item Interpretation: First term is \underline{maximizing} $\Pr(o \mid c)$, the probability that the true outside word (given by index o) occurs given context (index) c. Second term is \underline{minimizing} the probability of random words (the negative samples) occurring around the center (context) word given by c.
+\end{compactitem}
+
+\myspace
+\p \blue{GloVe} (Global Vectors). Given some co-occurrence matrix we computed with previous methods, we can use the following GloVe loss function over all pairs of co-occurring words in our matrix:
+\graybox{
+	J(\theta) &= \sum_{i, j = 1}^{W} f(P_{ij}) (u_i^Tv_j - \log P_{ij})^2
+}
+where $P_{ij}$ is computed simply from the counts of words i and j co-occurring (empirical probability) and $f$ is some squashing function that really isn't discussed in this lecture (\red{TODO}).
+
+\myspace
+\p \blue{Evaluating word vectors}. 
+\begin{compactitem}
+	\item \textbf{Word Vector Analogies}: Basically, determining if we can do standard analogy fill-in-the-blank problems: ``\textit{man [a] is to woman [b] as king [c] is to $<$blank$>$}'' (if you answered ``queen'', you'd make a good AI). We can determine this using a standard cosine distance measure:
+	\begin{align}
+	d = \argmax_i \frac{(x_b - x_a + x_c)^T x_i}{ || x_b - x_a + x_c ||}
+	\end{align}
+	Woah that is pretty neat. The solution is $x_i = \text{queen}$. $x_b - x_a$ is the vector pointing from man to woman, which encodes the type of similarity we are looking for with the other pair. Therefore, we take the vector to ``king'' and \textit{add} the aforementioned difference vector -- the resultant vector should point to ``queen''. Neat!
+\end{compactitem}
+
+\myspace
+\p \blue{Derivation}. Based on the descriptions in the original paper\footnote{Pennington et al., ``GloVe: Global Vectors for Word Representation.''} We want to develop a model for learning word vectors. 
+
+\begin{compactenum}
+	\item The authors argue that ``the appropriate starting point for word vector learning should be with ratios of co-occurrence probabilities rather than the probabilities themselves.'' The most general such model takes the form,
+	\begin{align}
+	F(w_i, w_j, \widetilde w_k) = \frac{\Prob{\widetilde w_k \mid w_i}}{\Prob{\widetilde w_k \mid w_j}} \equiv \frac{P_{ik}}{P_{jk}} \quad \text{where all} \quad w \in \R^d
+	\end{align}
+	and the tilde in $\widetilde w_k$ denotes that $\widetilde w_k$ is a \textit{context} word vector, which are given a distinct space from the word vectors $w_i$ and $w_j$ being compared. We compute all $P_{ik}$ via frequency counts over the corpus. 
+	
+	\item Now that we've specified the inputs and ratio of interest, we can start specifying some desirable constraints on the function $F$ that we're trying to find. The authors speculate that, since vector spaces are linear structures, we should have $F$ encode the information of the ratio in the vector space via \underline{vector differences}:
+	\begin{align}
+		F(w_i - w_j, \widetilde w_k) = \frac{P_{ik}}{P_{jk}}
+	\end{align}
+	which basically says ``our representation of the word vectors should be s.t. the \textbf{relative} probability of some word $\widetilde w_k$ occurring in the context of a word $w_i$ compared to it occurring in the context of a different word $w_j$ can be captured by $w_i-w_j$ and $\widetilde w_k$ alone.''
+	
+	\item Next we notice that $F$ maps arguments in $\R^d$ to a scalar in $\R$. The most straightforward way of doing so while maintaining the linear structure we are trying to capture is via a dot product:
+	\begin{align}
+		F( (w_i - w_j)^T \widetilde w_k) = \frac{P_{ik}}{P_{jk}} \label{glove-1}
+	\end{align}
+	Note that now $F: \R \mapsto \R$.
+	
+	\item We want our model to be invariant under the exchanges $w \leftrightarrow \widetilde w$ and $X \leftrightarrow X^T$. We can restore this symmetry by first requiring that $F$ be a \green{homomorphism}\footnote{In more detail, $F: (\R, +) \mapsto (\R_{>0}, \times)$, which reads ``the function $F$ maps elements in $\R$ and any summation of elements in $\R$ to elements in $\R$ that are greater than zero or any product of positive elements in $\R$.''	
+	} between the groups $(\R, +)$ and $(\R_{>0}, \times)$ (in our case, negation and division would be better symbols, but it's equivalent). This requires that the following relation hold\footnote{Note that we do not need to know anything about the RHS of the equations above to state this relation. We write it by definition of homomorphism.}
+	\begin{align}
+		F(w_i^T \widetilde w_k - w_j^T \widetilde w_k) 
+		=
+		\frac{F(w_i^T \widetilde w_k)}{F(w_j^T \widetilde w_k)} \label{glove-2}
+	\end{align}
+	where I've grouped terms on the LHS to emphasize how this is the definition of homomorphism. The solution for this equation is that $F(\cdot) \equiv \exp(\cdot)$. Combining this realization with equations \ref{glove-1} and \ref{glove-2} yields,
+	\begin{align}
+		F(w_i^T\widetilde w_k) &= e^{w_i^T\widetilde w_k} = P_{ik} \\
+		\Rightarrow w_i^T\widetilde w_k &= \log(P_{ik}) = \log(X_{ik}) - \log(X_i)
+	\end{align}
+	where $X_{ik}$ is the number of times word $k$ appears in the context of word $i$, and $X_i = \sum_k X_{ik}$ is the number of times any word appears in the context of $i$. 
+	
+	\item Restore symmetry under the exchanges $w \leftrightarrow \widetilde w$ and $X \leftrightarrow X^T$. We absorb $X_i$ into a bias $b_i$ for $w_i$ since it is independent of $k$. 
+	\begin{align}
+		w_i^T \widetilde w_k + b_i + \widetilde b_k = \log(X_{ik})
+	\end{align}
+	
+	\item A main drawback to this model is that it weighs all co-occurrences equally, even
+	those that happen rarely or never. The authors propose a new weighted least squares regression model, introducing a weighting function $f(X_{ij})$ into the cost function of our model:
+	\graybox{
+		J = \sum_{i,j=1}^{V} f(X_{ij})(w_i^T \widetilde w_j + b_i + \widetilde b_j - \log X_{ij})^2	
+	}
+\end{compactenum}
+
+
+
+% ==================================================================================
+% SPEECH AND LANGUAGE PROCESSING
+% ==================================================================================
+\mysection{Speech and Language Processing}\label{Speech and Language Processing}
+
+
+% ====================================================================================
+\lecture{Speech and Language Processing}{Introduction (Ch. 1 2nd Ed.)}{July 10, 2017}
+% ====================================================================================
+
+\myspace 
+\p \blue{Overview}. Going to rapidly jot down what seems most important from this chapter.
+\begin{compactitem}
+	\item \textbf{Morphology}: captures information about the shape and behavior of words in context (Ch. 2/3).
+	
+	\item \textbf{Syntax}: knowledge needed to order and group words together.
+	
+	\item \textbf{Lexical semantics}: knowledge of the meanings of individual words.
+	
+	\item \textbf{Compositional semantics}: knowledge of how these components (words) combine to form larger meanings.
+	
+	\item \textbf{Pragmatics}: the appropriate use of polite and indirect language.
+	
+	\item The knowledge of language needed to engage in complex language behavior can be separated into the following 6 distinct categories:
+	\begin{compactenum}
+		\item Phonetics and Phonology -- The study of linguistic sounds.
+		\item Morphology -- The study of the meaningful components of words.
+		\item Syntax -- The study of the structural relationships between words.
+		\item Semantics -- The study of meaning.
+		\item Pragmatics -- The study of how language is used to accomplish goals.
+		\item Discourse -- The study of linguistic units larger than a single utterance.
+	\end{compactenum}
+	
+	\item Methods for \textbf{resolving ambiguity}: pos-tagging, word sense disambiguation, probabilistic parsing, and speech act interpretation.
+	
+	\item \textbf{Models and Algorithms}. Among the most important are \green{state space search} and \green{dynamic programming} algorithms.
+\end{compactitem}
+
+
+% ======================================================================================
+\lecture{Speech and Language Processing}{Morphology (Ch. 3 2nd Ed.)}{July 10, 2017}
+% ======================================================================================
+
+\p \blue{English Morphology}. Morphology is the study of the way words are built up from smaller meaning- bearing units, \green{morphemes}. A morpheme is often defined as the minimal meaning-bearing unit in a language\footnote{Examples: ``fox'' is its own morpheme, while ``cats'' consists of the morpheme ``cat'' and the morpheme ``-s''.}. The two classes of morphemes are \green{stems} (the ``main'' morpheme of the word) and \green{affixes} (the ``additional'' meanings of various kinds). \\
+
+\p Affixes are further divided into prefixes (precede stem), suffixes (follow stem), circumfixes (do both), and infixes (inside the stem). \\
+
+\p Two classes of ways to form words from morphemes: \green{inflection} and \green{derivation}. Inflection is the combination of a word stem with a grammatical morpheme, usually resulting in a word of the same class as the original stem, and usually filling some syntactic function like agreement. Derivation is the combination of a word stem with a grammatical morpheme, usually resulting in a word of a different class, often with a meaning hard to predict exactly.
+
+
+% ====================================================================================
+\lecture{Speech and Language Processing}{N-Grams (Ch. 6 2nd Ed.)}{July 10, 2017}
+% ====================================================================================
+
+\p \blue{Counting Words}. Most $N$-gram based systems deal with the \textit{wordform}, meaning they treat words like ``cats'' and ``cat'' as distinct. However, we may want to treat the two as instances of a single abstract word, or \green{lemma}: a set of lexical forms having the same stem, the same major part of speech, and the same word-sense.
+
+\myspace
+\p \blue{Simple (Unsmoothed) N-Grams}. An N-gram is a N-1th order Markov model (because it looks N-1 steps in the past). Notation: the authors use the convention that $w_1^n \triangleq w_1, w_2, \ldots, w_n$ to denote a sequence of $n$ words. Given this, we can write the general equation for the N-gram approximation for the probability of the $n$th word ($n > N$) in a sentence:
+\begin{align}
+	\Prob{w_n \mid w_1^{n -1}} &\approx \Prob{w_n \mid w_{n - N + 1}^{n - 1}    }
+\end{align}
+for $N \ge 2$. We can compute these probabilities by simply counting:
+\begin{align}
+	\Prob{w_n \mid w_1^{n -1}} 
+	&= \frac{C(w_{n - N + 1}^{n - 1}w_n)}{C(w_{n - N + 1}^{n - 1})  }
+\end{align}
+where $C(\cdot)$ is the number of times the sequence, denoted as $\cdot$, occurred in the corpus.
+
+\myspace
+\p \blue{Entropy}. Denote the random variable of interest as $\rvec{x}$ with probability function $p(\rvec{x})$. The entropy of this random variable is:
+\begin{align}
+	H(\rvec{x}) = -\sum_x p(\rvec{x} = x) \log_2 p(\rvec{x} = x)
+\end{align}
+which should be thought of as a lower bound on the number of bits it would take to encode a certain decision or piece of information in the optimal coding scheme. The value $2^H$ is the \green{perplexity}, which can be interpreted as the weighted average number of choices a random variable has to make.
+
+\myspace
+\p \blue{Cross Entropy for Comparing Models}. Useful when we don't know the actual probability distribution $p$ that generated some data. Assume we have some model $m$ that's an approximation of $p$. The cross-entropy of $m$ on $p$ is defined by:
+\begin{align}
+	H(p, m) = \lim_{n \rightarrow \infty} \frac{1}{n} \sum_{W \in L} 
+	p(w_1, \ldots, w_n) \log m(w_1, \ldots, w_n)
+\end{align}
+That is we draw sequences according to the probability distribution $p$, but sum the log of their probability according to $m$.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% ======================================================================================
+\lecture{Speech and Language Processing}{Naive Bayes and Sentiment (Ch. 6 3rd Ed.)}{June 21, 2017}
+% ======================================================================================
+
+\vspace{-1em}{\footnotesize \purple{[3rd Ed.]} [Quick Review]}
+\p \blue{Overview}. This chapter is concerned with \green{text categorization}, the task of classifying an entire text by assigning it a label drawn from some set of labels. \textit{Generative classifiers} like naive Bayes build a model of each class. Given an observation, they return the class most likely to have generated the observation. \textit{Discriminative classifiers} like logistic regression instead learn what features from the input are most useful to discriminate between the different possible classes.\marginnote{Discriminative systems are often more accurate and hence more commonly used.}[-3em] Notation: we will assume we have a training set of $N$ documents, each hand-labeled with some class: $\{(d_1, c_1), \ldots, (d_N, c_N) \}$. 
+
+\myspace
+\p \blue{Naive Bayes}. A multinomial\footnote{
+	
+	Rapid review: \textbf{multinomial distribution}. Let $\rvec{x} = (x_1, \ldots, x_k)$ denote the result of an experiment with $n$ independent trials ($n = \sum_i^k x_i$) and $k$ possible outcomes for any given trial. i.e. $x_i$ is the number of trials that had outcome $i$ ($1 \le i \le k$). The pmf of this multinomial distribution, over all possible $\rvec{x}$ constrained by $n = \sum_i^k x_i$, is:
+	\begin{align}
+		\Prob{ \rvec{x} = (x_1, \ldots, x_k); n } = \frac{n!}{x_1! \cdots x_k!} p_1^{x_1} \times \cdots \times p_k^{x_k}
+	\end{align}
+	where $p_i$ is the probability of outcome $i$ for any single trial.
+	
+} classifier with a naive assumption about how the features interact. We model a text document as a \green{bag of words}, meaning we store (1) the words that occurred and (2) their frequencies. It's a probabilistic classifier, meaning it estimates the label/class of a document $d$ as 
+
+\begin{align}
+	\hat c &= \argmax_{c \in C} \Prob{c \mid d}  \\
+		&= \argmax_{c \in C} \frac{ \Prob{d \mid c} \Prob{c} }{ \Prob{d} } \\
+		&= \argmax_{c \in C} \Prob{d \mid c} \Prob{c}
+\end{align}
+
+Computing the class-conditional distribution (the likelihood) $\Prob{d \mid c}$ over all possible $d \in D$ is typically intractable; we must introduce some simplifying assumptions and use an approximation of it. Our assumptions in this section will be:
+\begin{compactitem}
+	\item \textbf{Bag-of-Words}: Assume that word position within a document is irrelevant. (Counts still matter)
+	
+	\item \textbf{Naive Bayes Assumption}: First, recall that $d$ is typically modeled as a (random) vector consisting of features $f_1, \ldots, f_n$, each of which has an associated probability distribution $\Prob{f_i \mid c}$. The NB assumption is that the features are mutually independent given the class $c$:
+	\graybox{
+		\Prob{f_1, \ldots, f_n \mid c} &= \Prob{f_1 \mid c} \cdots \Prob{f_n \mid c} \\
+		c_{NB} &= \argmax_{c \in C} \Prob{c} \prod_{f \in F} \Prob{f \mid c} \label{nb-formula}
+		}
+	where~\ref{nb-formula} is the final equation for the class chosen by the naive Bayes classifier.
+\end{compactitem}
+In text classification we typically use the word at position $i$ in the document as $f_i$, and move to log space to avoid underflow/increase speed:
+\begin{align}
+	c_{NB} &= \argmax_{c \in C} \log\Prob{c} + \sum_i^{len(d)}\log\Prob{w_i \mid c} 
+\end{align}
+Classifiers that use a linear combination of the inputs to make a classification decision (e.g. NB, logistic regression) are called linear classifiers.
+
+\myspace
+\p \blue{Training the NB Classifier}. No real "training" in my opinion, just simple counting from the data:
+\begin{align}
+	\hat P[c]  &= \frac{N_c}{N_{docs}} \\
+	\hat P[ w_i \mid c ] &= \frac{ \text{count}(w_i, c)  + 1}{\left( \sum_{w \in V} \text{count}(w, c)\right) +  |V| }
+\end{align}
+The Laplace smoothing is added to avoid the occurrence of zero-probabilities in equation~\ref{nb-formula}.
+
+\myspace
+\p \blue{Optimizing for Sentiment Analysis}. 
+\begin{compactitem}
+	\item It often improves performance [for sentiment] to clip word counts in each document to 1 (``binary NB''). 
+	
+	\item deal with \textit{negations} in some way. 
+	
+	\item Use sentiment lexicons, lists of words that are pre-annotated with positive or negative sentiment.
+\end{compactitem}
+
+% ======================================================================================
+\lecture{Speech and Language Processing}{Hidden Markov Models (Ch. 9 3rd Ed.)}{July 28, 2017}
+% ======================================================================================
+
+
+
+\p \blue{Overview}. Here we will first go over the math behind HMMs: the \green{Viterbi}, \green{Forward}, and \green{Baum-Welch} (EM) algorithms for unsupervised or semi-supervised learning. Recall that a HMM is defined by specifying the set of N states $Q$, transition matrix $A$, sequence of T observations $O$, sequence of observation likelihoods $B$, and the initial/final states. They can be characterized by three fundamental problems:
+\begin{compactenum}
+	\item \textbf{Likelihood}. Given an HMM $\lambda = (A, B)$ and observation sequence, compute the likelihood (prob. of the observations given the model). (\purple{Forward})
+	\item \textbf{Decoding}. Given an HMM $\lambda = (A, B)$ and observation sequence, discover the best hidden state sequence. (\purple{Viterbi})
+	\item \textbf{Learning}. Given an observation sequence and the set of states in the HMM, learn the HMM parameters A and B. (\purple{Baum-Welch/Forward-Backward/EM})
+\end{compactenum}
+
+\myspace
+\p \blue{The Forward Algorithm}. For likelihood computation. We want to compute the probability of some sequence of observations $O$, without knowing the sequence of hidden states (that emitted the observations) $Q$. In general, this can be expressed by summing over all possible hidden state sequences:
+\begin{align}
+	\Prob{O} = \sum_Q \Prob{Q} \Prob{O \mid Q} 
+\end{align}
+However, for $N$ hidden states and $T$ observations, this summation involves $N^T$ terms, which becomes intractable rather quickly. Instead, we can use the $\mathcal{O}(N^2 T)$ \green{Forward Algorithm}. The forward algorithm can be defined by initialization, recursion definition, and termination, shown respectively as follows:
+\graybox{
+	\alpha_1(j) &= a_{0j} b_j(o_1) \qquad 1 \le j \le N \\
+	\alpha_t(j) &= \sum_{i=1}^{N} \alpha_{t - 1}(i) a_{ij} b_j(o_t) \quad 1 \le j \le N, 1 \le t \le T \\
+	\Prob{O \mid \lambda} &= \alpha_T(q_F) = \sum_{i = 1}^N \alpha_T(i) a_{iF}
+	}
+
+
+\myspace
+\p \blue{Viterbi Algorithm}. For decoding. Want the most likely hidden state sequence given observations. Let $v_t(j)$ represent the probability that we are in state $j$ after $t$ observations and passing through the most probable state sequence $q_0,q_1,\ldots,q_{t-1}$. Similar to the forward algorithm, we show the defining equations for the Viterbi algorithm below:
+\graybox{
+	v_1(j) &= a_{0j} b_j(o_1) \quad 1 \le j \le N \\
+	v_t(j) &= \max_{i=1}^{N} v_{t - 1}(j) a_{ij} b_j(o_t) \\
+	P^* = v_T(q_F)  &= \max_{i = 1}^{N} v_T(i) a_{iF}
+}
+N.B.: At each step, the best path up to that point can be found by taking the \textit{argmax} instead of max. 
+
+\myspace
+\p \blue{Baum-Welch Algorithm}. AKA forward-backward algorithm, a special case of the EM algorithm. Given an observation sequence $O$ and the set of best possible states in the HMM, learn the HMM parameters $A$ and $B$. First, we must define some new notation. The \green{backward probability} $\beta$ is defined as:\marginnote{Remember $\lambda \equiv (A, B)$}[2em]
+\begin{align}
+	\beta_t(i) &\triangleq \Prob{o_{t + 1}, \ldots, o_T \mid q_t = i, \lambda}
+\end{align}
+As usual, we can compute its values inductively as follows:
+\graybox{
+	\beta_T(i) &= a_{iF}  \qquad 1 \le i \le N \\
+	\beta_t(i) &= \sum_{j=1}^{N}  a_{ij} b_j(o_{t+1}) \beta_{t + 1}(j) \quad 1 \le i \le N, 1 \le t \le T \\
+	\Prob{O \mid \lambda} &= \alpha_T(q_F) = \beta_1(q_0)  \label{observation-prob}\\
+	&= \sum_{j = 1}^N a_{0j} b_j(o_1) \beta_1(j)
+}
+We can use the forward and backward probabilities $\alpha$ and $\beta$ to compute the transition probabilities $a_{ij}$ and observation probabilities $b_i(o_t)$ from an observation sequence. The derivation steps are as follows:
+
+\Needspace{15\baselineskip}
+\begin{compactenum}
+	\item \textbf{Estimating $\hat a_{ij}$}.\marginnote{Remember, knowing the observation sequence does NOT give us the sequence of \underline{hidden} states.}[1em] Begin by defining quantities that will prove useful:
+	\begin{align}
+		\xi_t(i, j) &\triangleq \Prob{q_t = i, q_{t + 1} = j \mid O, \lambda} \\
+		\widetilde \xi_t(i, j) &\triangleq \Prob{q_t=i, q_{t+1}=j,  O \mid \lambda} \\
+		&= \alpha_t(i) a_{ij}  b_j(t + 1) \beta_{t + 1}(j) \label{not-quite-xi}
+	\end{align}
+	where you should be able to derive eq.~\ref{not-quite-xi} in your head using just logic. If you cannot, review before continuing. We can then derive $\xi_t(i, j)$ using basic definitions of conditional probability, combined with eq.~\ref{observation-prob}. Finally, we estimate $\hat a_{ij}$ as the expected number of transitions $q_i \rightarrow q_j$ divided by the expected number of transitions from $q_i$ total:
+	\graybox{
+		\hat a_{ij} &= \dfrac{
+			\sum_{t = 1}^{T - 1} \xi_t(i, j) }{ 
+			\sum_{t = 1}^{T - 1} \sum_{k = 1}^{N} \xi_t(i, k) }
+		}
+		
+	\item \textbf{Estimating $\hat b_j(v_k)$}. We define our estimate as the expected number of times we are in $q_j$ and emit observation $v_k$, divided by the expected number of times we are in state $j$. Similar to our approach for $\hat a_{ij}$ we define helper quantities for these values at a given timestep, then sum over them (all $t$) to obtain our estimate. 
+	\begin{align}
+		\gamma_t(j) &\triangleq \Prob{ q_t = j \mid O, \lambda} \\
+		&= \frac{ \Prob{q_t = j, O \mid \lambda} }{ \Prob{  O \mid \lambda}} \\
+		&= \frac{ \alpha_t(j) \beta_t(j) }{ \Prob{  O \mid \lambda}}
+	\end{align}
+	Thus, we obtain $\hat b_j(v_k)$ by summing over all timesteps where $o_t = v_k$, denoted as the set $T_{v_k}$, divided by the summation over all $t$ regadless of $o_t$:
+	\graybox{
+		\hat b_j(v_k) &= \dfrac{
+			\sum_{t \in T_{v_k}} \gamma_t(j) }{ 
+			\sum_{t = 1}^{T} \gamma_t(j) }
+		}
+\end{compactenum}
+
+At last we can finally define the \green{\textbf{Forward-Backward Algorithm}} as follows:
+\begin{compactenum}
+	\item Initialize $A$ and $B$. 
+	
+	\item \textbf{E-step}. Compute $\gamma_t(j)$ $(\forall t, j)$, and compute $\xi_t(i, j)$ $(\forall t, i, j)$.
+	
+	\item \textbf{M-step}. Update all $\hat a_{ij}$ and $\hat b_j(v_k)$. 
+	
+	\item Upon convergence, return $A$ and $B$.
+\end{compactenum}
+
+
+
+
+
+% ======================================================================================
+\lecture{Speech and Language Processing}{POS Tagging (Ch. 10 3rd Ed.)}{July 30, 2017}
+% ======================================================================================
+
+\p \blue{English Parts-of-Speech}. POS are traditionally defined based on syntactic and morphological function, grouping words that have similar neighboring words or take similar affixes. \\
+
+\p \textbf{Open classes}:
+\begin{tabular}{l | l | l}
+	\textbf{Part of Speech} & \textbf{Definition} & \textbf{Properties} \\ \midrule
+	noun & people, places, things & occur with determiners, take possessives, (most) have plural forms \\
+	verb & actions, processes & 3rd-person-sg, progressive, past participle		\\
+	adjective & properties, qualities &		\\
+	adverb	& 	modify verbs, adverbs, verb phrases	& directional, locative, degree, manner, temporal \\
+\end{tabular}
+Common nouns can be divided into \textit{count} (e.g. goat/goats) and \textit{mass} (e.g. snow) nouns. \\
+
+\p \textbf{Closed classes}. POS with relatively fixed membership. Some of the most important in English are:
+
+\myfig{closed_classes.png}
+
+Some subtleties: the \green{particle} resembles a preposition or an adverb and is used in combination with a verb. An example case where ``over'' is a particle: ``she turned the paper over.'' When a verb and a particle behave as a single syntactic and/or semantic unit, we call the combination a \green{phrasal verb}. Phrasal verbs cause widespread problems with NLP because they often behave as a semantic unit with a noncompositional
+meaning -- one that is not predictable from the distinct meanings of the verb and the particle. Thus, ``turn down'' means something like ``reject'', ``rule out'' means ``eliminate'', ``find out'' is ``discover'', and ``go on'' is ``continue''.
+
+\myspace
+\p \blue{HMM POS Tagging}. Since we typically train on labeled data, we need only use the Viterbi algorithm for decoding\footnote{Recall that decoding is the problem of finding the best hidden state sequence, given $\lambda = (A, B)$ and observation sequence $O$.}. In the POS case, we wish to find the sequence of $n$ tags, $\hat t_1^n$, given the observation sequence of $n$ words $w_1^n$. 
+\begin{align}
+\hat t_1^n &= \argmax_{t_1^n} \Prob{t_1^n \mid w_1^n} = \argmax_{t_1^n} \Prob{w_1^n \mid t_1^n} \Prob{t_1^n} \label{pos-hmm}
+\end{align}
+where we've dropped the denominator after using Bayes' rule (since argmax is the same). HMM taggers made two further \underline{simplifying assumptions}:
+\begin{align}
+	\Prob{w_1^n \mid t_1^n} &\approx \prod_{i = 1}^{n} \Prob{w_i \mid t_i} \\
+	\Prob{t_1^n} &\approx \prod_{i = 1}^{n} \Prob{t_i \mid t_{i -1}}
+\end{align}
+We can thus plug-in these values into eq.~\ref{pos-hmm} to obtain the equation for $\hat t_1^n$.
+\graybox{
+	\hat t_1^n &= \argmax_{t_1^n} \prod_{i = 1}^{n} \Prob{w_i \mid t_i} \Prob{t_i \mid t_{i -1}} \\
+	&= \argmax_{t_1^n} \prod_{i = 1}^{n} b_i(w_i) a_{i-1, i}
+	}
+where I've written a ``translated'' version on the second line using the familiar syntax from the previous chapter. In practice, we can obtain quick estimates for the two probabilities on the RHS by taking counts/averages over our tagged training data. We then run through the Viterbi algorithm to find all the argmaxes over states for the most likely hidden state sequence.
+
+
+\myspace
+\p \blue{Maximum Entropy Markov Models} (MEMMs). A sequence model adaptation of the MaxEnt (multinomial logistic regression) classifier\footnote{Because it is based on logistic regression, the MEMM is a \green{discriminative sequence model}. By contrast, the HMM is a \green{generative sequence model}.}. Since HMMs are generative models, they decompose $\Prob{T \mid W}$ into $\Prob{W \mid T} \Prob{T}$ when computing the best tag sequence $\hat T$. Since MEMMs are discriminative, they compute/model $\Prob{T \mid W}$ directly:
+\begin{align}
+	\hat T &= \argmax_T \Prob{T \mid W} = \argmax_T \prod_i \Prob{t_i \mid w_i, t_{i - 1}}
+\end{align}
+
+Visually, we can think of the difference between HMMs and MEMMs via the direction of arrows, as illustrated below.
+
+\myfig[0.5\textwidth]{hmm_memm.png}
+
+\p The top shows the HMM representation, while the bottom is MEMM. 
+\vspace{-1em}
+\begin{quote}
+	{\small \textit{The reason to use a discriminative sequence model is that discriminative models
+	make it easier to incorporate a much wider variety of features.}}
+\end{quote}
+
+
+\myspace
+\p \blue{Bidirectionality}. The one problem with the MEMM and HMM models as presented is that they are exclusively run left-to-right. MEMMs\footnote{And other non-generative finite-state models based on next-state classifiers} have a weakness known as the \green{label bias problem}. Consider the tagged fragment: ``\textit{will/NN to/TO fight/VB}\footnote{Note on the tag meanings: TO literally means ``to''. MD means ``modal'' and refers to modal verbs such as \textit{will}, \textit{shall}, etc.}.'' Even though the word ``\textit{will}`` is followed by ``\textit{to}'', which strongly suggests ``\textit{will}'' is a NN, a MEMM will incorrectly label ``\textit{will}'' as MD (modal verb). The culprit lies in the fact that $\Prob{\text{TO} \mid to, t_{will}}$ is essentially 1 \underline{regardless of $t_{will}$}; i.e. the fact that ``\textit{to}'' must have the tag TO has \textbf{explained away} the presence of TO and so the model doesn't learn the importance of the previous NN tag for predicting TO.\\
+
+\p One way to implement bidirectionality (and thus allowing e.g. the link between TO being available when tagging the NN) is to use a \green{Conditional Random Field} (CRF) model. However, CRFs are much more computationally expensive than MEMMs and don't work better for tagging.
+
+
+
+
+
+
+% ======================================================================================
+\lecture{Speech and Language Processing}{Formal Grammars (Ch. 11 3rd Ed.)}{August 5, 2017}
+% ======================================================================================
+
+\p \blue{Constituency and CFGs}. Discovering the inventory of constituents present in the language. Groups of words like \textit{noun phrases} or \textit{prepositional phrases} can be thought of as single units which can only be placed within certain parts of a sentence. \\
+
+\p The most widely used formal system for modeling constituent structure in English is the \green{Context-Free Grammar}\footnote{Also called Phrase-Structure Grammars. Equiv formalism as Backus-Naur Form (BNF)}. A CFG consists of a set of \green{productions} (rules), e.g. 
+\begin{align}
+	\text{NP} \longrightarrow \text{Det Nominal} \\
+	\text{NP} \longrightarrow \text{ProperNoun} \\
+	\text{Nominal} \longrightarrow \text{Noun} \mid \text{Nominal Noun}
+\end{align}
+where the arrow is to be read ``is composed of'' or ``consists of.'' \\
+
+\p The sequence of rule expansions going from left to right is called a \green{derivation} of the string of words, commonly represented by a \green{parse tree}. The formal language defined by a CFG is the set of strings that are derivable from the designated \green{start symbol}. 
+
+
+
+
+
+
+
+% ======================================================================================
+\lecture{Speech and Language Processing}{Vector Semantics (Ch. 15)}{June 21, 2017}
+% ======================================================================================
+
+
+\myspace
+\p \blue{Words and Vectors}. Vector models are generally based on a \green{co-occurrence}, an example of which is a \textbf{term-document matrix}: Each row is identified by a word, and each column a document. A given cell value is the number of times the assoc. word occurred in the assoc. document. Can also view each column as a document vector.\marginnote{Information Retrieval: task of finding document $d$, from $D$ docs total, that best matches a query $q$.}[-2em] \\
+
+\p For individual word vectors, however, it is most common to instead use a \textbf{term-term} matrix\footnote{Also called the word-word or term-context matrix}, in which columns are also identified by individual words. Now, cell values are the number of times the row (target) word and the column (context) word co-occur in some context in some training corpus. The context is most commonly a window around the row/target word, meaning a cell gives the number of times the column word occurs in a window of $\pm N$ words from the row word. 
+\begin{compactitem}
+	\QA{What about the co-occurrence of a word with itself (row i, col i)?}{It is included, yes. Source: ``The size of the window \textellipsis is generally between 1 and 8 words on each side of the target word (\textit{for a total context of 3-17 words}).''}
+	
+	\QA{ Why is the size of each vector generally $|V|$ (vocab size)? Shouldn't this vary substantially with window and corpus size?}{idk}
+\end{compactitem}
+(\red{TODO}: revisit end of page 5 in my pdf of this)
+
+\myspace
+\p \blue{Pointwise Mutual Information (PMI)}. Motivation: raw frequencies in a co-occurrence matrix aren't that great, and words like ``the'' (which aren't useful and occur everywhere) can really skew things. \textit{The best weighting or measure of association between words should tell us how much more often than chance the two words co-occur.} PMI is such a measure.
+\begin{align}
+\mgreen{\text{[Mutual Information]}} \qquad I(X, Y) &= \sum_x \sum_y P(X = x, Y = y) \mathrm{PMI}(x, y)  \\
+\mgreen{\text{[PMI]}} \qquad \mathrm{PMI}(x, y) &= \ln \frac{P(x, y)}{P(x) P(y)}
+\end{align}
+which can be applied for our specific use case as $\mathrm{PMI}(w, c) = \ln \frac{P(w, c)}{P(w) P(c)}$. The interpretation is simple: the denominator tells the joint probability of the given target word $w$ occurring with context word $c$ if they were independent of each other, while the numerator tells us how often we observed the two words together (assuming we compute probability by using the MLE). Therefore, the ratio gives us how an estimate of how much more the target and feature co-occur than we expect by chance\footnote{Computing PMI this way can be problematic for word pairs with small probability, especially if we have a small corpus. Recognize that PMI should never really be negative, but in practice this happens for such cases}. Most people use \green{Positive PMI}, which is just $\max(0, \mathrm{PMI})$. We can compute a \textbf{PPMI matrix} (to replace our co-occurrence matrix), where $\mathrm{PPMI}_{ij}$ gives the PPMI value of word $w_i$ with context $c_j$. The authors show a few formulas which is really distracting since all we actually need is the counts $f_{ij} = \text{counts}(w_i, c_j)$, and from there we can use basic probability and Bayes rule to get the PPMI formula.
+\begin{compactitem}
+	\QA{Explain why the following is true: very rare words tend to have very high PMI values.}{hi}
+	
+	\QA{What is the range of $\alpha$ used in PPMI$_\alpha$? What is the intuition behind doing this?}{
+		For reference:
+		\begin{align}
+			\mathrm{PPMI}_{\alpha}(w, c) &= \max\left(\ln \frac{P(w, c)}{P(w) P_\alpha(c)}, 0\right) \\
+			 P_\alpha(c) &= \frac{ \text{count}(c)^{\alpha}}{ \sum_{c'} \text{count}(c')^{\alpha} }
+		\end{align}
+		}
+\end{compactitem}
+\vspace{1em}
+
+\p Although there are better methods than PPMI for weighted co-occurrence matrices, most notably \green{TF-IDF}, things like tf-idf are \underline{not} generally used for measuring \textit{word similarity}. For that, PPMI and significance-testing metrics like t-test and likelihood-ratio are more common. The \green{t-test} statistic, like PMI, measures how much more frequent the association is than chance.
+\begin{align}
+t &= \frac{\bar x - \mu}{ \sqrt{ s^2 / N } }\\
+\text{t-test}(a, b) &= \frac{ P(a, b) - P(a) P(b) }{  \sqrt{  P(a) P(b)   }   }
+\end{align}
+where $\bar x$ is the observed mean, while $\mu$ is the expected mean [under our null-hypothesis of independence]. 
+
+\myspace 
+\p \blue{Measuring Similarity}. By far the most common similarity metric is the \green{cosine} of the angle between the vectors:
+\begin{align}
+\text{cosine}(\vec{v}, \vec{w}) &= \frac{ \vec{v} \cdot \vec{w} }{
+	| \vec{v} |~| \vec{w} |
+	}
+\end{align}
+Note that, since we've been defining vector elements as frequencies/PPMI values, they won't have negative elements, and thus our cosine similarities will be between 0 and 1 (not -1 and 1).\\
+
+\p Alternatives to cosine:
+\begin{compactitem}
+	\item \textbf{Jaccard measure}: Described as "weighted number of overlapping features, normalized", but looks like a silly hack in my opinion:
+	\begin{align}
+		\text{sim}_{Jac}(\vec{v}, \vec{w}) &= \frac{ \sum_{i=1}^{N} \min(\vec[i]{v}, \vec[i]{w}) }{
+			\sum_{i=1}^{N} \max(\vec[i]{v}, \vec[i]{w})
+		}
+	\end{align}
+	
+	\item \textbf{Dice measure}: Another hack. This displeases me.
+	\begin{align}
+		\frac{ 2 \times  \sum_{i=1}^{N} \min(\vec[i]{v}, \vec[i]{w}) }{  \sum_{i=1}^{N}( \vec[i]{v} +  \vec[i]{w})  }
+	\end{align}
+	
+	\item \textbf{Jensen-Shannon Divergence}: An alternative to the KL-divergence\footnote{
+		Idea:if two vectors, $\vec{v}$ and $\vec{w}$, each express a probability
+		distribution (their values sum to one), then they are are similar to the extent that these
+		probability distributions are similar. The basis of comparing two probability distributions $P$ and $Q$ is the \green{Kullback-Leibler} divergence or relative
+		entropy, defined as:
+		\begin{align}
+		D(P || Q) = \sum_x P(x) \log \frac{P(x)}{Q(x)}
+		\end{align}
+		
+		}, which represents the divergence of each distribution from the mean of the two:
+		\begin{align}
+		\text{sim}_{JS}(\vec{v} || \vec{w}) &= D\left( \vec{v} \bigg|\bigg| \frac{ \vec{v} + \vec{w} }{2} \right)  + D\left( \vec{w} \bigg|\bigg| \frac{ \vec{v} + \vec{w} }{2} \right)
+		\end{align}
+\end{compactitem}
+
+
+
+
+
+% ======================================================================================
+\lecture{Speech and Language Processing}{Semantics with Dense Vectors (Ch. 16)}{June 21, 2017}
+% ======================================================================================
+
+\p \blue{Overview}. This chapter introduces three methods for generating short, dense vectors: (1) dimensionality reduction like SVD, (2) neural networks like skip-gram or CBOW, and (3) Brown clustering.
+
+\myspace
+\p \blue{Dense Vectors via SVD}. Method for finding more important dimensions of a dataset, ``important'' defined as dimensions wherein the data most varies. First applied (for language) for generating embeddings from term-document matrices in a model called \green{Latent Semantic Analysis} (LSA). LSA is just SVD on a $|V| \times c$ term-document matrix $\matr{X}$, factorized into $\matr{W}\matr{\Sigma}\matr{C}^T$\marginnote{
+	$$ \matr{W} \in \R^{|V| \times m} $$
+	$$ \matr{\Sigma} \in \R^{m \times m} $$
+	$$ \matr{C}^T \in \R^{m \times c} $$
+}[-1em]. By using only the top $k < m$ dimensions of these three matrices, the product becomes a least-squares approx. to the original X. It also gives us the reduced $|V| \times k$ matrix $\matr[k]{W}$, where each row (word) is a $k$-dimensional vector (embedding). Voilà, we have our dense vectors!\\
+
+\p Note that LSA implementations typically use a particular weighting of each cell in the term-document matrix called the \textbf{local} and \textbf{global} weights.\marginnote{$f(i, j)$ is the raw frequency of word $i$ in context $j$. $D$ is number of docs.}[3em]
+\begin{align}
+\mgreen{\text{[local]}} \qquad &\log \text f(i, j) + 1 \\
+\mgreen{\text{[global]}} \qquad &1 + \frac{   
+		\sum_j p(i, j) \log p(i, j)
+	}{  
+		\log D
+	}
+\end{align}
+For the case of a word-word matrix, it is common to use PPMI weighting.
+
+\myspace\Needspace{15\baselineskip}
+\p \blue{Skip-Gram and CBOW}. Neural models learn an embedding by starting with a random vector and then iteratively shifting a word's embeddings to be more like the embeddings of neighboring words, and less like the embeddings of words that don't occur nearby\footnote{Why? Why is this a sensible assumption? I see no reason a priori why it ought to be true.} Word2vec, for example, learns embeddings by training to predict neighboring words\footnote{Note that the prediction task is not the goal -- it just happens to result in good word embeddings. Hacky.}.
+\begin{compactitem}
+	\item \green{Skip-Gram}: Learns two embeddings for each word $w$: the \textbf{word embedding} $v$ (within matrix $\matr{W}$) and \textbf{context embedding} $c$ (within matrix $\matr{C}$). Visually:
+	\begin{align}
+	\matr{W} = \begin{pmatrix} \vec[0]{v}^T \\ \vec[1]{v}^T \\ \vdots \\ \vec[|V|]{v}^T \end{pmatrix} 
+	\qquad
+	\matr{C} = \begin{pmatrix} \vec[0]{c} & \vec[1]{c} & \cdots & \vec[|V|]{c}   \end{pmatrix} 
+	\end{align}
+	For a context window of $L = 2$, and at a given word $\vec{v}^{(t)}$ inside the corpus\footnote{Note that, technically, the position $t$ of $\vec{v}^{(t)}$ is irrelevant for our computation; we are predicting those words based on which word $\vec{v}^{(t)}$ is in the vocabulary, not it's position in the corpus.}, our goal is to predict the context [words] denoted as $\begin{bsmallmatrix} \vec{c}^{(t - 2)}, & \vec{c}^{(t - 1)}, & \vec{c}^{(t + 1)}, & \vec{c}^{(t + 2)} \end{bsmallmatrix}$. 
+	\begin{compactitem}
+		\item Example: Consider one of the context words, say $\vec{c}^{(t + 1)} \triangleq \vec[k]{c}$, where we also assume it's the $k$th word in our vocab. Also assume that our target word $\vec{v}^{(t)} \triangleq \vec[j]{v}$ is the $j$th word in our vocab. 
+		
+		\item Our task is to compute $\Prob{\vec[k]{c} \mid \vec[j]{v}}$. We do this with a softmax:
+		\begin{align}
+			\Prob{\vec[k]{c} \mid \vec[j]{v}} &= \frac{  e^{ \vec[k]{c}^T \vec[j]{v} } }{  \sum_{i \in |V|} e^{\vec[i]{c}^T \vec[j]{v}}   }
+		\end{align}
+	\end{compactitem}
+	
+	
+	\item \green{CBOW}: Continuous bag of words. Basically the mirror-image of skip-gram. Goal is to predict current word $\vec{v}^{(t)}$ from the context window of 2L words $\begin{bsmallmatrix} \vec{c}^{(t - 2)}, & \vec{c}^{(t - 1)}, & \vec{c}^{(t + 1)}, & \vec{c}^{(t + 2)} \end{bsmallmatrix}$.
+\end{compactitem}
+As usual, the denominator of the softmax is computationally expensive, and usually we approximate it with \green{negative sampling}.
+\vspace{-1em}
+\begin{center}
+	\begin{quote}
+		{\footnotesize \textit{In the training phase, the
+			algorithm walks through the corpus, at each target word choosing the surrounding
+			context words as positive examples, and for each positive example also choosing k
+			noise samples or negative samples: non-neighbor words. The goal will be to move
+			the embeddings toward the neighbor words and away from the noise words.}}
+	\end{quote}
+\end{center}
+\vspace{1em}
+
+\p Example: Suppose we come along the following window (in ``[]'') (L=2) in our corpus:
+\vspace{-1em}
+\begin{center}
+\texttt{lemon, a [tablespoon of apricot preserves or] jam}
+\end{center}
+Ultimately, we want dot products, $\vec[i]{c} \cdot vector(\text{``apricot''})$, to be \underline{high} for all four of the context words $\vec[i]{c}$. We do negative sampling by sampling $k$ random noise words according to their [unigram] frequency. So here, for e.g. $k = 2$, this would amount to 8 noise words, 2 for each context word. We want the dot products between ``apricot'' and these noise words to be \underline{low}. For a given single context-word pair $(w, c)$, our training objective is to maximize:\marginnote{In practice, common to use $p^{3/4}(w)$ instead of $p(w)$}[2em]
+\graybox{
+	\log \sigma(c \cdot w) + \sum_{i = 1}^{k} \E[w_i \sim p(w)]{\log \sigma(- w_i \cdot w) }
+}
+Again, the above is for a single context-target word-pair and, accordingly, the summation is only over $k = 2$ (for our example). Don't try to split the expectation into a summation or anything -- just view it as an expected value. To iteratively shift parameters, we use an optimizer like SGD.\\
+
+\p The actual model architecture is a typical neural net, progressing as follows:
+\begin{align}
+	\text{``apricot''} 
+	~ &\rightarrow ~
+	\vec{w}^{\text{one-hot}} =  \begin{bsmallmatrix} 0 & 0 & \cdots & 1 & \cdots & 0 \end{bsmallmatrix}\\
+	~ &\rightarrow ~
+	\vec{h} = \matr{W}^T \vec{w}^{\text{one-hot}} \\
+	~ &\rightarrow ~ 
+	\vec{o} = \matr{C}^T \vec{h} = \begin{bsmallmatrix} 
+		\vec[0]{c}^T\vec{h}, & \vec[1]{c}^T\vec{h}, & \cdots & \vec[|V|]{c}^T\vec{h} \end{bsmallmatrix}^T \\
+	~ &\rightarrow ~ 
+	\vec{y} = \text{softmax}(\vec{o}) = \begin{bsmallmatrix} 
+		\Prob{\vec[0]{c} \mid \vec{h}}, & \Prob{\vec[2]{c} \mid \vec{h}},  & \cdots & \Prob{\vec[|V|]{c} \mid \vec{h}} \end{bsmallmatrix}^T \\
+\end{align}
+
+\myspace
+\p \blue{Brown Clustering}. An agglomerative clustering algorithm for deriving vector representations of words by clustering words based on their associations with the preceding or following words. Makes use of the \textbf{class-based language model} (CBLM), wherein each word $w$ belongs to some class $c \in C$ via the probability $P(w \mid c)$. CBLMs define
+\graybox{
+	P(w_i \mid w_{i - 1}) &= P(c_i \mid c_{i - 1}) P(w_i \mid c_i)  \\
+	P(\text{corpus} \mid C) &= \prod_{i - 1}^{n}  P(w_i \mid w_{i - 1}) \label{cblm-likelihood}
+}
+
+\Needspace{5\baselineskip}
+A naive and extremely inefficient version of Brown clustering, a hierarchical clustering algorithm, is as follows:
+\begin{compactenum}
+	\item Each word is initially assigned to its own cluster.
+	
+	\item For each cluster pair $(c_i, c_{j \ne i})$, compute the value of eq~\ref{cblm-likelihood} that would result from merging $c_i$ and $c_j$ into a single cluster. The pair whose merger results in the \underline{smallest decrease} in eq~\ref{cblm-likelihood} is merged.
+	
+	\item Clustering proceeds until all words are in one big cluster.
+\end{compactenum}
+This process builds a binary tree from the bottom-up, and the binary string corresp. to a word's traversal from leaf-to-root is its representation.
+
+
+
+
+% ======================================================================================
+\lecture{Speech and Language Processing}{Information Extraction (Ch. 21 3rd Ed)}{July 27, 2017}
+% ======================================================================================
+
+\p \blue{Overview}. The first step in most IE tasks is \green{named entity recognition} (NER). Next we can do \green{relation extraction}: finding and classifying semantic relations among the entities, e.g. ``spouse-of.'' \green{Event extraction} is finding the events in which the entities participate, and \green{event coreference} for figuring out which event mentions actually refer to the same event. It's also common to extract dates/times (temporal expression) and perform \green{temporal expression normalization} to map them onto specific calendar dates. Finally, we can do \green{template filling}: finding recurring/stereotypical situations in documents and filling the template slots with appropriate material.
+
+\myspace
+\p \blue{Named Entity Recognition}. Standard algorithm is word-by-word sequence labeling task by a MEMM or CRF, trained to label tokens with tags indicating the presence of particular kinds of NEs. It is common to label with \green{BIO tagging}, for beginning, inside, and outside of entities. If we have $n$ unique entity types, then we'd have $2n + 1$ BIO tags\footnote{$2n$ for B-<NE> and I-<NE>, with $+1$ for the blanket $O$ tag (not any of our NEs)}. A helpful illustration is shown below:
+
+\myfig[0.7\textwidth]{ner-labeling.png} 
+
+Here we see a classifier determining the label for \textit{Corp}. with a context window of size 2 and various features shown in the boxed region. For evaluation of NER, we typically use the familiar \textbf{recall}, \textbf{precision}, and \textbf{F1 measure}. 
+
+
+\myspace
+\p \blue{Relation Extraction}. The four main algorithm classes used are (1) hand-written patterns, (2) supervised ML, (3) semi-supervised, and (4) unsupervised. Terminology:
+\begin{compactitem}
+	\item \green{Infobox}: structured tables associated with certain articles/topics/etc. For example, the Wikipedia infobox for Stanford includes structured facts like state = 'California'. 
+	
+	\item \green{Resource Description Framework (RDF)}: a metalanguage of RDF triples, tuples of (entity, relation, entity), called a subject-predicate-object expression. For example: (Golden Gate Park, location, San Francisco). 
+	
+	\item \green{hypernym}: the ``is-a'' relation. 
+	
+	\item \green{hyponym}: the ``kind-of'' relation. \textit{Gelidium is a kind of red algae.}
+\end{compactitem}
+\vspace{1em}
+
+\p Overview of the four algorithm classes:
+\begin{compactenum}
+	\item \textbf{Patterns}. Consider a sentence that has the following form:
+	\begin{quote}
+		{\small \textit{NP$_0$ such as NP$_1$$\{,NP_2, \ldots, (and|or)NP_i\},i\ge 1$
+				}}
+	\end{quote}
+	also known as a \textit{lexico-syntactic pattern}, which implies $\forall NP_i, i \ge 1,$hyponym($NP_i, NP_0$)\footnote{Here, hyponym(A, B) means ``A is a kind-of (hyponym) of B.''}. Patterns typically have high precision but low-recall. 
+	
+	\item \textbf{Supervised}. The general approach for finding relations in a given sequence of words is the following:
+	\begin{compactenum}
+		\item Find all pairs of named entities in the sequence (typically a single sentence). 
+		\item For each pair, use a trained binary classifier to predict whether or not the entities in the pair are indeed related. 
+		\item If related, use a classifier trained to predict the relation given the entity-pair.
+	\end{compactenum}
+	As with NER, \textbf{the most important step} in this process is to identify useful surface features that will be useful for relation classification, including word features, NER features, syntactic paths (chunk seqs, constituent paths, dependency-tree paths), and more.
+	
+	\item \textbf{Semi-supervised} via bootstrapping. Suppose we have a few high-precision \textbf{seed patterns} (or seed tuples)\footnote{seed tuples are tuples of the general form (M1, M2) where M1 and M2 are each specific named entities we know have the relation of interest R.}. \green{Bootstrapping} proceeds by taking the entities in the seed pair, and then finding sentences (on the web, or whatever dataset we are using) that contain both entities. From all such sentences, we extract and generalize the context around the entities to learn new patterns. 
+	\myfig[0.7\textwidth]{bootstrap-relations.png}
+	
+	\item \textbf{Unsupervised}. The Re Verb system extracts a relation from a sentence $s$ in 4 steps:
+	\myfig[0.7\textwidth]{re-verb.png}
+\end{compactenum}
+
+\myspace
+\p \blue{Event Extraction}. An event mention is any expression denoting an event or state that can be assigned to a particular point, or interval, in time. Note that this is quite different than the colloquial usage of the word ``event,'' you should think of the two as distinct. Here, most event mentions correspond to verbs, and most verbs introduce events. Event extraction is typically modeled via ML, detecting events via sequence models with BIO tagging, and assigning event classes/attributes with multi-class classifiers.
+
+\myspace
+\p \blue{Template Filling}. The task is creation of one template for each event in the input documents, with the slots filled with text from the document. For example, an event could be ``Fare-Raise Attempt'' with corresponding template (slots to be filled) ``(<Lead Airline>, <Amount>, <Effective Date>, <Follower>)''. This is generally modeled by training two separate supervised systems:
+\begin{compactenum}
+	\item \textbf{Template recognition}. Trained to determine if template T is present in sentence S. Here, ``present'' means there is a sequence within the sentence that could be used to fill a slot within template T.
+	
+	\item \textbf{Role-filler extraction}. Trained to detect each role (slot-name), e.g. ``Lead Airline''.
+\end{compactenum}
+
+
+
+
+
+\end{document}
+
+
+
+
+
+
+
+

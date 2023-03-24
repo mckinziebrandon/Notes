@@ -1,0 +1,309 @@
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+% P  R  E  A  M  B  L  E
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\documentclass[11pt]{article}
+\usepackage{amsbsy, amsmath, amssymb, authblk}
+
+%\usepackage{array} 
+%\usepackage{algorithm2e}
+
+\usepackage{booktabs, bm}
+\usepackage[small,labelfont=bf,up,singlelinecheck=false]{caption}
+\usepackage{cancel}
+\usepackage{comment}
+%\usepackage{fancyhdr}
+%\usepackage[default]{lato}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+%\usepackage[utf8]{inputenc}
+%	\inputencoding{latin1}
+%	\inputencoding{utf8}
+%\usepackage{lettrine}
+%\usepackage[sc]{mathpazo}
+\usepackage{lmodern} % Nice fonts?
+%\usepackage{mathrsfs}
+\usepackage{mathtools} 
+%\usepackage{marvosym} % silly bullet-point symbols (misc symbols)
+%\usepackage{microtype}
+\usepackage{minitoc}         % left in case it is needed elsewhere
+\setcounter{secttocdepth}{5} % idem
+\usepackage{etoc} % for toc before each section.
+%\usepackage{multicol}
+\usepackage{needspace}
+\usepackage{paralist}
+%\usepackage{polynom} 			% typesetting polynomial long division
+%\usepackage{setspace}
+%	\onehalfspacing 
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{ulem} 				% for strikeout \sout command.
+%\usepackage{verbatim}
+
+% Muh packagez :)
+\usepackage{../../Packages/MathCommands}
+\usepackage{../../Packages/BrandonColors}
+\usepackage{../../Packages/BrandonBoxes}
+\usepackage{../../Packages/NoteTaker}
+\usepackage{../../Packages/CS221}
+%\usepackage{../Packages/MachineLearningUtils}
+
+
+%\usepackage{program}
+% DL BOOK CONVENTIONS
+\renewcommand\vec[2][]{\bm{#2}_{#1}}
+
+\DeclareDocumentCommand{\slice}
+	{ O{t} O{1} m }
+	{\vec[\langle #2 \ldots #1 \rangle]{#3}}
+
+\newcommand\myfig[2][0.3\textwidth]{\begin{figure}[h!]\centering\includegraphics[width=#1]{#2}\end{figure}}
+\newcommand\myspace[1][]{\vspace{#1\bigskipamount}}
+\newcommand\p{\Needspace{10\baselineskip} \noindent}
+\newcommand\tlab[1]{\tag{#1}\label{#1}}
+\newcommand\Var[1]{\mathrm{Var}\left[#1\right]}
+
+
+%\usepackage{program}
+
+\usepackage{layout} % Type \layout() anywhere to see values of layout frame.
+%\usepackage{showframe} % Displays layout frame on all pages
+\usepackage{marginnote}
+\renewcommand*{\marginfont}{\scriptsize}
+
+\usepackage{listings}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Java,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows, automata, shapes, snakes, positioning}
+\usetikzlibrary{bayesnet}
+
+
+\titleformat*{\subsubsection}{\small\scshape}
+\newcommand\subsub[1]{\Needspace{15\baselineskip}\hrule\subsubsection{#1}\hrule}
+\newcommand\matgrad[2]{\nabla_{\mathbf{#2}} #1}
+
+% O{T} means "optional with default value of `T`"
+% m means mandatory argument
+\DeclareDocumentCommand{\vecseq}
+	{ O{n} m }
+	{ \{  \vec[1]{#2}, \ldots, \vec[#1]{#2}   \}  }
+\DeclareDocumentCommand{\seq}
+	{ O{n} m }
+	{ \{ #2_1, \ldots #2_#1 \} }
+\DeclareDocumentCommand{\dotseq}
+	{ O{n} m }
+	{ #2_1, \ldots #2_#1 }
+	
+\newcommand\QA[2]{\item \red{Q}: #1
+	\begin{compactitem}
+		\item \green{A}: #2
+	\end{compactitem}}
+	
+\newcommand\myref[1]{\purple{[#1]}}
+
+\definecolor{forgeblue}{HTML}{018C9F}
+% Gray table borders
+\makeatletter
+\def\rulecolor#1#{\CT@arc{#1}}
+\def\CT@arc#1#2{%
+	\ifdim\baselineskip=\z@\noalign\fi
+	{\gdef\CT@arc@{\color#1{#2}}}}
+\let\CT@arc@\relax
+\rulecolor{forgeblue}
+\makeatother
+
+%\setlength{\parskip}{1pt}
+%\setlength{\columnseprule}{0.1pt}
+%\setlength{\columnsep}{0.6cm}
+%\setlength\tabcolsep{0.1cm}
+\renewcommand{\arraystretch}{1.2}
+
+% <>~<>~<> DEFINITION ENVIRONMENT <>~<>~<>
+\begin{comment}
+\newenvironment{definition}[1][-0.5em] {
+	\vspace*{#1}
+	\begin{quote}
+		\itshape\small 
+	}
+	{	
+	\end{quote}	
+}
+\end{comment}
+
+\DeclareDocumentEnvironment{definition}{O{-0.5em} o}{
+	\IfNoValueTF{#2}{}{\textbf{#2}}
+	\vspace*{#1}
+	\begin{quote}
+		\itshape\small}
+	{\end{quote}}
+
+\makeatletter
+\newcommand*\dotp{\mathpalette\dotp@{.5}}
+\newcommand*\dotp@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+
+% Title
+\title{\vspace{-10mm}\fontsize{24pt}{8pt}\selectfont\textbf{Homework 3: Text Reconstruction}\vspace*{-4mm}}
+% Author
+\author{Brandon McKinzie}
+% Date
+\date{}
+
+% --------------------------------------------------------------
+% --------------------------------------------------------------
+
+
+
+\renewcommand\cftsecfont{\small\bfseries}
+\renewcommand\cftsubsecfont{\scriptsize}
+\renewcommand\cftsubsubsecfont{\scriptsize}
+
+\renewcommand\cftsecafterpnum{\vskip-5pt}
+\renewcommand\cftsubsecafterpnum{\vskip-7pt}
+\renewcommand\cftsubsubsecafterpnum{\vskip-7pt}
+
+\begin{document}
+
+\maketitle
+
+\section*{Problem 1: Word Segmentation}
+
+\question{In word segmentation, you are given as input a string of alphabetical characters ([a-z]) without whitespace, and your goal is to insert spaces into this string such that the result is the most fluent according to the language model.}
+
+
+\textbf{(a)} \question{Consider the following greedy algorithm: Begin at the front of the string. Find the ending position for the next word that minimizes the language model cost. Repeat, beginning at the end of this chosen segment.
+	
+Show that this greedy search is suboptimal. In particular, provide an example input string on which the greedy approach would fail to find the lowest-cost segmentation of the input.
+
+In creating this example, you are free to design the n-gram cost function (both the choice of n and the cost of any n-gram sequences) but costs must be positive and lower cost should indicate better fluency. Note that the cost function doesn't need to be explicitly defined. You can just point out the relative cost of different word sequences that are relevant to the example you provide. And your example should be based on a realistic English word sequence — don't simply use abstract symbols with designated costs.}
+
+Let's consider a unigram model (n=1). Given a starting index $i$ into the original character sequence $s$, this model will scan from $i$ to $i + L - 1$, where $L$ is the length of the original character sequence. It will choose to end the word at 
+\begin{align}
+	j &= \argmin_j - \ln p(s_{i:j})
+\end{align}
+This model makes its segmentation decisions one-by-one and then moves on (i.e. it is unable to revise previous decisions). Consequently, it will perform poorly when trying to segment compound words or any words that contain common/frequently-used word substrings. \\
+
+For example consider the input $s := cathedral$. Nearly all english corpora will assign a much higher unigram probability to the substring $cat$ compared to the word $cathedral$. Therefore, the greedy model will begin by segmenting $s$ into $[cat, hedral]$. It may continue on to segment this into $[cat, he, dral]$. Even more unfortunate is that it ends up having to decide between very low probability segmentations amongst the substring $dral$, which will substantially add to the total cost. In summary, the model was unable to realize, while making its first decision, that although $$Pr(cat) > Pr(cathedral)$$ it is also true that $$Pr(cathedral) >> Pr(cat)Pr(he)Pr(dral)$$ (regardless of how it decides to segment $dral$).  
+
+
+
+% ---------------------------------------------------
+\clearpage
+\section*{Problem 2: Vowel Insertion}
+
+\question{Now you are given a sequence of English words with their vowels missing (A, E, I, O, and U; never Y). Your task is to place vowels back into these words in a way that maximizes sentence fluency (i.e., that minimizes sentence cost). For this task, you will use a bigram cost function.
+
+You are also given a mapping possibleFills that maps any vowel-free word to a set of possible reconstructions (complete words). For example, possibleFills('fg') returns set(['fugue', 'fog']).}
+
+
+\textbf{(a)} \question{Consider the following greedy-algorithm: from left to right, repeatedly pick the immediate-best vowel insertion for current vowel-free word given the insertion that was chosen for the previous vowel-free word. This algorithm does not take into account future insertions beyond the current word.
+
+Show, as in question 1-a, that this greedy algorithm is suboptimal, by providing a realistic counter-example using English text. Make any assumptions you'd like about possibleFills and the bigram cost function, but bigram costs must remain positive.}
+
+Similar to problem 1(a), this model will suffer from its inability to revise its past decisions given updated information (future context). For example, given input query ``\texttt{lk vr thr}'', the model might first be presented with the following candidate bigrams:
+\begin{compactitem}[-]
+	\item (-BEGIN-, look)
+	\item (-BEGIN-, like)
+	\item (-BEGIN-, leak)
+\end{compactitem}
+and so on. Its decision will be determined by the minimum bigram cost and it wont take into consideration possible future decisions. This may result in, for example, the suboptimal ``\texttt{like over three}'' instead of the likely best option (based on my intuition) of ``\texttt{look over there}''. 
+
+
+
+
+% ---------------------------------------------------
+\clearpage
+\section*{Problem 3: Putting it all Together}
+
+\question{We'll now see that it's possible to solve both of these tasks at once. This time, you are given a whitespace- and vowel-free string of alphabetical characters. Your goal is to insert spaces and vowels into this string such that the result is as fluent as possible. As in the previous task, costs are based on a bigram cost function.}
+
+\myspace
+\textbf{(a)} \question{Consider a search problem for finding the optimal space and vowel insertions. Formalize the problem as a search problem; what are the states, actions, costs, initial state, and end test? Try to find a minimal representation of the states.}
+
+\begin{compactitem}
+	\item \textbf{States}. The states are essentially a combination of the states for the two subproblems. As with the segmentation subproblem, we'll need to keep track of where we are in the original string. As with the insertion subproblem, we'll need to store the previous (filled-in) word. Our states will then take the form $(w_{prev}, i)$.
+	
+	\item \textbf{Actions}. At any given step, we need to decide where the next word segmentation boundary will go, and which vowels to insert into this newly-segmented word. 
+	
+	\item \textbf{Initial state}. (-BEGIN-, 0). 
+	
+	\item \textbf{End test}. That our current index has reached the end of the string (the index of the special token -END-, if we were to use one). 
+\end{compactitem}
+
+
+% - - - - - - - - - - - - -
+\clearpage
+\textbf{(c)} \question{Let's find a way to speed up joint space and vowel insertion with A*. Recall that one way to find the heuristic function h(s) for A* is to define a relaxed search problem $P_{rel}$ where $\textrm{Cost}_{rel}(s, a) \leq \textrm{Cost}(s, a)$ and letting $h(s) = \textrm{FutureCost}_{rel}(s)$. 
+
+Given a bigram model b (a function that takes any (w',w) and returns a number), define a unigram model $u_b$ (a function that takes any w and returns a number) based on b. 
+
+Use this function $u_b$ to help define $P_{rel}$.
+
+One example of a $u_b$ is $u_b(w) = b(w, w)$. However this will not lead to a consistent heuristic because $\textrm{Cost}_{rel}(s, a)$ is not guaranteed to be less than or equal to $\textrm{Cost}(s, a)$ with this scheme.
+
+Explicitly define the states, actions, cost, start state, and end state of the relaxed problem and explain why h(s) is consistent.
+
+Note: Don't confuse the $u_b$ defined here with the unigram cost function u used in Problem 1. 
+
+Hint: If $u_b$ only accepts a single w, do we need to keep track of the previous word in our state?}
+
+In order to ensure $u_b(w) < b(w', w)$, we can simply define
+\begin{align}
+	u_b(w) &= \min_{w'} b(w', w)
+\end{align}
+which by definition no longer depends on storing the previous word. Therefore, our state can be just $i$, the current index into the query word. 
+
+
+
+
+
+\clearpage
+\textbf{(d)} \question{We defined many different search techniques in class, so let's see how they relate to one another.}
+
+\question{Is UCS a special case of A*? Explain why or why not.} 
+
+Yes. We saw this in lecture. UCS is the special case of A* where $h(s) = 0$. 
+
+\question{Is BFS a special case of UCS? Explain why or why not.}
+
+Yes. BFS is the special case of UCS where all costs are the same constant $c \ge 0$. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}

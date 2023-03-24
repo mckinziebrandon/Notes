@@ -1,0 +1,236 @@
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+% P  R  E  A  M  B  L  E
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\documentclass[11pt]{article}
+\usepackage{amsbsy, amsmath, amssymb, authblk}
+
+%\usepackage{array} 
+%\usepackage{algorithm2e}
+
+\usepackage{booktabs, bm}
+\usepackage[small,labelfont=bf,up,singlelinecheck=false]{caption}
+\usepackage{cancel}
+\usepackage{comment}
+%\usepackage{fancyhdr}
+%\usepackage[default]{lato}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+%\usepackage[utf8]{inputenc}
+%	\inputencoding{latin1}
+%	\inputencoding{utf8}
+%\usepackage{lettrine}
+%\usepackage[sc]{mathpazo}
+\usepackage{lmodern} % Nice fonts?
+%\usepackage{mathrsfs}
+\usepackage{mathtools} 
+%\usepackage{marvosym} % silly bullet-point symbols (misc symbols)
+%\usepackage{microtype}
+\usepackage{minitoc}         % left in case it is needed elsewhere
+\setcounter{secttocdepth}{5} % idem
+\usepackage{etoc} % for toc before each section.
+%\usepackage{multicol}
+\usepackage{needspace}
+\usepackage{paralist}
+%\usepackage{polynom} 			% typesetting polynomial long division
+%\usepackage{setspace}
+%	\onehalfspacing 
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{ulem} 				% for strikeout \sout command.
+%\usepackage{verbatim}
+
+% Muh packagez :)
+\usepackage{../../Packages/MathCommands}
+\usepackage{../../Packages/BrandonColors}
+\usepackage{../../Packages/BrandonBoxes}
+\usepackage{../../Packages/NoteTaker}
+\usepackage{../../Packages/CS221}
+%\usepackage{../Packages/MachineLearningUtils}
+
+
+%\usepackage{program}
+% DL BOOK CONVENTIONS
+\renewcommand\vec[2][]{\bm{#2}_{#1}}
+
+\DeclareDocumentCommand{\slice}
+	{ O{t} O{1} m }
+	{\vec[\langle #2 \ldots #1 \rangle]{#3}}
+
+\newcommand\myfig[2][0.3\textwidth]{\begin{figure}[h!]\centering\includegraphics[width=#1]{#2}\end{figure}}
+\newcommand\myspace[1][]{\vspace{#1\bigskipamount}}
+\newcommand\p{\Needspace{10\baselineskip} \noindent}
+\newcommand\tlab[1]{\tag{#1}\label{#1}}
+\newcommand\Var[1]{\mathrm{Var}\left[#1\right]}
+
+
+%\usepackage{program}
+
+\usepackage{layout} % Type \layout() anywhere to see values of layout frame.
+%\usepackage{showframe} % Displays layout frame on all pages
+\usepackage{marginnote}
+\renewcommand*{\marginfont}{\scriptsize}
+
+\usepackage{listings}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Java,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows, automata, shapes, snakes, positioning}
+
+
+\titleformat*{\subsubsection}{\small\scshape}
+\newcommand\subsub[1]{\Needspace{15\baselineskip}\hrule\subsubsection{#1}\hrule}
+\newcommand\matgrad[2]{\nabla_{\mathbf{#2}} #1}
+
+% O{T} means "optional with default value of `T`"
+% m means mandatory argument
+\DeclareDocumentCommand{\vecseq}
+	{ O{n} m }
+	{ \{  \vec[1]{#2}, \ldots, \vec[#1]{#2}   \}  }
+\DeclareDocumentCommand{\seq}
+	{ O{n} m }
+	{ \{ #2_1, \ldots #2_#1 \} }
+\DeclareDocumentCommand{\dotseq}
+	{ O{n} m }
+	{ #2_1, \ldots #2_#1 }
+	
+\newcommand\QA[2]{\item \red{Q}: #1
+	\begin{compactitem}
+		\item \green{A}: #2
+	\end{compactitem}}
+	
+\newcommand\myref[1]{\purple{[#1]}}
+
+\definecolor{forgeblue}{HTML}{018C9F}
+% Gray table borders
+\makeatletter
+\def\rulecolor#1#{\CT@arc{#1}}
+\def\CT@arc#1#2{%
+	\ifdim\baselineskip=\z@\noalign\fi
+	{\gdef\CT@arc@{\color#1{#2}}}}
+\let\CT@arc@\relax
+\rulecolor{forgeblue}
+\makeatother
+
+%\setlength{\parskip}{1pt}
+%\setlength{\columnseprule}{0.1pt}
+%\setlength{\columnsep}{0.6cm}
+%\setlength\tabcolsep{0.1cm}
+\renewcommand{\arraystretch}{1.2}
+
+\makeatletter
+\newcommand*\dotp{\mathpalette\dotp@{.5}}
+\newcommand*\dotp@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+
+% Title
+\title{\vspace{-10mm}\fontsize{24pt}{8pt}\selectfont\textbf{Homework 5: Pacman}\vspace*{-4mm}}
+% Author
+\author{Brandon McKinzie}
+% Date
+\date{}
+
+% --------------------------------------------------------------
+% --------------------------------------------------------------
+
+
+
+\renewcommand\cftsecfont{\small\bfseries}
+\renewcommand\cftsubsecfont{\scriptsize}
+\renewcommand\cftsubsubsecfont{\scriptsize}
+
+\renewcommand\cftsecafterpnum{\vskip-5pt}
+\renewcommand\cftsubsecafterpnum{\vskip-7pt}
+\renewcommand\cftsubsubsecafterpnum{\vskip-7pt}
+
+\begin{document}
+
+\maketitle
+
+\section*{Problem 1: Minimax}
+
+\textbf{(a)} \question{Before you code up Pac-Man as a minimax agent, notice that instead of just one adversary, Pac-Man could have multiple ghosts as adversaries. So we will extend the minimax algorithm from class (which had only one min stage for a single adversary) to the more general case of multiple adversaries. In particular, your minimax tree will have multiple min layers (one for each ghost) for every max layer.
+
+Specifically, consider the limited depth tree minimax search with evaluation functions taught in class. Suppose there are $n+1$ agents on the board, $a_0,\ldots , a_n$, where $a_0$ is Pac-Man and the rest are ghosts. Pac-Man acts as a max agent, and the ghosts act as min agents. A single depth consists of all $n+1$ agents making a move, so depth 2 search will involve Pac-Man and each ghost moving two times. In other words, a depth of 2 corresponds to a height of $2(n+1)$ in the minimax game tree.
+
+Write the recurrence for $V_{\text{minmax}}(s,d)$ in math. You should express your answer in terms of the following functions: $\text{IsEnd}(s)$, which tells you if s is an end state; $\text{Utility}(s)$, the utility of a state; $\text{Eval}(s)$, an evaluation function for the state s; $\text{Player}(s)$, which returns the player whose turn it is; $\text{Actions}(s)$, which returns the possible actions; and $\text{Succ}(s,a)$, which returns the successor state resulting from taking an action at a certain state. You may use any relevant notation introduced in lecture.}
+
+\begin{align}
+	V_{minmax}(s, d)
+		&= \begin{cases}
+		\text{Utility}(s) & \text{if IsEnd}(s) \\
+		Eval(s) & d = 0 \\
+		\max_{a \in \text{Actions}(s)}   V_{minmax}(\text{Succ}(s, a), d  ) & \text{Player(s)} {=} a_0 \\
+		\min_{a \in \text{Actions}(s)}  V_{minmax}(\text{Succ}(s, a), d) & \text{Player(s)} {\in} \{a_1, \ldots, a_{n-1}\}\\
+		\min_{a \in \text{Actions}(s)}  V_{minmax}(\text{Succ}(s, a), d - 1) & \text{Player(s)} {=} a_n
+		\end{cases}
+\end{align}
+
+
+
+
+
+
+\clearpage
+\section*{Problem 3: Expectimax}
+
+
+\textbf{(a)} \question{Random ghosts are of course not optimal minimax agents, so modeling them with minimax search is not optimal. Instead, write down the recurrence for $V_{\text{exptmax}}(s,d)$, which is the maximum expected utility against ghosts that each follow the random policy which chooses a legal move uniformly at random. Your recurrence should resemble that of Problem 1a (meaning you should write it in terms of the same functions that were specified in 1a).}
+
+\begin{align}
+V_{exptmax}(s, d)
+	&= \begin{cases}
+		\text{Utility}(s) & \text{if IsEnd}(s) \\
+		Eval(s) & d = 0 \\
+		\max_{a \in \text{Actions}(s)}   
+			V_{exptmax}(\text{Succ}(s, a), d  ) & \text{Player(s)} {=} a_0 \\
+		\inv{|\text{Actions}(s)|} \sum_{a \in \text{Actions}(s)}  
+			V_{exptmax}(\text{Succ}(s, a), d) & \text{Player(s)} {\in} \{a_1, \ldots, a_{n-1}\}\\
+		\inv{|\text{Actions}(s)|}  \sum_{a \in \text{Actions}(s)}  
+			V_{exptmax}(\text{Succ}(s, a), d - 1) & \text{Player(s)} {=} a_n
+	\end{cases}
+\end{align}
+
+
+
+
+
+
+\clearpage
+\section*{Problem 4: Evaluation Function (extra credit)}
+
+\textbf{(b)} \question{Clearly describe your evaluation function. What is the high-level motivation? Also talk about what else you tried, what worked and what didn't. Please write your thoughts in pacman.pdf (not in code comments).}
+
+
+It's a simple linear model over some of the GameState attributes I thought would be useful. I used the number of food pellets remaining on the board, the Manhattan distance to both the nearest ghost and the nearest food pellet, and the current game score. I manually defined the weights for this linear model. I set positive weights for the game score (10) and the distance to the nearest ghost (1), in the hopes it would favor states with higher scores and further distances from ghosts. I assigned negative weights for the number of food pellets remaining (-1) and the distance to the nearest food pellet (-5), in the hopes it would favor states where food is nearby and more food has been eaten. %Lastly, to encourage pacman to end the game quickly once most of the food was gone (instead of wandering around or back and forth), I essentially asked him to commit suicide if there were less than 2 pellets remaining. I did this by assigning a weight of -1e5 to distance to nearest ghost in the hopes it would drive pacman closer and closer to ghosts. \\
+\\
+
+The challenge still remaining is that pacman likes walking back and forth a lot. This is partially due to me favoring states where he is really close (but not on top of) something like a food pellet. I wasn't able to find anything in the code that supported "is currently on top of a food pellet and is eating it". Similarly, we weren't able to utilize his previous position and direction (explicitly stated in the code). If we were, we could've discouraged changing directions repeatedly.
+
+
+
+
+\end{document}

@@ -1,0 +1,541 @@
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+% P  R  E  A  M  B  L  E
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\documentclass[11pt]{article}
+\usepackage{amsbsy, amsmath, amssymb, authblk}
+
+%\usepackage{array} 
+%\usepackage{algorithm2e}
+
+\usepackage{booktabs, bm}
+\usepackage[small,labelfont=bf,up,singlelinecheck=false]{caption}
+\usepackage{cancel}
+\usepackage{comment}
+%\usepackage{fancyhdr}
+%\usepackage[default]{lato}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+%\usepackage[utf8]{inputenc}
+%	\inputencoding{latin1}
+%	\inputencoding{utf8}
+%\usepackage{lettrine}
+%\usepackage[sc]{mathpazo}
+\usepackage{lmodern} % Nice fonts?
+%\usepackage{mathrsfs}
+\usepackage{mathtools} 
+%\usepackage{marvosym} % silly bullet-point symbols (misc symbols)
+%\usepackage{microtype}
+\usepackage{minitoc}         % left in case it is needed elsewhere
+\setcounter{secttocdepth}{5} % idem
+\usepackage{etoc} % for toc before each section.
+%\usepackage{multicol}
+\usepackage{needspace}
+\usepackage{paralist}
+%\usepackage{polynom} 			% typesetting polynomial long division
+%\usepackage{setspace}
+%	\onehalfspacing 
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{ulem} 				% for strikeout \sout command.
+%\usepackage{verbatim}
+
+% Muh packagez :)
+\usepackage{../../Packages/MathCommands}
+\usepackage{../../Packages/BrandonColors}
+\usepackage{../../Packages/BrandonBoxes}
+\usepackage{../../Packages/NoteTaker}
+\usepackage{../../Packages/CS221}
+%\usepackage{../Packages/MachineLearningUtils}
+
+
+%\usepackage{program}
+% DL BOOK CONVENTIONS
+\renewcommand\vec[2][]{\bm{#2}_{#1}}
+
+\DeclareDocumentCommand{\slice}
+	{ O{t} O{1} m }
+	{\vec[\langle #2 \ldots #1 \rangle]{#3}}
+
+\newcommand\myfig[2][0.3\textwidth]{\begin{figure}[h!]\centering\includegraphics[width=#1]{#2}\end{figure}}
+\newcommand\myspace[1][]{\vspace{#1\bigskipamount}}
+\newcommand\p{\Needspace{10\baselineskip} \noindent}
+\newcommand\tlab[1]{\tag{#1}\label{#1}}
+\newcommand\Var[1]{\mathrm{Var}\left[#1\right]}
+
+
+%\usepackage{program}
+
+\usepackage{layout} % Type \layout() anywhere to see values of layout frame.
+%\usepackage{showframe} % Displays layout frame on all pages
+\usepackage{marginnote}
+\renewcommand*{\marginfont}{\scriptsize}
+
+\usepackage{listings}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Java,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows, automata, shapes, snakes, positioning}
+\usetikzlibrary{bayesnet}
+
+
+\titleformat*{\subsubsection}{\small\scshape}
+\newcommand\subsub[1]{\Needspace{15\baselineskip}\hrule\subsubsection{#1}\hrule}
+\newcommand\matgrad[2]{\nabla_{\mathbf{#2}} #1}
+
+% O{T} means "optional with default value of `T`"
+% m means mandatory argument
+\DeclareDocumentCommand{\vecseq}
+	{ O{n} m }
+	{ \{  \vec[1]{#2}, \ldots, \vec[#1]{#2}   \}  }
+\DeclareDocumentCommand{\seq}
+	{ O{n} m }
+	{ \{ #2_1, \ldots #2_#1 \} }
+\DeclareDocumentCommand{\dotseq}
+	{ O{n} m }
+	{ #2_1, \ldots #2_#1 }
+	
+\newcommand\QA[2]{\item \red{Q}: #1
+	\begin{compactitem}
+		\item \green{A}: #2
+	\end{compactitem}}
+	
+\newcommand\myref[1]{\purple{[#1]}}
+
+\definecolor{forgeblue}{HTML}{018C9F}
+% Gray table borders
+\makeatletter
+\def\rulecolor#1#{\CT@arc{#1}}
+\def\CT@arc#1#2{%
+	\ifdim\baselineskip=\z@\noalign\fi
+	{\gdef\CT@arc@{\color#1{#2}}}}
+\let\CT@arc@\relax
+\rulecolor{forgeblue}
+\makeatother
+
+%\setlength{\parskip}{1pt}
+%\setlength{\columnseprule}{0.1pt}
+%\setlength{\columnsep}{0.6cm}
+%\setlength\tabcolsep{0.1cm}
+\renewcommand{\arraystretch}{1.2}
+
+% <>~<>~<> DEFINITION ENVIRONMENT <>~<>~<>
+\begin{comment}
+\newenvironment{definition}[1][-0.5em] {
+	\vspace*{#1}
+	\begin{quote}
+		\itshape\small 
+	}
+	{	
+	\end{quote}	
+}
+\end{comment}
+
+\DeclareDocumentEnvironment{definition}{O{-0.5em} o}{
+	\IfNoValueTF{#2}{}{\textbf{#2}}
+	\vspace*{#1}
+	\begin{quote}
+		\itshape\small}
+	{\end{quote}}
+
+\makeatletter
+\newcommand*\dotp{\mathpalette\dotp@{.5}}
+\newcommand*\dotp@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+
+% Title
+\title{\vspace{-10mm}\fontsize{24pt}{8pt}\selectfont\textbf{Homework 2: Sentiment}\vspace*{-4mm}}
+% Author
+\author{Brandon McKinzie}
+% Date
+\date{}
+
+% --------------------------------------------------------------
+% --------------------------------------------------------------
+
+
+
+\renewcommand\cftsecfont{\small\bfseries}
+\renewcommand\cftsubsecfont{\scriptsize}
+\renewcommand\cftsubsubsecfont{\scriptsize}
+
+\renewcommand\cftsecafterpnum{\vskip-5pt}
+\renewcommand\cftsubsecafterpnum{\vskip-7pt}
+\renewcommand\cftsubsubsecafterpnum{\vskip-7pt}
+
+\begin{document}
+
+\maketitle
+
+\section*{Problem 1: Building Intuition}
+
+\textbf{(a)}. \question{Suppose we run stochastic gradient descent, updating the weights according to
+$$\mathbf{w} \leftarrow \mathbf{w} - \eta \nabla_\mathbf{w} \text{Loss}_{\text{hinge}}(x, y, \mathbf{w})$$
+once for each of the four examples in the order given above. After the classifier is trained on the given four data points, what are the weights of the six words ("pretty", "good", "bad", "plot", "not", "scenery") that appear in the above reviews? Use $\eta = .5$ as the step size and initialize $\mathbf{w} = [0, ..., 0]$. Assume that $\nabla_\mathbf{w} \text{Loss}_{\text{hinge}}(x, y, \mathbf{w}) = 0$ when the margin is exactly 1.}
+
+Let $w_i := \text{words}[i]$, where $\text{words} = $["pretty", "good", "bad", "plot", "not", "scenery"]  (zero-indexed).  
+
+The sparse feature vectors for each of the four examples are:
+\begin{align}
+	\phi(x_1) &= \{  \text{pretty}: 1, \text{bad}: 1  \} \\
+	\phi(x_2) &= \{  \text{good}: 1, \text{plot}: 1  \} \\
+	\phi(x_3) &= \{  \text{not}: 1, \text{good}: 1  \} \\
+	\phi(x_4) &= \{  \text{pretty}: 1, \text{scenery}: 1  \}
+\end{align}
+
+As seen in lecture, we can use the chain rule to obtain
+\begin{align}
+	\nabla_{\vec w} L(x_i, y_i)
+		&= - \ind{\vec w \dotp \phi(x_i) y_i < 1} \phi(x_i) y_i 
+\end{align}
+
+We can then evaluate the gradients in order as follows:
+\begin{compactenum}
+	\item 
+	\begin{align}
+		\nabla_{\vec w} L(x_1, y_1)
+			&= - \ind{(w_0 + w2) (-1) < 1}\phi(x_1) (-1) \\
+			&= \phi(x_1) \\
+		\vec[1]{w}
+			&\leftarrow \vec[0]{w} - (0.5) \phi(x_1) \\
+			&= -  0.5 \cdot \{  \text{pretty}: 1, \text{bad}: 1  \}
+	\end{align}
+	
+	\item 
+	\begin{align}
+		\nabla_{\vec w} L(x_2, y_2) 
+			&= - \ind{ (w_1 + w_3) (1) < 1} \phi(x_2) (1) \\
+			&= - \phi(x_2) \\
+		\vec[2]{w}
+			&\leftarrow \vec[1]{w} + (0.5) \phi(x_2) \\
+			&= 0.5 \cdot  \{  \text{pretty}: -1,  \text{good}: 1,   \text{bad}: -1, \text{plot}: 1  \}
+	\end{align}
+	
+	\item 
+	\begin{align}
+		\nabla_{\vec w} L(x_3, y_3) 
+			&= - \ind{ (0 + 0.5) (-1) < 1} \phi(x_3) (-1) \\
+			&= \phi(x_3) \\
+		\vec[3]{w} 
+			&\leftarrow \vec[2]{w} - (0.5) \phi(x_3) \\
+			&= 0.5 \cdot \{  \text{pretty}: -1,  \text{good}: 0,   \text{bad}: -1, \text{plot}: 1, \text{not}: -1  \}
+	\end{align}
+
+	\item 
+	\begin{align}
+		\nabla_{\vec w} L(x_4, y_4) 
+		&= - \ind{ (-0.5 + 0) (1) < 1} \phi(x_4) (1) \\
+		&= - \phi(x_4) \\
+		\vec[4]{w} 
+		&\leftarrow \vec[3]{w} +(0.5) \phi(x_4) \\
+		&= 0.5 \cdot \{  \text{pretty}: 1,  \text{good}: 0,   \text{bad}: -1, \text{plot}: 1, \text{not}: -1, \text{scenery}: 1  \}
+	\end{align}
+\end{compactenum}
+Which gives us the answer:
+\graybox{
+	\vec{w} = 0.5 \cdot \{  \text{pretty}: 1,  \text{good}: 0,   \text{bad}: -1, \text{plot}: 1, \text{not}: -1, \text{scenery}: 1  \}
+}
+
+
+
+
+
+
+
+
+
+% =================================================================
+\clearpage
+\textbf{(b)}. \question{Create a small labeled dataset of four mini-reviews using the words "not", "good", and "bad", where the labels make intuitive sense. Each review should contain one or two words, and no repeated words. Prove that no linear classifier using word features can get zero error on your dataset. 
+
+Remember that this is a question about classifiers, not optimization algorithms; your proof should be true for any linear classifier, regardless of how the weights are learned. 
+After providing such a dataset, propose a single additional feature that we could augment the feature vector with that would fix this problem. (Hint: think about the linear effect that each feature has on the classification score.)}
+
+
+ Define our map from feature to zero-based index as \{ bad: 0, good: 1, not: 2  \}. My four mini-reviews, along with their associated $\vec w \dotp \phi(x_i)$,  are as follows:
+\begin{compactenum}
+	\item (-1) not good; $\vec w \dotp \phi(x_0) = w_1 + w_2$
+	\item (+1) good; $\vec w \dotp \phi(x_1) = w_1$
+	\item (+1) not bad; $\vec w \dotp \phi(x_2) = w_0 + w_2 $
+	\item (-1) bad; $\vec w \dotp \phi(x_3) = w_0$
+\end{compactenum}
+
+Proceed with proof by contradiction: assume that there exists a linear word classifier that can correctly classify all the 4 examples above. In other words, assume my classifier gets a loss value of zero for all examples. This would require that it satisfies the following system of inequalities (in order of my aforementioned data points):
+\begin{align}
+	1 + w_1 + w_2 & \le 0  \Rightarrow w_2 \le -1 - w_1  \\
+	1 - w_1 & \le 0    \Rightarrow w_1 \ge 1         \\
+	1 - w_0 - w_2 &\le 0       \Rightarrow w_2 \ge 1 - w_0    \\
+	1 + w_0 &\le 0 \Rightarrow w_0 \le -1
+\end{align}
+Plugging in the inequalities for $w_0$ and $w_1$ leads to a contradiction:
+\begin{align}
+	w_2  &\le -2 \\
+	w_2 &\ge 2
+\end{align}
+Therefore, there does not exist any linear classifier using word features that correctly classifies all four of my data points. 
+
+
+
+\clearpage
+\section*{Problem 2: Predicting Movie Ratings}
+
+\textbf{(a)}. \question{Write out the expression for $\text{Loss}(x, y, \mathbf w)$.}
+
+\begin{align}
+	L(x, y, \vec w)
+		&= || y - \sigma(\vec w \dotp \phi(x)) ||^2
+\end{align}
+
+
+
+% =================================================================
+\clearpage 
+\textbf{(b)}. \question{Compute the gradient of the loss with respect to $\mathbf w$. 
+Hint: you can write the answer in terms of the predicted value $p = \sigma(\mathbf w \cdot \phi(x))$}
+
+\begin{align}
+	\nabla_{\vec w} L(x, y, \vec w)
+		&=2  (y - \sigma(\vec w \dotp \phi(x))  ) \nabla_{\vec w} (y - \sigma(\vec w \dotp \phi(x))  ) \\
+		&= 2  (y - \sigma(\vec w \dotp \phi(x))  )  (-1) \sigma(\vec w \dotp \phi(x))  ( 1- \sigma(\vec w \dotp \phi(x))   ) \nabla_{\vec w} (\vec w \dotp \phi(x)) \\
+		&= -2  (y - \sigma(\vec w \dotp \phi(x))  ) \sigma(\vec w \dotp \phi(x))  ( 1- \sigma(\vec w \dotp \phi(x))   ) \phi(x) \\ 
+		&=  -2  (y- p ) p ( 1- p ) \phi(x) 
+\end{align}
+
+
+
+% =================================================================
+\clearpage
+\textbf{(c)}. \question{Suppose there is one datapoint (x, y) with some given $\phi(x) and y = 1$. Can you choose a $\mathbf w$ to make the magnitude of the gradient of the loss with respect to $\mathbf w$ arbitrarily small (i.e., minimize the magnitude of the gradient and make it asymptotically approach some value)? If so, how small? Can the magnitude of the gradient ever be exactly zero? You are allowed to make the magnitude of $\mathbf w$ arbitrarily large. 
+
+\textbf{Hint}: try to understand intuitively what is going on and the contribution of each part of the expression. If you find yourself doing too much algebra, you're probably doing something suboptimal.
+
+\textbf{Motivation}: the reason why we're interested in the magnitude of the gradients is because it governs how far gradient descent will step. For example, if the gradient is close to zero when $\mathbf w$ is very far from the optimum, then it could take a long time for gradient descent to reach the optimum (if at all). This is known as the vanishing gradient problem when training neural networks.}
+
+
+The gradient for the specified data point is
+\begin{align}
+	\nabla_{\vec w} L(x, 1, \vec w) 
+		&=  - (1 - p ) p ( 1- p  ) \phi(x) \\
+		&= -p (1 - p)^2 \phi(x)
+\end{align}
+If we can make $p{=}\sigma(\vec w \cdot \phi(x))$ either arbitrarily close to $0$ or to $1$, then the gradient will approach zero. We can do this by setting 
+\begin{align}
+	w_i &= \lim_{c \rightarrow \infty} c \cdot \sign{\phi_i(x)}
+\end{align}
+with the convention that $\sign{0} := +1$. This would make $p \rightarrow 1$ and thus $\nabla_{\vec w} L \rightarrow 0$. 
+
+
+% =================================================================
+\clearpage
+\textbf{(d)}. \question{Assuming the same data point as above, what is the largest magnitude that the gradient can take? Leave your answer in terms of $\|\phi(x)\|$.}
+
+\begin{align}
+\pderiv{\nabla_{\vec w} L(x, 1, \vec w)}{p}
+	&= \pderiv{}{p} \left[  -  p ( 1- p  )^2 \phi(x) \right] \\
+	&= - \left[  (1 - p)^2 - 2p(1 - p)  \right] \phi(x) \\
+	&= (1 - p) (3p - 1) \phi(x)
+\end{align}
+which has zeros at $p = 1$ and $p = 1/3$. We already know that $p=1$ corresponds to the gradient being zero. Taking another gradient confirms that $p=1/3$ is concave up (while $p=1$ is concave down), meaning that at $p=1/3$ the gradient is furthest from the origin, with magnitude:
+\begin{align}
+	|| \nabla_{\vec w} L(x, 1, \vec w) \bigg|_{p{=}1/3} ||
+		&= ||
+			- \inv{3} (1 - \inv{3})^2 \phi(x)
+			|| \\
+		&= \inv{3} \frac{4}{9} || \phi(x) || \\
+		&= \frac{4}{27} || \phi(x) ||
+\end{align}
+
+
+% =================================================================
+\clearpage
+\textbf{(e)}. \question{The problem with the loss function we have defined so far is that is it is non-convex, which means that gradient descent is not guaranteed to find the global minimum, and in general these types of problems can be difficult to solve. So let us try to reformulate the problem as plain old linear regression. Suppose you have a dataset $\mathbf D$ consisting of (x,y) pairs, and that there exists a weight vector $\mathbf w$ that yields zero loss on this dataset. Show that there is an easy transformation to a modified dataset $\mathbf D' of (x,y')$ pairs such that performing least squares regression (using a linear predictor and the squared loss) on $\mathbf D'$ converges to a vector $\mathbf w^*$ that yields zero loss on $\mathbf D'$. Concretely, write an expression for $y'$ in terms of y and justify this choice. This expression should not be a function of $\mathbf w$}. 
+
+If there exists a linear predictor of the transformed dataset that can obtain the same (zero) loss, then we can assert 
+\begin{align}
+	y &= \inv{1 + e^{- \vec w \dotp \phi(x)}} \\
+		&= \inv{1 + e^{-y'}} \\
+	1 + e^{-y'} &= \inv{y} \\
+	e^{-y'} &= \frac{1 - y}{y} \\
+	-y' &= \ln \left( \frac{1 - y}{1 - y}
+	\right) \\
+	y' &= \ln \left( 
+		\frac{y}{1 - y}
+	\right)
+\end{align}
+This is known as the \textit{logit transformation}.
+
+\clearpage
+\section*{Problem 3: Sentiment Classification}
+
+\textbf{(a)}. \question{When you run the grader.py on test case 3b-2, it should output a weights file and a error-analysis file. Look through some example incorrect predictions and for five of them, give a one-sentence explanation of why the classification was incorrect. What information would the classifier need to get these correct? In some sense, there's not one correct answer, so don't overthink this problem. The main point is to convey intuition about the problem.}
+
+\begin{compactenum}
+\item \textbf{Sentence}: \textit{home alone goes hollywood , a funny premise until the kids start pulling off stunts not even steven spielberg would know how to         do . besides , real movie producers aren't this nice .} \textbf{Explanation}: the model overly emphasized the positiveness of words like "funny" (0.39) compared to words like "aren\'t" (0.11), while also giving a lot of positive weight to words that should be neutral (if not given context) such as ``start'' (0.27). 
+
+\item \textbf{Sentence}: \textit{a heady , biting , be-bop ride through nighttime manhattan , a loquacious videologue of the modern male and the lengths to which        he'll go to weave a protective cocoon around his own ego .} \textbf{Explanation}: many neutral words like "a", "his", ".", etc. were labeled as negative. This is a consequence of it being a simple bag of unigrams model. 
+
+\item \textbf{Sentence}: \textit{it's painful to watch witherspoon's talents wasting away inside unnecessary films like legally blonde and sweet home                   abomination , i mean , alabama .} \textbf{Explanation}: It didn't realize that "sweet home abomination" was a mock-reference to a name, and the weight of "sweet" (0.57) dwarfed the rest of the sentence, resulting in an incorrectly "positive" label. The model could have benefited from being able to recognize references to titles here, or entities in general. 
+
+\item \textbf{Sentence}: \textit{ wickedly funny , visually engrossing , never boring , this movie challenges us to think about the ways we consume pop culture .} \textbf{Explanation}: the model labeled both "never" and "boring" as individually very negative words, and this ultimately caused it to incorrectly label the whole sentence as negative. The model would have greatly benefited from bigrams here, i.e. understanding the "never boring" together is a positive statement.
+
+\item \textbf{Sentence}: \textit{ patchy combination of soap opera , low-tech magic realism and , at times , ploddingly sociological commentary .} \textbf{Explanation}: the interesting thing here is that every single one of the negative cues ("patchy", "low-tech", "ploddingly") were all assigned a weight of 0 and thus not contributing to the prediction at all. The words "magic" and "realism" were both heavily positive and ended up determining the prediction. The model would've benefited from understanding the negative connotation of the three aforementioned words.
+\end{compactenum}
+In general, the classifier may have had a better chance of getting these correct if it took into consideration context (e.g. by using n-grams instead of bag of words). 
+
+
+
+\clearpage
+\textbf{(f)}. \question{Run your linear predictor with feature extractor extractCharacterFeatures. Experiment with different values of n to see which one produces the smallest test error. You should observe that this error is nearly as small as that produced by word features. How do you explain this?}
+	
+For me, $n=5$ produced the smallest test error of about 0.2718. I tried $n \in [1..10]$. The most likely reason that error increases beyond this point is that the features become more specific to the training set, and we are more likely to see n-grams that we've never seen before in the test set for large n. It's possible that $n=5$ is a ``sweet spot'' because (a) it is large enough to capture negations like ``not'', while (b) small enough that it's still basically just grabbing individual words (thus able to share features with the test set). Since it is extremely common to say ``not X'' in order to negate the word ``X'', having $n\approx 5$ means the model is at least capable of recognizing negations. 
+
+
+
+% =================================================================
+\clearpage
+\section*{Problem 4: K-Means Clustering}
+
+
+\question{Suppose we have a feature extractor $\phi$ that produces 2-dimensional feature vectors, and a toy dataset $\mathcal D_\text{train} = \{x_1, x_2, x_3, x_4\}$ with
+\begin{align}
+\phi(x_1) &= [1, 0] \\
+\phi(x_2) &= [1, 2] \\
+\phi(x_3) &= [3, 0] \\
+\phi(x_4) &= [2, 2] 
+\end{align}}
+
+\myspace
+\textbf{(a)} \question{Run 2-means on this dataset until convergence. Please show your work. What are the final cluster assignments z and cluster centers $\mu$? Run this algorithm twice with the following initial centers:
+$$
+\mu_1 = [2, 3] \text{ and } \mu_2 = [2, -1]
+$$
+$$
+\mu_1 = [0, 1] \text{ and } \mu_2 = [3, 2]
+$$}
+
+\subsection*{Initial Centroids: (2, 3) and (2, -1)}
+
+First, compute the closest centroid to each $\phi(x_i)$, and assign the index of the closest centroid to $z_i$. I'll break ties by picking the winner uniformly at random. The distances shown below are the squared euclidean distances. The argmin's are 1-indexed (so they align with the $\mu_i$). 
+\begin{align}
+	z_1 &= \argmin [ 10, 2 ]= 2 \\
+	z_2 &= \argmin [2, 10] = 1 \\
+	z_3 &= \argmin [10, 2] = 2 \\
+	z_4 &= \argmin [1, 9] = 1
+\end{align}
+
+Now, update the centroids. 
+\begin{align}
+	\mu_1 &= \onehalf \left[ (1, 2) + (2, 2) \right] = \left( \frac{3}{2}, 2 \right) \\
+	\mu_2 &= \onehalf \left[ (1, 0) + (3, 0) \right] = \left( 2, 0 \right)
+\end{align}
+
+Update assignments. 
+\begin{align}
+	z_1 &= \argmin [ 4.25, 1 ]= 2 \\
+	z_2 &= \argmin [ 0.25, 5 ] = 1 \\
+	z_3 &= \argmin [6.25, 1 ] = 2 \\
+	z_4 &= \argmin [0.25, 4] = 1
+\end{align}
+The assignments have converged to the above values, and with $\mu_1= \left( \frac{3}{2}, 2 \right)$ and $\mu_2 = \left( 2, 0 \right)$. 
+
+
+
+\subsection*{Initial Centroids: (0, 1) and (3, 2)}
+
+First, compute the closest centroid to each $\phi(x_i)$, and assign the index of the closest centroid to $z_i$.
+\begin{align}
+z_1 &= \argmin [ 2, 8 ]= 1 \\
+z_2 &= \argmin [2, 4 = 1 \\
+z_3 &= \argmin [10, 4] = 2 \\
+z_4 &= \argmin [5, 1] = 2
+\end{align}
+
+Now, update the centroids. 
+\begin{align}
+\mu_1 &= \onehalf \left[ (1, 0) + (1, 2) \right] = \left( 1, 1 \right) \\
+\mu_2 &= \onehalf \left[ (3, 0) + (2, 2) \right] = \left( \frac{5}{2}, 1 \right)
+\end{align}
+
+Update assignments. 
+\begin{align}
+z_1 &= \argmin [ 1, 3.25 ]= 1 \\
+z_2 &= \argmin [ 1, 3.25 ] = 1 \\
+z_3 &= \argmin [ 5, 1.25 ] = 2 \\
+z_4 &= \argmin [ 2, 1.25 ] = 2
+\end{align}
+The assignments have converged to the above values, and with $\mu_1= \left( 1, 1 \right)$ and $\mu_2 = \left( \tfrac{5}{2}, 1 \right)$. 
+
+
+
+
+
+% =================================================================
+\clearpage
+\textbf{(c)}. \question{Sometimes, we have prior knowledge about which points should belong in the same cluster. Suppose we are given a set S of example pairs (i,j) which must be assigned to the same cluster. For example, suppose we have 5 examples; then $S = \{ (1, 5), (2, 3), (3, 4) \}$ says that examples 2, 3, and 4 must be in the same cluster and that examples 1 and 5 must be in the same cluster. Provide the modified k-means algorithm that performs alternating minimization on the reconstruction loss:
+$$\sum \limits_{i=1}^n \| \mu_{z_i} - \phi(x_i) \|^2$$
+where $\mu_{z_i}$ is the assigned centroid for the feature vector $\phi(x_i)$.
+
+Recall that alternating minimization is when we are optimizing two variables jointly by alternating which variable we keep constant.}
+
+
+Ultimately, each point will ``belong'' to a group of points that must be in the same cluster. Since we should allow for $S$ only including a subset of the data, also let any point not mentioned in $S$ be in its own group. In the example above, the two groups are $\{(1, 5), (2, 3, 4)\}$. To compute the assignments $z_i$, we must now include all points $x_s$ that are in the same group as $x_i$. Let $G_i$ denote the group of point indices that must be in the same cluster as $x_i$ (note that this includes $x_i$). The modified assignment step is then
+\begin{align}
+	z_i
+		&= \argmin_{k \in [1..K]} \sum_{s \in G_i} ||\mu_{k} - \phi(x_s) ||^2
+\end{align}
+
+The next step, where we re-compute the centroids $\mu$, is unchanged. It is still the average over the points that were assigned to it in the previous assignment step.
+
+
+% =================================================================
+\clearpage
+\textbf{(d)}. \question{What is the advantage of running k-means multiple times on the same dataset with the same K, but different random initializations?}
+
+K-means is not guaranteed to converge to a global optimum, but rather a local optimum. By running it multiple times with different random initializations, we are likely to obtain different results. This allows us to choose the result that had the lowest error. 
+
+
+% =================================================================
+\clearpage
+\textbf{(e)}. \question{If we scale all dimensions in our initial centroids and data points by some factor, are we guaranteed to retrieve the same clusters after running k-means (i.e. will the same data points belong to the same cluster before and after scaling)? What if we scale only certain dimensions? If your answer is yes, provide a short explanation. If it is no, provide a counterexample.}
+
+First, the question seems to implicitly assume that by ``data points'' we mean the individual $\phi(x_i)$ (not the $x_i$ themselves), otherwise we wouldn't be able to say anything here ($\phi$ is an arbitrary black box as far as we're concerned). \\
+
+If we scale everything by a constant factor $c$, then we get the following reconstruction loss, assignment step, and centroid update:
+\begin{align}
+	L &= \sum_{i=1}^{n} || c \phi(x_i) - c \mu_{z_i} ||^2 \\
+		&= c^2  \sum_{i=1}^{n} ||  \phi(x_i) - \mu_{z_i} ||^2 \\
+	z_i &= \argmin_{k \in [1..K]} || c \phi(x_i) - c \mu_{k} ||^2 \\
+		&= \argmin_{k \in [1..K]} || \phi(x_i) -  \mu_{k} ||^2 \\
+	\mu_k &= \inv{| \{ i: z_i=k  \} |} \sum_{i: z_i=k} c \phi(x_i) \\
+		&= \frac{c}{| \{ i: z_i=k  \} |} \sum_{i: z_i=k}  \phi(x_i)
+\end{align}
+and we see that the resulting cluster assignments $z_i$ will be the same. The argmin is not affected by a constant factor, and the other equations are just scaled by $c$ or $c^2$. \\
+
+If we only scale certain dimensions, then the assignments are not guaranteed to stay the same. If each dimension $d$ has a different factor $c_d$, then that factor essentially controls how ``important'' it is for us to minimize the distance along that dimension. Dimensions with larger $c_d$ will contribute more on average to the argmin, and therefore the optimization will care more about minimizing those dimensions' distances. 
+
+
+
+\end{document}

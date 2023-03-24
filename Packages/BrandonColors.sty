@@ -1,0 +1,75 @@
+% Note -- Need to put after other packages i guess.
+\ProvidesPackage{BrandonColors}[2016/10/19 BrandonColors]
+
+\RequirePackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\RequirePackage{listings}
+
+\ProcessOptions\relax
+
+% Regular colors. 
+\newcommand\blue[1]{\textcolor{MediumSlateBlue}{\textbf{#1}}}
+\newcommand\red[1]{\textcolor{Maroon}{\textbf{#1}}}
+\newcommand\green[1]{\textcolor{OliveGreen}{\textbf{#1}}}
+\newcommand\purple[1]{\textcolor{RoyalPurple}{\textbf{#1}}}
+\newcommand\orange[1]{\textcolor{Orange}{\textbf{#1}}}
+\newcommand\pink[1]{\textcolor{Magenta}{\textbf{#1}}}
+\newcommand\gray[1]{\textcolor{Gray}{\textbf{#1}}}
+\newcommand\cyan[1]{\textcolor{Cyan}{\textbf{#1}}}
+
+
+% Math-mode but for text. 
+\newcommand\mscript[1]{{\scriptsize\text{#1}}}
+\newcommand\mtext[1]{{\small\text{#1}}}
+\newcommand\mtred[1]{{\small\text{\red{#1}}}}
+\newcommand\mtgreen[1]{{\small\text{\green{#1}}}}
+\newcommand\mtblue[1]{{\small\text{\blue{#1}}}}
+\newcommand\mtpurple[1]{{\small\text{\purple{#1}}}}
+\newcommand\mtorange[1]{{\small\text{\orange{#1}}}}
+\newcommand\mtpink[1]{{\small\text{\pink{#1}}}}
+\newcommand\mtcyan[1]{{\small\text{\cyan{#1}}}}
+\newcommand\mtgray[1]{{\small\text{\gray{#1}}}}
+
+% Math mode for math.
+\newcommand\mred[1]{\mtred{$#1$}}
+\newcommand\mgreen[1]{\mtgreen{$#1$}}
+\newcommand\mblue[1]{\mtblue{$#1$}}
+\newcommand\mpurple[1]{\mtpurple{$#1$}}
+\newcommand\morange[1]{\mtorange{ $#1$}}
+\newcommand\mpink[1]{\mtpink{$#1$}}
+\newcommand\mcyan[1]{\mtcyan{$#1$}}
+\newcommand\mgray[1]{\mtgray{$#1$}}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Java,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+
+
+\definecolor{forgeblue}{HTML}{018C9F}
+% Gray table borders
+\makeatletter
+\def\rulecolor#1#{\CT@arc{#1}}
+\def\CT@arc#1#2{%
+	\ifdim\baselineskip=\z@\noalign\fi
+	{\gdef\CT@arc@{\color#1{#2}}}}
+\let\CT@arc@\relax
+\rulecolor{forgeblue}
+\makeatother
+
+\endinput

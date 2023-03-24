@@ -1,0 +1,1014 @@
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+% P  R  E  A  M  B  L  E
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\documentclass[11pt]{article}
+\usepackage{amsbsy, amsmath, amssymb, authblk}
+
+%\usepackage{array} 
+%\usepackage{algorithm2e}
+\usepackage{algorithmic}
+
+\usepackage{booktabs, bm}
+\usepackage[small,labelfont=bf,up,singlelinecheck=false]{caption}
+\usepackage{cancel}
+\usepackage{comment}
+%\usepackage{fancyhdr}
+%\usepackage[default]{lato}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+%\usepackage[utf8]{inputenc}
+%	\inputencoding{latin1}
+%	\inputencoding{utf8}
+%\usepackage{lettrine}
+%\usepackage[sc]{mathpazo}
+\usepackage{lmodern} % Nice fonts?
+\usepackage{mathrsfs}
+\usepackage{mathtools} 
+%\usepackage{marvosym} % silly bullet-point symbols (misc symbols)
+%\usepackage{microtype}
+\usepackage{minitoc}         % left in case it is needed elsewhere
+\setcounter{secttocdepth}{5} % idem
+\usepackage{etoc} % for toc before each section.
+%\usepackage{multicol}
+\usepackage{needspace}
+\usepackage{paralist}
+\usepackage{pifont}
+%\usepackage{polynom} 			% typesetting polynomial long division
+%\usepackage{setspace}
+%	\onehalfspacing 
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{ulem} 				% for strikeout \sout command.
+%\usepackage{verbatim}
+
+% Muh packagez :)
+\usepackage{../../Packages/MathCommands}
+\usepackage{../../Packages/BrandonColors}
+\usepackage{../../Packages/BrandonBoxes}
+\usepackage{../../Packages/NoteTaker}
+
+%\usepackage{program}
+% DL BOOK CONVENTIONS
+\renewcommand\vec[2][]{\bm{#2}_{#1}}
+
+\DeclareDocumentCommand{\slice}
+	{ O{t} O{1} m }
+	{\vec[\langle #2 \ldots #1 \rangle]{#3}}
+
+\usepackage{layout} % Type \layout() anywhere to see values of layout frame.
+%\usepackage{showframe} % Displays layout frame on all pages
+\usepackage{marginnote}
+\renewcommand*{\marginfont}{\scriptsize}
+
+\usepackage{listings}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Java,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows, automata, shapes, snakes, positioning}
+\usetikzlibrary{bayesnet}
+
+
+% hi?
+\renewcommand\dotseq[2]
+{#1^{(1)}, \ldots, #1^{(#2)}}
+\renewcommand\rdotseq[2]
+{#1^{(#2)}, \ldots, #1^{(1)}} % reversed
+
+
+%\setlength{\parskip}{1pt}
+%\setlength{\columnseprule}{0.1pt}
+%\setlength{\columnsep}{0.6cm}
+%\setlength\tabcolsep{0.1cm}
+\renewcommand{\arraystretch}{1.2}
+
+\DeclareDocumentEnvironment{definition}{O{-0.5em} o}{
+	\IfNoValueTF{#2}{}{\textbf{#2}}
+	\vspace*{#1}
+	\begin{quote}
+		\itshape\small}
+	{\end{quote}}
+
+\newcommand\task{\mathscr{T}}
+
+
+\begin{document}
+\dosecttoc
+\tableofcontents
+
+
+
+
+% ==================================================================================
+% Lectures
+% ==================================================================================
+\mysection{Lectures}\label{Lectures}
+
+% --------------------------------------------------------------------------------------------
+\lecture{Lectures}{The Meta-Learning Problem \& Black-Box Meta Learning}{September 21, 2020}
+
+\bluesec{Black-Box Adaptation}. Want to learn a ``black-box'' function $f : \mathcal D \mapsto \phi$ that outputs a set of \textit{parameters} $\phi$ for \textit{another} [known] network $g_{\phi}$, such that $g_{\phi}$ performs well on test data from the same distribution as $\mathcal D$. Stated another way, $f$ is basically a procedure for setting the weights $\phi$ of your neural network $g$, given training data $\mathcal D$. Yes, $f$ is performing a similar function as a standard optimizer like SGD, but what's new is that we are now representing $f$ \textit{itself as a neural network} $f = f_{\theta}$ with its own trainable parameters $\theta$.  Now that your head is hopefully in the right place, here is the more concise definition for black-box adaptation of task $\mathcal{T}_i$  from the lecture\margintstamp{1:01:00}
+\begin{compactenum}
+	\item Train a NN to represent $\phi_i = f_{\theta}(\mathcal{D}_i^{tr})$. 
+	\item Predict test points with $\vec{y}^{ts} = g_{\phi_i}(\vec{x}^{ts})$. 
+\end{compactenum}
+We can learn the parameters $\theta$ of our black-box function with standard supervised learning (\textit{meta}):
+\begin{align}
+	\theta^* 
+		&= \argmax_{\theta} \sum_{\mathcal{T}_i} \sum_{x,y \sim \mathcal{D}_i^{test}} \log g_{\phi_i} (y \mid x) \\
+		&= \max_{\theta}  \sum_{\mathcal{T}_i}  \mathcal{L}\lr{ f_{\theta}\lr{ \mathcal{D}_i^{tr} }  , \mathcal{D}_i^{test} }
+\end{align}
+So, my first question was: \textit{how does backpropagation work here?}. Basically, for each test pair $(x, y)$, evaluating $g_{\phi_i}(y \mid x)$ will (of course) look like some function of $\phi_i$. So we apply the chain rule and end up with a bunch of gradients of the form $\pderiv{\phi_{i,j}}{\theta}$. Well each of those $\phi_{i,j}$ is really just a function of $\theta$, since it's literally the output of $f$. So we just keep chain ruling along as usual. Don't overthink it.
+
+\red{Challenge}: outputting the full set of neural network parameters $\phi$ does not seem scalable. \green{Idea}: Don't need to output \textit{all} parameters of NN, only sufficient statistics\footnote{Santoro et al. MANN, Mishra et al. SNAL}\margintstamp{1:14:00}[0em]. 
+
+\begin{algorithm}[Black-Box Adaptation]
+	\textbf{Key idea}: Train a NN to represent $\phi_i = f_{\theta}(\mathcal{D}_i^{tr})$.  Repeat:
+	\begin{compactenum}
+		\item Sample $\task_i$
+		\item Sample disjoint $\mathcal{D}_i^{tr}, \mathcal{D}_i^{test}$ from $\mathcal{D}_i$
+		\item Optimize $\phi_i \leftarrow f_{\theta}(\mathcal{D}_i^{tr})$
+		\item Update $\theta$ using $\nabla_{\theta} \mathcal L (\phi_i, \mathcal{D}_i^{test})$
+	\end{compactenum}
+\end{algorithm}
+
+% --------------------------------------------------------------------------------------------
+\lecture{Lectures}{Optimization-Based Meta-Learning}{September 23, 2020}
+
+\begin{definition}[-1em][Multi-Task Learning]
+	Solve multiple tasks $\mathscr{T}_1, \ldots, \mathscr{T}_T$ at once. 
+	$$
+	\min_{\theta} \sum_{i=1}^T \mathscr{L}_i \lr{ \theta, \mathcal{D}_i }
+	$$
+\end{definition}
+
+\begin{definition}[-1em][Transfer Learning]
+	Solve target $\task_b$ after solving source $\task_a$ by \textit{transferring} knowledge learned from $\task_a$. 
+\end{definition}
+
+\begin{definition}[-1em][Fine-Tuning]
+	Given a pretrained set of parameters $\theta$, update them on some \textit{new} training dataset $\mathcal{D}^{tr}$ on a [potetntially] different task to obtained a final set of parameters $\phi$\footnote{Seems like unnecessary cognitive overload to denote the updated $\theta$ with a different symbol $\phi$ but ok.}
+	$$
+	\phi \leftarrow \theta - \alpha \nabla_{\theta} \mathcal L \lr{ \theta, \mathcal{D}^{tr} }
+	$$
+\end{definition}
+
+\begin{definition}[-1em][Meta-Learning]
+	Given data from $\task_1, \ldots, \task_n$, quickly solve new task $\task_{test}$. 
+\end{definition}
+
+
+\bluesec{Optimization-Based Adaptation}. Instead of treating the inner (initial) learning task of obtaining parameters from some training dataset $\mathcal{D}_{tr}$ as a black-box neural network $f_{\theta}$, we can model it as some kind of optimization process $\nabla_{\theta} \mathcal L$ explicitly \margintstamp{7:50}[0em]. One example is \green{Model-Agnostic Meta-Learning}\footnote{Finn, Abbeel, Levine. Model-Agnostic Meta-Learning. ICML 2017.} which performs fine-tuning at \textit{test-time}.
+\graybox{
+	\min_{\theta} \sum_{\text{task } i} \mathcal L \lr{ 
+		\theta - \alpha \nabla_{\theta} \mathcal L	\lr{ \theta, \mathcal{D}_i^{tr} }, \mathcal{D}_i^{ts}
+}}
+\textbf{Key Idea}: Over many tasks, learn $\theta$ that transfers [preferably with few examples] via fine-tuning.
+
+\begin{compactitem}
+	\QA{Are the two loss functions above the same?}{Yes. It appears that is actually a critical assumption/requirement.}
+	
+	\QA{Are we assuming that $\theta$ is pretrained/reasonably initialized? Or is this done ``from scratch'' for every test query? Seems extremely expensive}{Yes, $\theta$ is reinitialized each time \tstamp{19:45}.}
+\end{compactitem}
+
+\begin{algorithm}[Optimization-Based Adaptation]
+	\textbf{Key idea}: acquire $\phi_i$ through optimization. Repeat:
+	\begin{compactenum}
+		\item Sample $\task_i$
+		\item Sample disjoint $\mathcal{D}_i^{tr}, \mathcal{D}_i^{test}$ from $\mathcal{D}_i$
+		\item Optimize $\phi_i \leftarrow \theta - \alpha \nabla_{\theta} \mathcal L (\theta, \mathcal{D}_i^{tr})$ \scriptsize{[inner-loop]}
+		\item Update $\theta$ using $\nabla_{\theta} \mathcal L (\phi_i, \mathcal{D}_i^{test})$ \green{[Meta-Objective]} \scriptsize{[outer-loop]}
+	\end{compactenum}
+	Notice how the final step above results in 2nd-order derivatives!
+\end{algorithm}
+
+Clarification on how MAML differs from transfer learning (TL) in terms of initializing $\theta$\margintstamp{21:10}[0em]:
+\begin{align}
+	\mtgreen{[TL]} \qquad \theta 
+		&\leftarrow \argmin_{\theta} \sum_i \mathcal L (\theta, \mathcal{D}_i^{tr}) \\
+	\mtgreen{[MAML]} \qquad \theta
+		&\leftarrow \argmin_{\theta} \sum_i \mathcal L \lr{
+			\phi_i,
+			\mathcal{D}_i^{ts}
+		} \\
+		&=\argmin_{\theta} \sum_i \mathcal L \lr{
+			\theta - \nabla_{\theta} \mathcal L  (\theta, \mathcal{D}_i),
+			\mathcal{D}_i^{ts}  }
+\end{align}
+In words, TL initializes $\theta$ such that it performs well on the initial training [source] task(s), whereas MAML initializes $\theta$ such that some \textit{fine-tuned} version of $\theta$ [over presumably a small number of steps] will do well on the task \tstamp{22:50}. 
+
+\begin{compactitem}
+	\QA{How do we determine [in practice] the number of gradients steps \& over what training examples to perform the inner gradient step(s) [step 3 of alg above] compared to the outer gradient step(s) [step 4 of alg above]?}{\red{INCOMPLETE ANSWER} Prof Finn says the outer gradient step is a single step, whereas the inner gradient can be one or more steps. That still doesn't answer the question of which example(s) to use for both of them though.}
+	
+	\QA{Do we need to compute the full Hessian?}{No, just the vector-hessian product $\vec r \matr H$ in image below \tstamp{35:40}.}
+	\myfig[0.65\textwidth]{figs/lec4_hessian.png}
+	
+	
+	\QA{Do we get higher-order derivatives with more inner gradient steps?}{No, basically because the gradients are taken in succession -- take one step on $\theta$ to get some $\theta'$, take the next on $\theta'$ to get some $\theta''$ etc., as opposed to taking two gradients on $\theta$ \tstamp{40:00}.}
+\end{compactitem}
+
+\bluesec{Optimization vs Black-Box}. \margintstamp{43:30}[0em]
+\graybox{
+	\mtgreen{[BB]} \qquad y^{ts}
+		&= f_{BB}(\mathcal{D}_i^{tr}, x^{ts}) \\
+	\mtgreen{[MAML]} \qquad y^{ts}
+		&= f_{MAML}( \mathcal{D}_i^{tr}, x^{ts} ) \\
+		&= f_{\phi_i} (x^{ts})
+			\quad \text{where } \phi_i = \theta - \alpha \nabla_{\theta} \mathcal{L} (\theta, \mathcal{D}_i^{tr})
+}
+\begin{myquote}
+	MAML can be viewed as a \purple{computation graph}, with an embedded gradient operator.
+\end{myquote}
+
+So, does embedding this optimization structure into our meta-learner come at a cost?\margintstamp{53:00}[0em]. Answer: for a sufficiently deep network, MAML can approximate any function of $\mathcal{D}_i^{tr}, x^{ts}$, given the following \textbf{assumptions}\footnote{Finn \& Levine, ICLR 2018}:
+\begin{compactitem}
+	\item nonzero $\alpha$
+	\item loss function gradient does not lose information about the label (\red{what?})
+	\item Datapoints in $\mathcal{D}_i^{tr}$ are unique.
+\end{compactitem}
+
+\Needspace{25\baselineskip}
+\bluesec{Challenges} [of optimization-based adaptation] and potential solutions for each\margintstamp{55:20}[0em]:
+\begin{compactitem}
+	\item Bi-level optimization can exhibit instabilities.
+	\begin{compactitem}
+		\item Automatically learn inner vector learning rate $\alpha$. 
+		\item Only optimize a subset of the params in the inner loop.
+		\item Decouple inner learning rate and the batch-norm statistics per-step. 
+		\item Introduce context vars for increased expressive power.
+	\end{compactitem}
+
+	\item Backprop through many inner gradient steps is compute \& memory intensive.
+	\begin{compactitem}
+		\item Crudely approx jacobian $\deriv{\phi_i}{\theta}$ as identity matrix. ``Things that look like $\phi_i$ look like $\theta$.''
+		\item Only optimize last layer of weights.
+		\item Derive meta-gradient using the implicit function theorem.
+	\end{compactitem}
+	
+	\item How to choose architecture that's effective for inner gradient step?
+	\begin{compactitem}
+		\item Progressive NAS + MAML. Finds deep \& narrow architectures that are quite different from standard supervised learning ones.
+	\end{compactitem}
+\end{compactitem}
+
+\myfig[0.7\textwidth]{figs/lec4_takeaways.png}
+
+
+
+
+
+
+
+% --------------------------------------------------------------------------------------------
+\lecture{Lectures}{Automatic Differentiation}{September 28, 2020}
+% --------------------------------------------------------------------------------------------
+
+Guest lecture from Matt Johnson (Google). Notation\footnote{Note that he uses brackets to mean ``times.'' They could just as well be parentheses. He also prefers to think of the quantity $\partial f(x)$ as a linear map (i.e. a matrix) being applied (i.e. left-multiplied) to $v$ \tstamp{30:00}. You can also remember the bracket notation as the same interpretation as our linear algebra textbook for operators/maps.}\footnote{Reminder: If we define the taylor expansion to be centered at some fixed point $x$, and want to evaluate that expansion at $x + v$: 
+	\begin{align}
+		f(x + v) &\approx f(x) + \partial f(x) (x - (x + v)) \\
+			&=  f(x) + \partial f(x) v \\
+	\end{align}
+ }:
+\begin{align}
+		f &: \R^n \mapsto \R^m \\
+		\partial f &: \R^n \mapsto \lr{ \mred{\R^n} \mapsto \mred{\R^m} } \\
+		\partial f(x) &: \mred{\R^n} \mapsto \mred{\R^m} \\
+		\partial f(x) &\in \R^{m \times n} \\
+		f(x + \mred{v})
+			&= \mred{ f(x) + \partial f(x)[v]  } + \mathcal{O}(||v||^2) \\
+		\langle \nabla f(x), \mred{v} \rangle
+			&= \partial f(x)[\mred{v}]
+\end{align}
+
+\begin{example}[Review: Taylor Series]
+	A \green{power series} is an infinite series of the form $\sum_{k=0}^{\infty} c_k (x - a)^k$ where the coefficients $c_k$ and the \textbf{center} of the series $a$ are constants. Recall that if a function $f$ is differentiable at a point $a$, it can be approximated near $a$ by its tangent line:
+	\begin{align}
+		f(x) \approx f(a) + f'(a) (x - a)
+	\end{align}
+	Let's denote this by $p_1(x)$ -- this is a first-order approximation of $f$ at $a$, since $p_1(a) = f(a)$ and $p'_1(a) = f'(a)$. We can find successively higher-order approximations by adding the next term in the power series, which here would be $c_2(x - a)^2$, and solving for $c$ based on the constraints that all derivatives (from order 0 to n -- where $n$ is 2 here) must be the same as the original function's. For the 2nd order approximation, we end up finding that $c_2 = \onehalf f''(a)$. 
+	
+	So, how good are these approximations? \green{Taylor's Theorem} states:
+	\begin{align}
+		f(x) 
+			&= p_n(x) + R_n(x) \\
+		R_n(x) 
+			&= \frac{  f^{ (n+1)}(c) }{ (n + 1)! } (x - a)^{n+1} 
+	\end{align}
+	for some point $c$ between $x$ and $a$. 
+\end{example}
+
+\begin{myquote}
+	The function $\partial f(x)$ is a linearized version of $f$ at the point $x$ \tstamp{28:43}.
+\end{myquote}
+
+
+\bluesec{Two Linear Maps of AD} \margintstamp{37:20}[0em] 
+\begin{compactitem}
+	\item \blue{Jacobian Vector Product (JVP)}/push-forward/forward-mode. The map $v \mapsto \partial f(x) [v]$. Note that if $v = \hat{e}_n$ (one-hot vector with $v_n = 1$ and 0 elsewhere), then this maps to the $n$th \textit{column} of the Jacobian, $\partial f(x)_{:, n}$. \\
+	
+	\underline{Example}: we're given $v = \pderiv{x}{\theta}$ for input scalar $\theta$. You want to compute $\pderiv{f(x)}{\theta}$ for some function $f(x)$. We can use $\partial f(x)$ to \textit{push forward} the perturbation information we were given to obtain it: $\pderiv{f(x)}{\theta} = \partial f(x) [v]$ \tstamp{40:00}. 
+	
+	\item \blue{Vector Jacobian Product (VJP)}/pull-back/reverse-mode. The map $w^T \mapsto \partial f(x)^T [w^T]$ where $w^T \in \R^m$. Just the transpose of JVP basically. Can use to obtain the Jacobian one \textit{row} at a time. \\
+	
+	\underline{Example}: we're given a row vector, $w^T = \pderiv{\ell}{y}$, representing how a scalar-valued loss $\ell$ would change given a perturbation in some intermediate vector $y$. We want to know how the loss will change given a perturbation in some earlier vector $x$, where $y = f(x)$. We can use $\partial f(x)^T$ to \textit{pull-back} sensitivity information to do this: $u^T = \pderiv{\ell}{x} = \partial f(x)^T [w^T]$.  
+\end{compactitem}
+
+
+
+
+% --------------------------------------------------------------------------------------------
+\lecture{Lectures}{Non-Parametric Few-Shot Learning}{September 30, 2020}
+% --------------------------------------------------------------------------------------------
+
+
+\bluesec{Non-Parametric Methods}.  Motivation: can we embed a learning procedure \textit{without} a second-order optimization (like we saw in optimization-based meta-learning)? In low data regimes, \green{non-parametric} methods are simple and work well. Well, the inner loop where we do few-shot learning is a perfect low-data regime! We still want parametric methods for the outer loop (meta-training).\margintstamp{6:40}[0em] \textbf{Can we use parametric meta-learners that produce effective non-parametric learners?} \\
+
+Say we want to perform a non-parametric technique like nearest neighbors in the inner loop to classify the meta-test example images. Well, how do we do the comparison between the test images and meta-training data? L2 distance in pixel space? \textbf{Idea}: train a [parametric] siamese network to act as a comparator function between two images, that returns a binary yes/no if the two input images are the same class\footnote{At meta-test time, we compare the test input $\vec[test]{x}$ with each meta-train example, and predict the label of the meta-train image that had the highest probability of being the same class as the test image.}. We can use that in the inner loop as our comparator for KNN.\margintstamp{14:00}[0em] However, it would be nice if we could match the meta-training and meta-test tasks (instead of doing binary classification for former and N-way classification for latter). This is where \green{matching networks} come in, which perform NN in a learned embedding space. 
+
+\myfig[0.9\textwidth]{figs/lec6_matching.png}
+
+\Needspace{18\baselineskip}
+The operations from input to output in the figure above are as follows:
+\begin{compactenum}
+	\item Feed the meta-training images through $g_{\theta}$. 
+	\item Feed the meta-test image through $h_{\theta}$. 
+	\item Compute something akin to a negative distance between the two aforementioned embeddings. For example, the paper defines the big $\otimes$ in the figure as $\mtext{softmax}(\mtext{cos(f, g)})$. Interpretation here of elem $i$ would be ``probability of being the same class as meta-training example $\vec[i]{x}$''. 
+	\item Multiply each of the probabilities (we have num-meta-train-examples probabilities here) by their associated one-hot label vector. 
+	\item Compute the sum over these to obtain the final output vector of size num-meta-train-examples, whose `i`th output is equal to $f_{\theta}(\vec{x}^{ts}, \vec[i]{x})$. 
+\end{compactenum}
+
+\begin{algorithm}[Non-Parametric Meta-Learning with Matching Networks]
+	\begin{compactenum}
+		\item Sample $\task_i$
+		\item Sample disjoint $\mathcal{D}_i^{tr}, \mathcal{D}_i^{test}$ from $\mathcal{D}_i$
+		\item Compute $\hat{y}^{ts} = \sum_{x_k, y_k \in \mathcal{D}^{tr}} f_{\theta}(x^{ts}, x_k) y_k$  \scriptsize{[inner-loop]}
+		\item Update $\theta$ using $\nabla_{\theta} \mathcal L ( \hat{y}^{ts}, y^{ts} )$ \green{[Meta-Objective]} \scriptsize{[outer-loop]}
+	\end{compactenum}
+\end{algorithm}
+
+
+Everything we've seen so far has been single-shot. What if we have more than 1 shot? Authors of matching network just treated each shot independently, and don't aggregate any information across shots. Can we aggregate class information in some way to create a \textit{prototypical embedding}? \margintstamp{31:00} This is what \green{prototypical networks} (Snell et al. 2017) do. 
+\myfig[0.8\textwidth]{figs/lec6_prototype.png}
+
+In other words, for each class, take the average embedding of the associated meta-train examples, and use that the same way we did with matching networks. 
+
+
+\myfig[0.8\textwidth]{figs/lec6_prototype2.png}
+
+\Needspace{20\baselineskip}
+Quick review of the three ML approaches we've seen so far\margintstamp{52:30}:
+\graybox{
+	\mtblue{[BB]}\qquad 
+		y^{ts}
+			&= f_{\theta}(\mathcal{D}_i^{tr}, x^{ts}) \\
+	\mtpink{[Opt]}\qquad
+		y^{ts} 
+			&= f_{MAML}(\mathcal{D}_i^{tr}, x^{ts})
+			= f_{\phi_i} (x^{ts}) \\
+	&\mtext{where} \quad 
+		\phi_i = \theta - \alpha \nabla_{\theta} \mathcal{L}(\theta, \mathcal{D}_i^{tr}) \\
+	\mtgreen{[Non-Param]}\qquad
+		y^{ts}
+			&= f_{PN}(\mathcal{D}_i^{tr}, x^{ts}) 
+			= \mtext{softmax}\lr{ -d\lr{  f_{\theta}\lr{ x^{ts}, \vec[n]{c} }  }   } \\
+		&\mtext{where}\quad 
+			\vec[n]{c} = \inv{K} \sum_{x, y \in \mathcal{D}_i^{tr}} \ind (y \eq n) f_{\theta}(x)
+}
+Algorithmic properties:
+\begin{compactitem}
+	\item \textbf{Expressive power}: ability for $f$ to represent a range of learning procedures.  
+	
+	\item \textbf{Consistency}: learned learning procedure will monotonically improve w/more data.
+	
+	\item \textbf{Uncertainty Awareness}: ability to reason about ambiguity during learning.
+\end{compactitem}
+
+\begin{table}{c | c | c}{\tstamp{1:00:00} TODO: revisit lecture here -- lots of good points!}
+	\toprule
+	Black-Box & Optimization-Based & Non-Parametric
+	 \\ \hline
+	Complete expressive power & 
+	Only expressive for very deep models &
+	expressive for most architectures 
+	\\ \hline
+	Not consistent & 
+	Consistent, reduces to GD &
+	Consistent under certain condiations 
+	\\ \bottomrule 
+\end{table}
+\red{TODO}: try proving everything above.
+
+Bunch of example applications from \tstamp{1:09:00} until the end of lecture:
+\begin{compactitem}
+	\item One-Shot Imitation Learning
+	
+	\item Low-Resource Molecular Property Prediction \tstamp{1:11:00}.
+	
+	\item Few-Shot Human Motion Prediction \tstamp{1:12:00}
+	
+	\item Language Modeling \tstamp{1:14:30}. 
+\end{compactitem}
+
+
+
+
+
+% --------------------------------------------------------------------------------------------
+\lecture{Lectures}{Advanced Meta-Learning: Task Construction}{October 05, 2020}
+% --------------------------------------------------------------------------------------------
+
+\begin{myquote}
+	How should tasks be defined for good meta-learning performance?
+\end{myquote} 
+	
+Beginning of lecture explores what happens if the label assignments is consistent across shots in $\mathcal{D}_{tr}$. Model will basically learn to ignore the meta-training examples and just learn to classify the test inputs like a supervised learning problem. Note that this is fine if we don't plan on showing the model instances of unseen classes in the future. However, if we give it some new meta training set and ask it to predict test examples from it (on classes it wasn't trained on), it won't be able to adapt well at all. 
+
+Stated another way, if the tasks are \green{non-mutually exclusively}, meaning that a single function can solve all tasks, then the model can just learn that function and basically ignore the set of meta-training examples $\mathcal{D}_tr$ provided to it\footnote{It will just classify the test inputs based on the test inputs (aka regular supervised learning tbh).}. What we'd prefer, of course, is that it actually learn nothing about how to classify some canonical example, butt rather that it learns (i.e. encodes in its parameters $\theta$) how to quickly acquire such knowledge from the meta-training examples in $\mathcal{D}_tr$.\margintstamp{36:00}[-1em]
+
+\bluesec{Meta-Learning without Memorization}. Introduce \green{meta-regularization}. One option is to maximize the mutual information between the prediction $\hat{y}_{ts}$ and the meta-training examples $\mathcal{D}_{tr}$, given a test input $x_{ts}$:
+\begin{align}
+	\max &I(\hat{y}_{ts}, \mathcal{D}_{tr} \mid x_{ts}) \\
+	\mtext{where } &I(X, Y) \triangleq \dkl{ P(X, Y) }{ P(X)P(Y) }
+\end{align}
+but defining this term in practice can be challenging. Instead, we can minimize a meta-training loss and the information in $\theta$:
+\graybox{
+	\mathcal{L}(\theta, \mathcal{D}_{meta-train}) + \beta \dkl{  q( \theta; \theta_{\mu}, \theta_{\sigma})  }{ p(\theta)  }
+}
+where $q$ is a distribution over our weights and $p$ is some prior distribution\footnote{Another name for the KL term is \purple{Bayes by Backprop.}}. Amounts to injecting noise on our weights with variance $\theta_{\sigma}$. Places precedence on using info from $\mathcal{D}_{tr}$ over storing info in $\theta$. Quickly shows proof about whether meta-regularization leads to better generalization at \tstamp{53:30}. 
+
+\Needspace{15\baselineskip}
+\begin{compactitem}
+	\QA{How do you ``minimize information in $\theta$'' without basically saying ``don't learn anything''? I think she meant to say more like ``minimize information \textit{about the tasks themselves} in $\theta$.''}{}
+	
+	\QA{How are q and p actually defined? Does it matter?}{}
+\end{compactitem}
+
+\bluesec{Meta-Learning without Tasks}\margintstamp{55:00}. What if we only have unlabeled data? Can we have an algorithm \textit{propose} tasks such that it performs well in a few-shot setting at meta-test time? Want the proposed tasks to have some properties:
+\begin{compactitem}
+	\item \textbf{Diverse}. More likely to cover future test tasks. 
+	\item \textbf{Structured}. If tasks are \textit{too} diverse, meta-learning may not be able to pick up on the underlying structure(s) useful for good performance. 
+\end{compactitem}
+
+\underline{Unlabeled Images}\footnote{Hsu, Levine, Finn. Unsupervised Learning via Meta-Learning. ICLR'19}\margintstamp{1:02:00}. 
+\begin{compactenum}
+	\item Get image embeddings from some unsupervised algorithm.
+	
+	\item Run K-means clustering in latent space. 
+	
+	\item Propose cluster discrimination tasks. 
+	
+	\item Run meta-learning (e.g. MAML) on the proposed labeled dataset(s).
+\end{compactenum}
+We can also exploit \purple{domain knowledge} when constructing tasks (e.g. translation invariance in images). So basically data augmentation, where the augmented data is stored in $\mathcal{D}^{ts}$. 
+
+\underline{Unlabeled Text}\margintstamp{1:15:30}. One option is formulating it as a \purple{language modeling} problem (e.g. GPT-3). Finn mentions that this is both harder to (a) combine with optimization-based meta-learning\footnote{Why? Perhaps it's hard to extract the labels from the shots (context)? Might be worth reflecting on this more...}, and (b) apply to classification tasks (since model outputs are raw text, not class labels). Another option is to construct tasks by \textit{masking out words}, and defining the tasks as classifying the masked out word\footnote{Basically the text analog of what we did in HW1 for images}. 
+\myfig[0.75\textwidth]{figs/lec7_bansal.png}
+
+
+
+
+
+% --------------------------------------------------------------------------------------------
+\lecture{Lectures}{Bayesian Meta-Learning}{October 07, 2020}
+% --------------------------------------------------------------------------------------------
+
+Begins with graphical model perspective of meta-learning. 
+
+\begin{drawing}
+		
+		\node[latent] (theta) {$\theta$};
+		\node[latent, right=of theta] (phi) {$\phi_i$};
+		
+		\node[obs, right=1.5cm of phi, yshift=1em] (ytr) {$y^{tr}_{i,j}$};
+		\node[latent, below=0.5cm of ytr] (yts) {$y^{ts}_{i,j}$};
+		
+		\node[obs, above=0.3cm of ytr, xshift=-1cm] (xtr) {$x^{tr}_{i,j}$};
+		\node[obs, below=0.3cm of yts, xshift=-1cm] (xts) {$x^{ts}_{i,j}$};
+		
+		\edge{theta} {phi};
+		\edge{phi} {ytr, yts};
+		\edge {xtr} {ytr};
+		\edge {xts} {yts};
+				
+		
+		\plate {pj} {(xtr) (ytr) (yts) (xts)} {j};
+		\plate {pi} {(phi) (pj)} {i} ;
+\end{drawing}
+\begin{align}
+	\phi_{a} \perp \phi_b \mid \theta 
+	\quad \implies \quad
+	\mathcal{H}\lr{  p(\phi_i \mid \theta)  } < \mathcal{H}\lr{  p(\phi_i)  }
+\end{align}
+\begin{compactitem}
+	\QA{If we can identify $\theta$, when should learning [the task-specific params] $\phi_i$ be faster than learning from scratch (i.e. learning from random $\phi_i$ and no notion of $\theta$, instead of having $\theta$ inform the starting point of $\phi_i$)}{When $\theta$ contains information that is \textit{not} present in $\mathcal{D}_i^{tr}$ or can't be learned directly from $\mathcal{D}_i^{tr}$ -- yet is somehow useful prior knowledge for adapting to the task.}
+	
+	\QA{What if $\mathcal{H}\lr{  p(\phi_i \mid \theta)  } = 0 \forall i$?}{Then the true $\phi_i$ responsible for the data-generating distribution is a deterministic function of $\theta$ \textit{for all tasks $\mathcal{T}_i$}. As a consequence, it means we can completely ignore $\mathcal{D}_i^{tr}$ $\forall i$.} 
+	
+	\QA{What if you meta-learn without a lot of tasks?}{Meta-overfitting to the family of training functions.}
+\end{compactitem}
+
+\bluesec{Bayesian Deep Learning Toolbox}.\margintstamp{38:00} Goal: represent distributions with neural networks (aka CS236):
+\begin{compactitem}
+	\item Latent variable models + variational inference.
+	
+	\item Bayesian ensembles. 
+	
+	\item Bayesian neural networks. 
+	
+	\item Normalizing flows. 
+	
+	\item Energy-based models \& GANs.
+\end{compactitem}
+
+
+% --------------------------------------------------------------------------------------------
+\lecture{Lectures}{Reinforcement Learning Primer}{October 12, 2020}
+% --------------------------------------------------------------------------------------------
+
+
+\begin{example}[RL Terminology Review]
+	\begin{compactitem}
+		\item  \green{Utility} $U$ is discounted $\sum R(s, a, s')$ on the path (this is a random quantity).
+		\item \green{Value} $V_{\pi}(s)$ of policy $\pi$ from state $s$ is the $\E{U}$ received by following policy $\pi$.  
+		\item \green{Q-value} $Q_\pi(s, a)$  is $\E{U}$ of taking action $a$ from state $s$, and then following policy $\pi$. 
+	\end{compactitem}
+	We can compute these quantities via:
+	\graybox{
+		V_{\pi}(s)
+		&= \begin{cases}
+			0 & \text{if IsEnd(s)} \\
+			Q_{\pi}(s, \pi(s)) & \text{otherwise}
+		\end{cases} \\
+		Q_{\pi}(s, a)
+		&= \sum_{s'} T(s, a, s')\left[
+		R(s, a, s') + \gamma V_\pi(s')
+		\right] 
+	}
+\end{example}
+
+\bluesec{Multi-Task RL}\margintstamp{30:30}. We can cast definition of an RL task into a multi-task setting by appending a \green{task identifier} $z_i$ to the state vector $\vec s \rightarrow (\vec{\bar s}, z_i)$ (where $\vec{\bar s}$ is how we refer to the original state vector/formulation henceforth). Formally, the original definition of an RL task $\task_i$, followed by the reformulation to the multi-task setting, is shown below.
+\begin{align}
+	\mtgreen{[Single-Task RL]}\quad
+	\task_i 
+	&\triangleq \{  \mathcal{S}_i, \mathcal{A}_i, p_i(\vec[1]{s}), p(\vec{s'} \mid \vec s, \vec a), r(\vec s, \vec a)   \} \\
+	\mtgreen{[Multi-Task RL]}\quad
+	\{ \task_i \}
+	&= \left\{    
+	\cup \mathcal{S}_i , \cup \mathcal{A}_i  
+	\inv{N} \sum_i p_i(\vec[1]{s}), 
+	p(\vec{s'} \mid \vec s, \vec a), 
+	r(\vec s, \vec a)
+	\right\}
+\end{align}
+\green{goal-conditioned RL} is when there is some desired goal state that we want our model to reach. 
+
+\begin{compactitem}
+	\QA{Why is the multi-task initial state distribution an average over the initial-state distributions of each task? Shouldn't it be more like a renormalized sum (with new denominator over the union of states)?}{}
+\end{compactitem}
+
+
+\bluesec{Policy Gradients \& Multi-Task Counterparts}\margintstamp{35:20}. 
+
+\myfig[0.7\textwidth]{figs/lec9_rl_anatomy.png}
+
+
+\begin{compactitem}
+	\item \textbf{On-Policy}: 
+	\begin{compactitem}
+		\item Data comes from the current policy.
+		\item Compatible with all RL algorithms.
+		\item Can't reuse data from previous policies.
+	\end{compactitem}
+
+	\item \textbf{Off-Policy}:
+	\begin{compactitem}
+		\item Data comes from any policy. 
+		\item Works with specific RL algorithms.
+		\item Much more sample efficient, can reuse old data.
+	\end{compactitem}
+\end{compactitem}
+
+Let $\pi_{\theta}(\tau)$ denote the joint probability of some full episode (trajectory) $\tau$\margintstamp{40:00}[6em], factorized as
+\begin{align}
+	\pi_{\theta}(\tau)
+		&\triangleq \pi_{\theta}(\vec[1]{s}, \vec[1]{a}, \ldots, \vec[T]{s}, \vec[T]{a}) \\
+		&= p(\vec[1]{s}) \prod_{t=1}^T \pi_{\theta}(\vec[t]{a} \mid \vec[t]{s}) p(\vec[t+1]{s} \mid \vec[t]{s} , \vec[t]{a}) 
+\end{align}
+where each $\pi_{\theta}(\vec[t]{a} \mid \vec[t]{s})$ is typically parameterized as a neural network from observations to actions (predictions), and $p(\vec[t+1]{s} \mid \vec[t]{s} , \vec[t]{a})$ is the ``world's'' distribution, sampled from the environment. \green{Policy gradient} can be formulated as follows:\margintstamp{49:30}[8em]
+\graybox{
+	\theta^* 
+		&= \argmax_{\theta} \E[\tau \sim \pi_{\theta}(\tau)]{  \sum_t r(\vec[t]{s}, \vec[t]{a}) } 
+		\triangleq \argmax_{\theta} J(\theta) \\
+	\nabla_{\theta} J(\theta)
+		&= \int \nabla_{\theta} \pi_{\theta}(\tau) r(\tau) \mathrm{d}\tau  \\
+		&= \E[\tau \sim  \pi_{\theta}(\tau)]{  \nabla_{\theta}  \log \pi_{\theta}(\tau) r(\tau)  } \\
+		&= \E[\tau \sim  \pi_{\theta}(\tau)]{   
+			\lr{   \sum_{t=1}^{T} \nabla_{\theta} \log \pi_{\theta} (\vec[t]{a} \mid \vec[t]{a})    }
+			\lr{  \sum_{t=1}^T r(\vec[t]{s}, \vec[t]{a})     }	
+		}
+}
+As usual, in practice we typically take MC samples from $\pi_{\theta}$ to approximate this expectation over trajectories $\tau$.
+\myfig[0.7\textwidth]{figs/lec9_reinforce.png}
+
+\Needspace{10\baselineskip}
+Pros/cons of policy gradients:\margintstamp{56:00}
+\begin{compactitem}
+	\item[\green{\cmark}] Simple
+	\item[\green{\cmark}] Easy to combine w/existing multi-task \& meta-learning algs
+	
+	\item[\red{\xmark}] High-variance gradient
+	\item[\red{\xmark}] Requires on-policy data
+\end{compactitem}
+
+
+\bluesec{Q-Learning}\margintstamp{58:00}. Begins w/review of value-based RL.
+
+\begin{algorithm}[Fitted Q-iteration Algorithm \tstamp{1:04:00}]
+	Algorithm for learning a parameterized Q function $Q_{\phi}: (\vec s, \vec a) \mapsto \R$ (output is Q-value which I assume will always be a real-valued scalar). 
+	\begin{compactenum}
+		\item Collect dataset $\{  (\vec[i]{s}, \vec[i]{a}, \vec[i]{s'}, r_i)  \}$ using \underline{some} (not necessarily the current) policy. 
+		\item Set targets $\vec[i] \leftarrow r(\vec[i]{s}, \vec[i]{a}) + \gamma ~ \max_{\vec[i]{a'}} Q_{\phi}(\vec[i]{s'}, \vec[i]{a'})$. These represent labels/ground-truth for the expected [cumulative] reward of taking action $\vec[i]{a}$ from state $\vec[i]{s}$. 
+		\item Set $\phi \leftarrow \argmin_{\phi} \onehalf \sigma_i ||   Q_{\phi}(\vec[i]{s}, \vec[i]{a}) - \vec[i]{y}       ||^2$. 
+	\end{compactenum}
+
+	\textbf{Result}: get a policy $\pi(\vec a \mid \vec s)$ via $\argmax_{a} Q_{\phi}(\vec s, \vec a)$. 
+\end{algorithm} 
+
+Pros/cons of Q-learning:
+\begin{compactitem}
+	\item[\green{\cmark}] More sample efficient than on-policy methods.
+	\item[\green{\cmark}] Can incorporate off-policy data. 
+	\item[\green{\cmark}] Can update policy even w/o seeing the reward. 
+	\item[\green{\cmark}] Relatively easy to parallelize. 
+	
+	\item[\red{\xmark}] Harder to apply standard meta-learning algs (DP alg).
+	\item[\red{\xmark}] Lots of ``tricks'' to make it work.
+	\item[\red{\xmark}] Potentially could be harder to learn than just a policy.
+\end{compactitem}
+
+\Needspace{18\baselineskip}
+\bluesec{Multi-Task Q-Learning}\margintstamp{1:12:30}. One benefit of the multi-task setting is that we can perform \green{hindsight relabeling}: reusing our experiences from previous tasks, and just replacing the rewards with the current task rewards. For example, if we are trying to learn how to pass well in hockey, but we just happen to shoot a really good goal, we can reuse that experience when explicitly learning the ``goal shooting'' task and relabel with the associated reward for shooting that goal. Furthermore, if our multi-task setup includes tasks that are essentially opposites of one another (e.g. closing a drawer vs opening a drawer), we can use the \textit{successes} of one task as example \textit{failures} for the other task (and vice-versa). 
+
+\myfig[0.7\textwidth]{figs/lec9_hindsight.png}
+
+
+
+
+
+
+
+
+
+
+% --------------------------------------------------------------------------------------------
+\lecture{Lectures}{Model-Based Reinforcement Learning}{October 19, 2020}
+% --------------------------------------------------------------------------------------------
+
+
+\bluesec{Model-Based RL}\margintstamp{16:20}. Learn model of the environment dynamics $p(s' \mid s, a)$. Today we'll look at the case where the only difference between all of our RL tasks is the reward function. For example, a personal robot may do laundry, cook, etc. (same environment dynamics for all). 
+
+\begin{algorithm}[Approach 1: Planning]
+	Optimize over actions using model
+	\begin{compactenum}
+		\item Run some policy (e.g. random policy) to collect data $\mathcal D = \{ (s, a, s')_i \}$. 
+		
+		\item Learn model $f_{\phi}(s, a)$ to minimize $\sum_i || f_{\phi}(s_i, a_i) - s'_i ||^2$. 
+		
+		\item Choose actions via one of the common sub-approaches:
+		\begin{compactitem}
+			\item \pink{Gradient-based}: Backprop through $f_{\phi}(s, a)$ (or pass gradients to $\pi_{\theta}(a \mid s)$.)
+			\item \blue{Gradient-free}: iteratively sample action sequences, run through $f_{\phi}(s, a)$.
+		\end{compactitem}
+	
+	\end{compactenum}
+\end{algorithm}
+
+\textbf{Possible failures of planning}\margintstamp{29:18}. Action optimization will exploit imprecisions in model (compounding errors). Can correct for this by refitting model using new data. Specifically, can add a 4th step the algorithm above where append new tuples $(s, a, s')$ to $\mathcal D$ that we didn't perform well on. 
+
+\begin{compactitem}
+	\QA{The model above, $f_{\phi}(s, a)$ seemingly is supposed to approximate the density $p(s' \mid s, a)$, so why do some diagrams here look like they imply it predicts the reward $r(s, a)$?}{}
+	
+	\QA{How is the policy $\pi_{\theta}$ defined here? Is it an entirely different model?}{}
+	
+	\QA{What's the distinction bw steps 2 and 3? It seems to imply that ``learning the model'' is not the same as backpropagating through it.}{Yeah, so the second step is learning the global model of environment dynamics $p(s' \mid s, a)$ that is \textit{task independent}. Then, although, \sout{she doesn't explicitly clarify this} (she does around \tstamp{35:00}), it seems assumed that step 3 is for learning to predict actions that maximize the task-specific reward function $r(s, a)$.}
+\end{compactitem}
+
+\begin{algorithm}[Approach 2: Model-Predictive Control (MPC)  \tstamp{31:30}]
+	``Plan \& replan using model''. Literally the same as approach 1 but we basically just take one action at a time (instead of predicting \& executing a full action sequence). 
+	\begin{compactenum}
+		\item Run base policy $\pi_0(a_t \mid s_t)$ (e.g. random policy) to collect data $\mathcal D = \{ (s, a, s')_i \}$. 
+	
+		\item Learn model $f_{\phi}(s, a)$ to minimize $\sum_i || f_{\phi}(s_i, a_i) - s'_i ||^2$. 
+	
+		\item Use model $f_{\phi}(s, a)$ to optimize action sequence $a_t, a_{t+1}, a_{t+N}$. 
+		\begin{compactenum}
+				\item Execute the first planned action $a_t$, observing resulting state $s'$. 
+				\item Append $(s, a, s')$ to $\mathcal D$. 
+		\end{compactenum}
+	\end{compactenum}
+ 
+	\red{- compute intensive}
+\end{algorithm}
+
+\myfig[0.5\textwidth]{figs/lec10_multitaskrl.png}
+ 
+Rest of lecture, starting from around \tstamp{45:00} is about RL with high-dimensional observations (e.g images). 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ % --------------------------------------------------------------------------------------------
+ \lecture{Lectures}{Meta-RL: Adaptable models and policies}{October 21, 2020}
+ % --------------------------------------------------------------------------------------------
+ 
+ 
+ 
+ \bluesec{Met-RL Learning Problem}. Given small amount of experience from task, can we learn a policy that does well on this task. For example, the meta-RL \textit{maze navigation} problem. Each task is navigating a different maze. Give some small amount of experience in a new maze, can we quickly learn to solve it? 
+ 
+ 
+In meta-RL, common to use RNNs since there is a natural temporal structure to RL episodes. Input is (current state, prev reward)\footnote{This is a notable difference bw what you did with a recurrent policy.}, and output is predicting the next action. Also the hidden state is maintained across episodes for a given task (bc we want to be able perform well across multiple episodes). An episode here is some full sequence of T (s, a, r) triplets.
+ 
+\begin{algorithm}[Black-box meta-RL \tstamp{26:40}]
+	Repeat:
+	\begin{compactenum}
+		\item Sample task $\task_i$ 
+		\item Roll-out (execute) policy $\pi(a \mid s \mathcal{D}_{tr})$ for $N$ episodes (under dynamics $p_i(s' \mid s, a)$ and reward $r_i(s, a)$.)
+		\item Store sequence in replace buffer for task $\task_i$ 
+		\item Update policy to maximize discounted return for all tasks. 
+	\end{compactenum}
+\end{algorithm}
+
+Brief mention of RL$^2$ architecture (and others) at \tstamp{33:00}. 
+ 
+ 
+ 
+ 
+ 
+ 
+% --------------------------------------------------------------------------------------------
+\lecture{Lectures}{Meta-RL: Learning to Explore}{October 26, 2020}
+% --------------------------------------------------------------------------------------------
+ 
+\bluesec{Learning to Explore}. Can we learn exploration strategies based on experience from other tasks in that domain?
+ 
+
+Posterior sampling slide/explanation around \tstamp{18:30} (PEARL). 
+
+\bluesec{Decoupled Exploration \& Exploitation} (Focus of HW4)\margintstamp{41:40}. Prev strategy tried to reconstruct states/rewards via training model $f(s', r \mid s, a, \mathcal{D}_{tr})$ \& collecting $\mathcal{D}_{tr}$ so that model is accurate. Rather trying to reconstruct states/rewards, how might we explore \textit{only} information relevant for solving the task? We can pass in a feature vector $\mu$ describing various features of the task to a model learning an \textit{information bottleneck} representation $z$ containing the ``core task representation'' (and outputs an execution policy). We learn to explore by recovering that information. At meta-test time, run exploration episode to learn the execution policy [\purple{DREAM}] \tstamp{50:00}. 
+
+\bluesec{End-to-End Opt of Exploration Strategies}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ % ==================================================================================
+ % Homework
+ % ==================================================================================
+ \mysection{Homework}\label{Homework}
+ 
+
+
+\lecture{Homework}{Goal Conditioned RL and HER (HW3)}{October 25, 2020}
+
+
+\begin{itemdefinition}{Environment 1: Bit Flipping Environment}{}
+	\item \textbf{State}: binary vector w/length $n$. 
+	\item \textbf{Reward}: $r(s, a)$ is -1 when performing $a$ from $s$ doesn't result in the goal vector/state, and 0 if it does match.
+\end{itemdefinition}
+
+\begin{center}
+	{\footnotesize
+	In the bit-flipping environment, the state is a binary vector with length n. The goal is to
+	reach a known goal vector, which is also a binary vector with length n. At each step, we can
+	flip a single value in the vector (changing a 0 to 1 or a 1 to 0). This environment can very
+	easily be solved without reinforcement learning, but we will use a DQN to understand how
+	adding HER can improve performance.
+	
+	The bit flipping environment is an example of an environment with sparse rewards. At each
+	step, we receive a reward of -1 when the goal and state vector do not match and a reward of
+	0 when they do. With a larger vector size, we receive fewer non-negative rewards. Adding
+	HER helps us train in an environment with sparse rewards (more details later).
+}
+\end{center}
+
+
+\bluesec{Implementing Goal-Conditioned RL on Bit Flipping} (Problem 1). 
+
+\begin{compactitem}
+	\item Model: DQN which maps an input bit vector to \texttt{num\_bits} logits. The $i$th output element is the predicted Q value for taking action $i$ from the input state. We can take the argmax to obtain the next action.
+	
+	\item Buffer: container of (state, action, reward, next state) tuples. Supports sampling batches from the buffer with batch size \texttt{sampleSize}. 
+\end{compactitem}
+
+\begin{algorithm}[flipBits]
+	
+	For each iteration of each epoch:
+	\begin{compactenum}
+		\item Re-init state and goal state randomly from environment. 
+		
+		\item (solveEnvironmentNoGoal) Have the model flip the state numBits times sequentially. 
+		
+		\item  (updateReplayBuffer): add all the experiences from the previous step to the replay buffer. 
+		
+		\item Repeat for \texttt{optSteps}:
+		\begin{compactenum}
+			\item Sample a batch of experiences from the replay buffer. 
+			\item Run the targetModel on the next state $s'$ to obtain logits over $a'$. 
+			\item Compute target reward $r + \gamma \max_{a'} Q_{targ}(s', a')$. 
+			\item Compute $Q_{val} = \sum_b Q^{model}_b(s, a^{taken})$ (sum of model-predicted Q values for the actions it took). 
+			\item Compute MSE loss on $Q_{val}$ and targetReward.
+		\end{compactenum}
+	\end{compactenum}
+\end{algorithm}
+
+\begin{compactitem}
+	\item updateTarget(model, targetModel, tau)
+	\begin{compactenum}
+		\item Compute $w_i^{targ} \leftarrow \tau w_i^{targ} + (1 - \tau) w_i^{mod}$
+	\end{compactenum}
+\end{compactitem}
+
+
+\begin{compactitem}
+	\QA{Why are there two models? What do they each represent (from lecture)?}{The target model is used for setting the targets from the second step of the Fitted Q-iteration algorithm from lecture.}
+	
+	\QA{Why does the target model have different weights than the main model? The Q-iteration algorithm from lecture made no such distinction.}{}
+	
+	\QA{Why does the solve environment function iterate for numBits steps? Coincidence?}{}
+	
+	\QA{Why is the clip min $-1 / (1 - \gamma)$?}{}
+\end{compactitem}
+
+
+
+
+
+
+\lecture{Homework}{Exploration in Meta-RL (HW4)}{November 08, 2020}
+
+Jargon:
+\begin{compactitem}
+	\item \green{Episode}: sequence of \purple{experiences} $(s, a, r, s')$
+	
+	\item \green{Trial}: one or more episodes (default is 2 for this homework). 
+	
+	\item \green{Agent}: synonymous with \green{policy} (in the code at least). 
+	\begin{compactitem}
+		\item \sout{Confusingly, however, the agent object is an instance of \texttt{DQNAgent}, which is somehow distinct from a class below it called \texttt{DQNPolicy}}. A DQNAgent is composed of (re: has as an attrib) a DQNPolicy. 
+	\end{compactitem}
+	
+	\item Environments:
+	\begin{compactitem}
+		\item Exploration: 
+		\item Instruction:
+		\item Multi-episode: 
+	\end{compactitem}
+\end{compactitem}
+
+\begin{itemdefinition}{CityGridEnv}{}
+	\item \textbf{State}: 
+	\begin{compactitem}
+		\item agent's (x, y) position
+		\item one-hot indicator of the object at the agent's position (none, bus)
+		\item one-hot goal \purple{instruction} $i$ that corresponds to one of four possible goal locations
+	\end{compactitem}
+
+	\item \textbf{Actions}: move up/down/right/left, and ride bus.
+	
+	\item \textbf{Episode}: 20 time steps. Agent receives -1 each time step until it reaches the goal, at which point it receives reward +1. 
+	
+	\item \textbf{Task distribution} $p(\mu)$ corresponds to different bus arrangements.
+\end{itemdefinition}
+
+
+\bluesec{Problem 1: Evaluating End-to-End Meta-RL}. 
+
+\begin{compactitem}
+	\item \textbf{Environment}: CityGridEnv (``vanilla'')
+	\item \textbf{agent}: DQNAgent
+	\begin{compactitem}
+		\item \textbf{policy} (aka agent.\_dqn): RecurrentDQNPolicy
+		\item Underlying network/guts (self.\_Q) is DuelingNetwork $ : (s, \mred{?}) \mapsto$ (Qval, hidden state).
+		\begin{compactitem}
+			\item hidden state is unused by act(...) (\red{??})
+			\item state embedder is ultimately instantiated by the embedder factory in DQNPolicy.from\_config. Determined by config.embedder.type. For problem 1, this is ``recurrent'', which makes the state embedder an instance of \textit{RecurrentStateEmbedder}.
+		\end{compactitem} 
+	\end{compactitem}
+	
+\end{compactitem}
+
+For each \green{episode}, do:
+\begin{enumerate}
+	\item Generate the exploration and multi-episode environment. 
+	
+	\begin{compactenum}
+		\item Create the \purple{exploration environment} (create\_env). In the end, for the vanilla CityGridEnv, this just returns an instance of CityGridEnv using \texttt{index} as the random seed. 
+		
+		\item Create the \purple{instruction environment}. 
+		
+		\item Create the \purple{multi-episode environment}. 
+	\end{compactenum}
+	
+	
+	\item Run the episode using multi-episode env and agent. Loop until \texttt{done}:
+	\begin{compactenum}
+		\item Run \texttt{policy.act} to get action and next state. 
+			
+		\item Execute the action via \texttt{env.step}. 
+	\end{compactenum}
+\end{enumerate}
+
+
+\bluesec{Problem 2: DREAM}
+
+
+DREAM consists of three main components:
+\begin{compactenum}
+	\item Learned task encoder $F_{\psi}(z \mid \mu)$, where $\mu$ is task ID.
+	\item Execution policy $\pi_{\theta}^{exec}$.
+	\item Exploration policy. 
+\end{compactenum}
+
+$F_{\psi}$ and $\pi_{\theta}^{exec}$ are trained jointly via:
+\begin{align}
+	\max_{\psi, \phi} \E[\mu \sim p(\mu), z \sim F_{\psi}(z \mid \mu), i \sim p_{\mu}(i)]{
+		V^{\pi_{\theta}^{exec}} (i, z ; \mu)
+	} - \lambda I(z; \mu)
+\end{align}
+
+
+
+
+
+
+
+\end{document}

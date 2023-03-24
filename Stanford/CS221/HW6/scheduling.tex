@@ -1,0 +1,414 @@
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+% P  R  E  A  M  B  L  E
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\documentclass[11pt]{article}
+\usepackage{amsbsy, amsmath, amssymb, authblk}
+
+%\usepackage{array} 
+%\usepackage{algorithm2e}
+
+\usepackage{booktabs, bm}
+\usepackage[small,labelfont=bf,up,singlelinecheck=false]{caption}
+\usepackage{cancel}
+\usepackage{comment}
+%\usepackage{fancyhdr}
+%\usepackage[default]{lato}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+%\usepackage[utf8]{inputenc}
+%	\inputencoding{latin1}
+%	\inputencoding{utf8}
+%\usepackage{lettrine}
+%\usepackage[sc]{mathpazo}
+\usepackage{lmodern} % Nice fonts?
+%\usepackage{mathrsfs}
+\usepackage{mathtools} 
+%\usepackage{marvosym} % silly bullet-point symbols (misc symbols)
+%\usepackage{microtype}
+\usepackage{minitoc}         % left in case it is needed elsewhere
+\setcounter{secttocdepth}{5} % idem
+\usepackage{etoc} % for toc before each section.
+%\usepackage{multicol}
+\usepackage{needspace}
+\usepackage{paralist}
+%\usepackage{polynom} 			% typesetting polynomial long division
+%\usepackage{setspace}
+%	\onehalfspacing 
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{ulem} 				% for strikeout \sout command.
+%\usepackage{verbatim}
+
+% Muh packagez :)
+\usepackage{../../Packages/MathCommands}
+\usepackage{../../Packages/BrandonColors}
+\usepackage{../../Packages/BrandonBoxes}
+\usepackage{../../Packages/NoteTaker}
+\usepackage{../../Packages/CS221}
+%\usepackage{../Packages/MachineLearningUtils}
+
+
+%\usepackage{program}
+% DL BOOK CONVENTIONS
+\renewcommand\vec[2][]{\bm{#2}_{#1}}
+
+\DeclareDocumentCommand{\slice}
+	{ O{t} O{1} m }
+	{\vec[\langle #2 \ldots #1 \rangle]{#3}}
+
+\newcommand\myfig[2][0.3\textwidth]{\begin{figure}[h!]\centering\includegraphics[width=#1]{#2}\end{figure}}
+\newcommand\myspace[1][]{\vspace{#1\bigskipamount}}
+\newcommand\p{\Needspace{10\baselineskip} \noindent}
+\newcommand\tlab[1]{\tag{#1}\label{#1}}
+\newcommand\Var[1]{\mathrm{Var}\left[#1\right]}
+
+
+%\usepackage{program}
+
+\usepackage{layout} % Type \layout() anywhere to see values of layout frame.
+%\usepackage{showframe} % Displays layout frame on all pages
+\usepackage{marginnote}
+\renewcommand*{\marginfont}{\scriptsize}
+
+\usepackage{listings}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Java,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows, automata, shapes, snakes, positioning}
+\usetikzlibrary{bayesnet}
+
+
+\titleformat*{\subsubsection}{\small\scshape}
+\newcommand\subsub[1]{\Needspace{15\baselineskip}\hrule\subsubsection{#1}\hrule}
+\newcommand\matgrad[2]{\nabla_{\mathbf{#2}} #1}
+
+% O{T} means "optional with default value of `T`"
+% m means mandatory argument
+\DeclareDocumentCommand{\vecseq}
+	{ O{n} m }
+	{ \{  \vec[1]{#2}, \ldots, \vec[#1]{#2}   \}  }
+\DeclareDocumentCommand{\seq}
+	{ O{n} m }
+	{ \{ #2_1, \ldots #2_#1 \} }
+\DeclareDocumentCommand{\dotseq}
+	{ O{n} m }
+	{ #2_1, \ldots #2_#1 }
+	
+\newcommand\QA[2]{\item \red{Q}: #1
+	\begin{compactitem}
+		\item \green{A}: #2
+	\end{compactitem}}
+	
+\newcommand\myref[1]{\purple{[#1]}}
+
+\definecolor{forgeblue}{HTML}{018C9F}
+% Gray table borders
+\makeatletter
+\def\rulecolor#1#{\CT@arc{#1}}
+\def\CT@arc#1#2{%
+	\ifdim\baselineskip=\z@\noalign\fi
+	{\gdef\CT@arc@{\color#1{#2}}}}
+\let\CT@arc@\relax
+\rulecolor{forgeblue}
+\makeatother
+
+%\setlength{\parskip}{1pt}
+%\setlength{\columnseprule}{0.1pt}
+%\setlength{\columnsep}{0.6cm}
+%\setlength\tabcolsep{0.1cm}
+\renewcommand{\arraystretch}{1.2}
+
+\makeatletter
+\newcommand*\dotp{\mathpalette\dotp@{.5}}
+\newcommand*\dotp@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+
+% Title
+\title{\vspace{-10mm}\fontsize{24pt}{8pt}\selectfont\textbf{Homework 6: Course  Scheduling}\vspace*{-4mm}}
+% Author
+\author{Brandon McKinzie}
+% Date
+\date{}
+
+% --------------------------------------------------------------
+% --------------------------------------------------------------
+
+
+
+\renewcommand\cftsecfont{\small\bfseries}
+\renewcommand\cftsubsecfont{\scriptsize}
+\renewcommand\cftsubsubsecfont{\scriptsize}
+
+\renewcommand\cftsecafterpnum{\vskip-5pt}
+\renewcommand\cftsubsecafterpnum{\vskip-7pt}
+\renewcommand\cftsubsubsecafterpnum{\vskip-7pt}
+
+\begin{document}
+
+\maketitle
+
+\section*{Problem 0: CSP Basics}
+
+\textbf{(a)} The CSP for this problem can be defined as follows:
+\begin{compactitem}
+	\item Variables: one for each of the $m$ buttons. The domain of each variable has two possible values: \textit{pressed} and \textit{unpressed}. 
+	
+	\item Constraints: one for each of the $n$ lights. The scope of the $i$th constraint, $f_i$, is all buttons $j$ for which $i \in T_j$.  
+\end{compactitem}
+
+Since each light bulb is initially off, the value of $f_i$, given some assignment of the buttons in its scope, will equal 1 if the number of pressed buttons (in its scope) is odd (constraint satisfied). Otherwise, it will equal zero (constraint not satisfied). 
+
+\clearpage
+\textbf{(b)} We are given the following CSP:
+
+\begin{drawing}
+	 % Define nodes
+	\node[blight] 									(x1) 				{$X_1$};
+	\node[blight, right=1.2 of x1]  (x2)			    {$X_2$};
+	\node[blight, right=1.2 of x2] (x3)				  {$X_3$};
+	
+	\factor[right=of x1] {x1-x2} {above:$t_1$} {} {};
+	\factor[right=of x2] {x2-x3} {above:$t_2$} {} {};
+	\factoredge {x1, x2} {x1-x2} {};
+	\factoredge {x2, x3} {x2-x3} {};
+\end{drawing}
+
+\begin{itemize}
+	\item[i.] There are 2 consistent assignments: $(1, 0, 1)$ and $(0, 1, 0)$. 
+	
+	\item[ii.] \texttt{backtrack()} will be called 9 times. The first call is backtrack($\varnothing$, 1, $\{X_1: [0, 1], X_2: [0, 1], X_3: [0, 1]\}$), which results in the following 8 subsequent calls:
+	\begin{compactitem}
+		% Assign X_1=0.
+		\item backtrack($\{X_1:0\}$, 1, $\{ X_2: [0, 1], X_3: [0, 1]  \}$)
+		\begin{compactitem}
+			% Assign X_3=0.
+			\item backtrack($\{X_1:0, X_3: 0\}$, 1, $\{ X_2: [0, 1]  \}$)
+			\begin{compactitem}
+				% Assign X_2=1.
+				\item backtrack($\{X_1:0, X_2: 1, X_3: 0\}$, 1, $\{ \}$)
+			\end{compactitem}
+		
+			% Assign X_3=1.
+			\item backtrack($\{X_1:0, X_3: 1\}$, 1, $\{ X_2: [0, 1]  \}$)
+		\end{compactitem} % Assign X_1=0
+			
+		% Assign X_1=1.
+		\item backtrack($\{X_1:1\}$, 1, $\{ X_2: [0, 1], X_3: [0, 1]  \}$)
+		\begin{compactitem}
+			% Assign X_3=0.
+			\item backtrack($\{X_1:1, X_3: 0\}$, 1, $\{ X_2: [0, 1]  \}$)
+
+			% Assign X_3=1.
+			\item backtrack($\{X_1:1, X_3: 1\}$, 1, $\{ X_2: [0, 1]  \}$)
+			\begin{compactitem}
+				% Assign X_2=1.
+				\item backtrack($\{X_1:1, X_2: 0, X_3: 1\}$, 1, $\{ \}$)
+			\end{compactitem}
+		\end{compactitem} % Assign X_1=1
+	\end{compactitem} 
+
+	\item[iii.] \texttt{backtrack()} (with AC-3) will be called 7 times. Again, the first call is backtrack($\varnothing$, 1, $\{X_1: [0, 1], X_2: [0, 1], X_3: [0, 1]\}$), which results in the following 6 subsequent calls:
+
+	\begin{compactitem}
+	% Assign X_1=0.
+	\item backtrack($\{X_1:0\}$, 1, $\{ X_2: [1], X_3: [0]  \}$)
+	\begin{compactitem}
+		% Assign X_3=0.
+		\item backtrack($\{X_1:0, X_3: 0\}$, 1, $\{ X_2: [1]  \}$)
+		\begin{compactitem}
+			% Assign X_2=1.
+			\item backtrack($\{X_1:0, X_2: 1, X_3: 0\}$, 1, $\{ \}$)
+		\end{compactitem}
+	\end{compactitem} % Assign X_1=0
+	
+	% Assign X_1=1.
+	\item backtrack($\{X_1:1\}$, 1, $\{ X_2: [0], X_3: [1]  \}$)
+	\begin{compactitem}
+		% Assign X_3=1.
+		\item backtrack($\{X_1:1, X_3: 1\}$, 1, $\{ X_2: [0]  \}$)
+		\begin{compactitem}
+			% Assign X_2=1.
+			\item backtrack($\{X_1:1, X_2: 0, X_3: 1\}$, 1, $\{ \}$)
+		\end{compactitem}
+	\end{compactitem} % Assign X_1=1
+\end{compactitem} 
+
+\end{itemize}
+
+
+
+
+\clearpage
+\section*{Problem 2: Handling n-ary factors}
+
+\textbf{(a)} \question{Suppose we have a CSP with three variables $X_1, X_2, X_3$ with the same domain $\{0,1,2\}$ and a ternary constraint $[X_1 + X_2 + X_3 \le K]$. How can we reduce this CSP to one with only unary and/or binary constraints? Explain what auxiliary variables we need to introduce, what their domains are, what unary/binary factors you'll add, and why your scheme works. Add a graph if you think that'll better explain your scheme.}
+
+Similar to the event scheduling done in our section lecture, we introduce auxiliary variables $B_i$ whose values take on two-tuples. The graph structure takes the form: 
+
+\begin{drawing}
+	% Y Nodes.
+	\node[latent, blight] (Y1) {$X_1$};
+	\node[blight, right=of Y1] (Y2) {$X_2$};
+	\node[latent, blight, right=of Y2] (Y3) {$X_3$};
+	
+	% B Nodes.
+	\node[blight, above=of Y1] 		(B1) {$B_1$};
+	\node[blight, above=of Y2] 					(B2) {$B_2$};
+	\node[blight, above=of Y3] (B3) {$B_3$};
+	
+	\factor[above=of Y1] {y1-b1} {} {} {};
+	\factor[above=of Y2] {y2-b2} {} {} {};
+	\factor[above=of Y3] {y3-b3} {} {} {};
+	
+	\factor[right=of B1] {b1-b2} {} {} {};
+	\factor[right=of B2] {b2-b3} {} {} {};	
+	
+	\factor[left=of B1] {b1-init} {left:$\ind{B_1[0]{=}0}$} {} {};
+	\factor[right=of B3] {b3-final} {right: $\ind{B_3[1] \le K}$} {} {};
+	
+	\factoredge {Y1, B1} {y1-b1} {};
+	\factoredge {Y2, B2} {y2-b2} {};
+	\factoredge {Y3, B3} {y3-b3} {};
+	
+	\factoredge {B1, B2} {b1-b2} {};
+	\factoredge {B2, B3} {b2-b3} {};
+	\factoredge {B1} {b1-init} {};
+	\factoredge {B3} {b3-final} {};
+\end{drawing}
+
+which shows the initial and final unary factors for $B_1$ and $B_3$ respectively. Additionally, we have the transition factors from $B_{i-1}$ to $B_{i}$ and state factors from $X_i$ to $B_i$, respectively, which are defined by:
+\begin{align}
+B_i[0] &= B_{i-1}[1] \\
+B_i[1] &= \min(B_{i}[0] + X_i, K{+}1) 
+\end{align}
+We see that the domain of each auxiliary variables $B_i$ is $\{ (a, b) : a \in [0..K+1], b \in [0..K+1]   \}$. 
+
+
+
+
+\clearpage
+\section*{Problem 3: Course Scheduling}
+
+\textbf{(c)} My profile.txt is shown below. I'm currently doing the Artificial Intelligence Graduate Certificate (SCPD) and this profile aligns with my goals for the certificate:
+\begin{lstlisting}[language=Python]
+# Unit limit per quarter.
+minUnits 0
+maxUnits 7
+
+# These are the quarters that I need to fill. It is assumed that
+# the quarters are sorted in chronological order.
+register Aut2019
+register Win2019
+register Spr2020
+
+# Courses I've already taken
+taken CS103
+taken CS106B
+taken CS107
+taken CS109
+taken CS140
+taken CS161
+taken CS221
+taken MATH51
+taken CS145
+taken CS124
+taken PHIL150
+taken CS157
+taken LINGUIST180
+taken LINGUIST130A
+
+# Courses that I'm requesting
+request CS224N weight 5
+request CS224U after CS224N weight 5
+request CS228
+request CS229
+\end{lstlisting}
+
+The schedule this produced was:
+\begin{table}{c c c}
+	Quarter & Units & Course \\ \midrule
+	Aut2019 & 4 & CS224N \\ 
+	Aut2019 & 3 & CS229 \\
+	Win2019 & 4 & CS228 \\
+	Spr2020 & 4 & CS224U \\
+\end{table}
+This is indeed a reasonable schedule. Note that I had to enter a weight greater than 1 (arbitrarily chose 5) to get CS224N and CS224U in the recommended schedule. I'm assuming the reason for this is that, when all are given equal weight, my fate is essentially determined by the ordering of the CSP search. By assigning non-equal weights, I can actually get my preferred set of courses. 
+
+
+
+
+
+\begin{comment}
+	
+	% Y
+	\node[obs]          (y)   {$y$}; 
+	\factor[above=of y] {y-f} {left:$\mathcal{N}$} {} {} ; %
+	
+	% W and X
+	\node[det, above=of y]            (dot) {dot} ; % 
+	\node[latent, above left=1.2 of dot]  (w)   {$\mathbf{w}$}; %
+	\node[latent, above right=1.2 of dot] (x)   {$\mathbf{x}$}; %
+	
+	% W hyperparameters
+	\node[const, above=1.2 of w, xshift=-0.5cm] (mw) {$\mu_w$} ; %
+	\node[const, above=1.2 of w, xshift=0.5cm]  (aw) {$\alpha_w$} ; %
+	
+	% X hyperparameters
+	\node[const, above=1.2 of x, xshift=-0.5cm] (mx) {$\mu_x$} ; %
+	\node[const, above=1.2 of x, xshift=0.5cm]  (ax) {$\alpha_x$} ; %
+	
+	% noise
+	\node[latent, right=2.5cm of y-f]         (t)   {$\tau$}; %
+	\node[const, above=of t, xshift=-0.5cm] (at)  {$\alpha_\tau$} ; %
+	\node[const, above=of t, xshift=0.5cm]  (bt)  {$\beta_\tau$} ; %
+	
+	% Factors
+	\factor[above=of w] {w-f} {left:$\mathcal{N}$} {mw,aw} {w} ; %
+	\factor[above=of x] {x-f} {left:$\mathcal{N}$} {mx,ax} {x} ; %
+	\factor[above=of t] {t-f} {left:$\mathcal{G}$} {at,bt} {t} ; %
+	\factoredge {dot,t} {y-f} {y} ; %
+	
+	% Connect w and x to the dot node
+	\edge[-] {w,x} {dot} ;
+	
+	% Plates
+	\plate {yx} { %
+		(y)(y-f)(y-f-caption) %
+		(x)(x-f)(x-f-caption) %
+		(dot) %
+	} {$N$} ;
+	\plate {} {%
+		(y)(y-f)(y-f-caption) %
+		(w)(w-f)(w-f-caption) %
+		(dot) %
+		(yx.north west)(yx.south west) %
+	} {$M$} ;
+\end{comment}
+
+
+
+\end{document}

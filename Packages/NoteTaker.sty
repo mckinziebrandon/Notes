@@ -1,0 +1,188 @@
+
+% Note -- Need to put after other packages i guess.
+\ProvidesPackage{NoteTaker}[2016/10/19 NoteTaker]
+
+\RequirePackage{amsmath}
+\RequirePackage{amsfonts}
+\RequirePackage{graphicx}
+\RequirePackage{minitoc}
+\RequirePackage{needspace}
+\RequirePackage{paralist}
+\RequirePackage{tocloft}
+%\RequirePackage{hyperref}
+
+\ProcessOptions\relax
+
+% --------------------------------------------------------------
+% --------------------------------------------------------------
+\renewcommand\cftsecfont{\small\bfseries}
+\renewcommand\cftsubsecfont{\scriptsize}
+\renewcommand\cftsubsubsecfont{\scriptsize}
+
+\renewcommand\cftsecafterpnum{\vskip-5pt}
+\renewcommand\cftsubsecafterpnum{\vskip-7pt}
+\renewcommand\cftsubsubsecafterpnum{\vskip-7pt}
+
+% Misc. 
+\newcommand\subsub[1]{\Needspace{15\baselineskip}\hrule\subsubsection{#1}\hrule}
+\titleformat*{\subsubsection}{\small\scshape}
+\newcommand\myspace[1][]{\vspace{#1\bigskipamount}}
+\newcommand\p{\Needspace{10\baselineskip} \noindent}
+\newcommand\tlab[1]{\tag{#1}\label{#1}}
+\newcommand\QA[2]{\item \red{Q}: #1
+	\begin{compactitem}
+		\item \green{A}: #2
+\end{compactitem}}
+\newcommand\myref[1]{\purple{[#1]}}
+% bluesec
+\newcommand\bluesec[2][]{\myspace[#1]{\p \blue{#2}}}
+
+%\newcommand\myfig[2][0.3\textwidth]{\begin{figure}[h!]\centering\includegraphics[width=#1]{#2}\end{figure}}
+% See manual for more: https://www.chiark.greenend.org.uk/doc/texlive-doc/latex/l3packages/xparse/xparse.pdf
+% Example usage:
+% 	\myfig[0.5\textwidth]{path/to/fig.png}
+% 	\myfig[0.5\textwidth][optional-label]{path/to/fig.png}{optional caption}
+% Reminder of args syntax:
+% - O: optional with default 
+% - o: optional w/o default, gets set to -NoValue- if not given
+% - m: mandatory 
+% - g: optional but with curly braces {} instead of square []. Set to -NoValue- if not provided.
+\DeclareDocumentCommand{\myfig}
+	{O{0.3\textwidth} o m g }{
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=#1]{#3}
+		
+		% Show caption if provided. 
+		\IfNoValueF{#4}{
+			\caption{#4}
+		}
+	
+		% Assign label if provided.
+		\IfNoValueF{#2} {
+			\label{#2}
+		}
+	\end{figure}
+}
+
+% timestamp I use for lecture note taking. 
+\newcommand\tstamp[1]{\purple{[#1]}}
+\DeclareDocumentCommand{\margintstamp}
+    { m O{0em} }
+    {\marginnote{\tstamp{#1}}[#2]}
+%#3_{#2}\IfNoValueTF{#1}{}{^{(#1)}} 
+
+% question
+\newcommand{\question}[1]{{\footnotesize\itshape#1}}
+
+% Link to toc for use in header. 
+\addtocontents{toc}{\protect\hypertarget{toc}{}}
+\newcommand\gotoc{\hyperlink{toc}{\begin{footnotesize}Table of Contents\end{footnotesize}}}
+
+% =====================================================
+% UC BERKELEY TEMPLATE FROM https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&ved=0ahUKEwjIyrv8iejPAhXKilQKHfj3DjYQFggkMAE&url=https%3A%2F%2Fwww.cs.cmu.edu%2F~ggordon%2F10725-F12%2Ftemplate.tex&usg=AFQjCNHtDk-jrkqQbQ2-5MGQG5YZj4uI9Q&cad=rja
+
+% odd and even refer to wheter the page is left or right, like ur readin a book.
+\setlength{\oddsidemargin}{-0.2 in} 
+\setlength{\evensidemargin}{-0.2 in}
+\setlength{\topmargin}{-0.9 in}
+
+\setlength{\textwidth}{6.2 in}
+\setlength{\marginparwidth}{1.3in}
+
+\setlength{\textheight}{8.5 in}
+\setlength{\headsep}{0.75 in}
+\setlength{\parindent}{0 in}
+\setlength{\parskip}{0.1 in}
+
+%
+% The following commands set up the lecnum (lecture number)
+% counter and make various numbering schemes work relative
+% to the lecture number.
+%
+%\newcounter{lecnum}
+%\renewcommand{\thepage}{\thelecnum-\arabic{page}}
+%\renewcommand{\thesection}{\thelecnum.\arabic{section}}
+%\renewcommand{\theequation}{\thelecnum.\arabic{equation}}
+%\renewcommand{\thefigure}{\thelecnum.\arabic{figure}}
+%\renewcommand{\thetable}{\thelecnum.\arabic{table}}
+
+\newcommand\invisiblesubsection[1]{%
+  \refstepcounter{subsection}%
+    \addcontentsline{toc}{subsection}{\protect\numberline{\thesubsection}#1}%
+  \sectionmark{#1}
+}
+
+\newcommand\invisiblesection[1]{%
+  \refstepcounter{section}%
+    \addcontentsline{toc}{section}{\protect\numberline{\thesection}#1}%
+  \sectionmark{#1}
+}
+
+\titleformat{\section}[block]{\centering\scshape}{\thesection.}{1ex}{}  
+
+% _____________________________ MY SECTION ___________________________
+\newcommand\mysection[1]{\clearpage {\fontsize{50}{60}\selectfont 
+   \topskip0pt
+   \vspace*{\fill}
+    \section*{#1}
+    \invisiblesection{#1}
+   %\vspace*{\fill}
+   }
+	\localtableofcontents
+	\vspace*{\fill}
+}
+
+% _____________________________ LECTURE ___________________________
+% The following macro is used to generate the header.
+%\lecture{**CLASS**}{**TOPIC**}{**DATE**}
+\newcommand{\lecture}[3]{
+    %\pagestyle{myheadings}
+    \thispagestyle{plain}
+    \newpage
+    \invisiblesubsection{#2}
+    %\setcounter{lecnum}{#1}
+    %\setcounter{page}{1}
+    \noindent
+    \begin{center}
+        \framebox{
+            \vbox{\vspace{2mm}
+                \hbox to 6.28in { {\bf #1 \hfill #3} }
+                \vspace{4mm}
+                \hbox to 6.28in { {\Large \hfill #2 \hfill} }
+                \vspace{2mm}
+                \hbox to 6.28in { {\gotoc \hspace*{10pt} \hyperref[#1]{Local} \it \hfill Written by Brandon McKinzie} }
+            \vspace{2mm}}
+        }
+    \end{center}
+
+    %\markboth{Lecture #1: #2}{Lecture #1: #2}
+
+    \vspace*{4mm}
+}
+
+% \appendixsection{TITLE}
+\newcommand{\appendixsection}[1]{
+    \thispagestyle{plain}
+    \newpage
+    \invisiblesubsection{#1}
+
+    \begin{center}
+        \framebox{
+            \vbox{
+                \vspace{2mm}
+                \hbox to 6.28in { {\Large \hfill #1 \hfill} }
+                \vspace{2mm}
+                \hbox to 6.28in { {\gotoc \hspace*{10pt} \hyperref[Appendix]{Local} \it \hfill Written by Brandon McKinzie} }
+                \vspace{2mm}
+            }
+        }
+    \end{center}
+}
+
+
+
+
+
+% =====================================================
+\endinput

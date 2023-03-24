@@ -1,0 +1,616 @@
+\documentclass[11pt]{article}
+\usepackage{fullpage,amsmath,amssymb,graphicx}
+
+\usepackage{bm}
+\usepackage{cancel}
+\usepackage{comment}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage[top=1in, bottom=1in, left=0.8in, right=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{lmodern} % Nice fonts?
+\usepackage{mathtools} 
+\usepackage{needspace}
+\usepackage{paralist}
+\usepackage[parfill]{parskip} % no indents on new paragraphs.
+\usepackage{pifont}
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+
+\usepackage{enumitem}
+
+\begin{comment}
+\usepackage{fullpage,enumitem,amsmath,amssymb,graphicx}
+
+% Some macros for your convenience
+\newcommand\bbR{\ensuremath{\mathbb{R}}} % Real numbers
+\newcommand\bbZ{\ensuremath{\mathbb{Z}}} % Integers
+\newcommand\bbE{\ensuremath{\mathbb{E}}} % Expectation
+\DeclareMathOperator*{\tr}{tr} % Trace
+\DeclareMathOperator*{\diag}{diag} % Diagonal matrix
+\DeclareMathOperator*{\sign}{sign} % Sign
+\DeclareMathOperator*{\var}{Var} % Variance
+\DeclareMathOperator*{\cov}{Cov} % Covariance
+\newcommand{\1}{\mathbb{I}} % Indicator
+%\newcommand{\newproblem}[1]{\newpage \section*{Problem #1}}
+\end{comment}
+
+% Muh packagez :)
+\usepackage{../../../Packages/MathCommands}
+\usepackage{../../../Packages/BrandonColors}
+\usepackage{../../../Packages/BrandonBoxes}
+\usepackage{../../../Packages/NoteTaker}
+
+\newcommand{\bx}{{\boldsymbol{x}}}
+\newcommand{\by}{{\boldsymbol{y}}}
+\newcommand{\bz}{{\boldsymbol{z}}}
+\newcommand{\bmu}{{\boldsymbol{\mu}}}
+\newcommand{\bb}{{\boldsymbol{b}}}
+\newcommand{\abs}[1]{\left| #1\right|}
+
+\newcommand{\points}[1]{{\textbf{[#1 points]}}}
+\newcommand{\ruleskip}{\bigskip\hrule\bigskip}
+\newcommand{\nodify}[1]{{\sc #1}} 
+\newcommand{\Size}[2]{{\rm SIZE}_{#1}(#2)}
+\newcommand{\KL}[0]{D_{\mathrm{KL}}}
+\newcommand{\csisep}[4]{\emph{CSI-sep}_{#1}({#2};{#3} \mid {#4})}
+
+
+\renewcommand{\arraystretch}{1.5}
+
+
+\begin{document}
+	
+	\begin{center}
+		{\Large STATS 214 Autumn 2021 Homework 1}
+		
+		\begin{tabular}{rl}
+			SUNet ID: & 06009508 \\
+			Name: & Brandon McKinzie \\
+			Collaborators: & N/A
+		\end{tabular}
+	\end{center}
+	
+	\p By turning in this assignment, I agree by the Stanford honor code and declare
+	that all of this is my own work.
+	
+	\rule{\linewidth}{0.4pt}
+	
+\section*{Problem 1 (a) Sharp bounds on sub-Gaussianity of bounded variables}
+
+\question{Suppose a random variable $X$ is between $[a, b]$ almost surely. Prove that $X$ is a sub-Gaussian random variable with variance proxy $\frac{(a-b)^2}{4}$. }
+
+\begin{enumerate}
+	% (1)
+	\item Let $\psi(\lambda) = \log \E{e^{\lambda X}}$. We'll evaluate $\psi(0)$ its derivative $\psi'(0)$. 
+	\begin{align}
+		\psi(0)
+			&= \log \E{e^{0}} = \log 1 = 0 \\
+		\psi'(0) 
+			&= \pderiv{}{\lambda} \log \E{e^{\lambda X}} \bigg|_{\lambda \eq 0} \\
+			&= \inv{\E{e^{\lambda X}} } \int \mathrm{d}x \pderiv{}{\lambda}  p(X\eq x) e^{\lambda x} \bigg|_{\lambda \eq 0} \\
+			&= \inv{\E{e^{\lambda X}} } \int \mathrm{d}x  p(X\eq x) x e^{\lambda x} \bigg|_{\lambda \eq 0} \\
+			&= \inv{\E{e^{0}} } \int \mathrm{d}x  p(X\eq x) x e^{0} \\
+			&= \E{X}
+	\end{align}
+
+	% (2)
+	\item Let $\E[\lambda]{f(X)} := \E{f(X)e^{\lambda X}} / \E{e^{\lambda X}}$. First, we will show that $\psi''(\lambda) = \E[\lambda]{X^2} - \E[\lambda]{X}^2$. 
+	\begin{align}
+		\psi''(\lambda) 
+			&= \pderiv{}{\lambda} \left[ 
+				\inv{\E{e^{\lambda X}} } \int \mathrm{d}x  p(x) x e^{\lambda x} 
+			\right] \\
+			&=  \pderiv{}{\lambda} \left[ 
+			\inv{\E{e^{\lambda X}} } \E{ X e^{\lambda X} }
+			\right] \\
+			&= \dfrac{ 
+							\E{e^{\lambda X}} \E{X^2 e^{\lambda X}}
+								-  \E{X e^{\lambda X}}^2
+			}{
+		 \E{e^{\lambda X}}^2
+	} \\
+	&= \frac{ \E{X^2 e^{\lambda X}} } { \E{e^{\lambda X}} }
+	- \frac{ \E{X e^{\lambda X}}^2 }{ \E{e^{\lambda X}}^2 } \\
+	&= \E[\lambda]{X^2} - \E[\lambda]{X}^2
+	\end{align}
+	Next, we'll derive a bound for $|\psi''(\lambda)|$ by exploiting some basic facts about $\Var{X}$ for any random variable $X$, along with some basic inequalities exploiting the fact that $X$ in this problem is bounded between $[a, b]$ almost surely. Our goal is to show that
+	\begin{align}
+		\sup_{\lambda \in \R} | \psi''(\lambda) | \leq \frac{(a-b)^2}{4}
+	\end{align}
+	First, note that $\psi''(\lambda)$ looks eerily like a variance of some kind. Informally, it is the variance of $X$ if the probability distribution $p(x)$ was scaled by $\exp{\lambda x}$ at each point, then normalized by dividing $\E{e^{\lambda x}}$. We can show that, for a bounded random variable $X$ that takes on values within $[a, b]$, the value of $c $ that  minimizes  $\E{(X-c)^2}$ is $\E{X}$:
+	\begin{align}
+		\deriv{}{c}\E{(X - c)^2}
+			&= -2 \E{X - c} = 0 \quad \rightarrow \quad c = \E{X} \\
+		\text{Var}(X) 
+			&= \E{(X - \E{X})^2} \\
+			&\leq \E{(X - c)^2} \qquad \text{for } (a \le c \le b)
+	\end{align}
+	If we take $c = (a+b)/2$, then this yields
+	\begin{align}
+		\text{Var}(X) 
+			&\leq \E{  \lr{\onehalf \lr{   2X - a - b  }   }^2 } \\
+			&= \inv{4} \E{ \lr{ (X -a) + (X - b) }^2  } \\
+			&\leq \inv{4} \E{  \lr{  (X - a) - (X - b)}^2  } \quad \text{since $X \in [a, b]$ a.s.} \\
+			&= \inv{4} \E{(b-a)^2} \\
+			&= \frac{(b - a)^2}{4}
+	\end{align}
+	Note that this did not rely on a particular value of $\lambda$. The value of $\lambda$ only influences the weights in the aforementioned re-weighted probability distribution. Therefore, this holds for all $\lambda \in \R$ and we get the desired result.  
+	
+	\item Finally, we want to show that 
+	\begin{align}
+		\E{e^{\lambda (X - \mu)}} \leq e^{\onehalf \sigma^2 \lambda^2} \quad (\forall \lambda \in \R)  \label{eq:1a-reference}
+	\end{align}
+	with $\sigma^2 = (a- b)^2 / 4$.  So far, we currently have a bound on the variance of $X$ under the reweighted distribution parameterized by $\lambda$:  
+	\begin{align}
+		\psi''(\lambda) \leq \frac{(a-b)^2}{4}  \label{eq:1a-goal}
+	\end{align}
+	and need to massage this to look more like \ref{eq:1a-reference}. Our approach will be to twice integrate both sides and exponentiate, which will reveal the desired result. Notice that
+	\begin{align}
+		\int_0^{\lambda} d\lambda' \psi''(\lambda') 
+			&= \psi'(\lambda) - \psi'(0) \\
+			&= \psi'(\lambda) - \mu  \\
+		\int_0^{\lambda} d\lambda' (\psi'(\lambda') - \mu) 
+			&= \lr{\psi(\lambda) - \mu \lambda} - \lr{ \psi(0) - \mu \cdot 0 } \\
+			&= \psi(\lambda) - \lambda \mu 
+	\end{align}
+	In other words, we can twice integrate the LHS of \ref{eq:1a-goal} and exponentiate to get
+	\begin{align}
+		\exp\left( \psi(\lambda) - \lambda \mu	\right) = \E{\exp\left(  \lambda\left( X - \mu  \right)  \right)}
+	\end{align}
+	All that remains is to apply the same (twice integration and exponentiation) to the RHS of \ref{eq:1a-goal} to obtain the desired result:
+	\begin{align}
+	\E{e^{\lambda (X - \mu)}} 
+			&\leq  \exp\lr{ \int_0^{\lambda} d^2\lambda  \frac{(b - a)^2}{4} } \\
+			&= \exp\lr{ \lambda^2 \frac{(b - a)^2}{8} }
+	\end{align}
+	and thus $X$ is sub-Gaussian with variance proxy $(a-b)^2 / 4$. 
+
+\end{enumerate}
+	
+\clearpage
+\section*{Problem 1 (b)  Sub-exponential random variables }	
+\question{
+	Show the following is true for sub-exponential random variable $X$:
+	\begin{align}
+		\Prob{X \geq \mu + t} 
+			\leq \begin{cases}
+					e^{- \frac{t^2}{2 \nu^2}} & 0 \leq t < \nu^2 / b \\
+					e^{-\frac{t}{2b}} & t \geq \nu^2 / b
+			\end{cases}
+	\end{align}
+}
+
+We can proceed largely the same as we did for the analogous proof with sub-Gaussian variables. First, we apply Markov's inequality on the tail bound, then utilize the definition of sub-exponential random variables. The main difference is that, when finding the optimal value of $\lambda$, we need to obey the constraint that $|\lambda| < \inv{b}$. NB: in all equations below, $|\lambda| < \inv{b}$.
+\begin{align}
+	\Prob{X - \mu \geq t} 
+		&= \Prob{e^{\lambda(X - \mu)}    \geq e^{\lambda t}  }  \\
+		&\leq e^{-\lambda t} \E{e^{\lambda (X - \mu) } } \quad \mtgreen{[Markov's ineq]} \\
+		&\leq e^{\nu^2 \lambda^2 / 2 - \lambda t}
+\end{align}
+In the next step, we just need to be explicit when finding the minimum with respect to $\lambda$, that we must satisfy the constraint that $|\lambda| < \inv{b}$:
+\begin{align}
+	\deriv{}{\lambda} \lr{ \onehalf \nu^2 \lambda^2 - \lambda t } 
+		&= \nu^2 \lambda - t = 0 \\
+	\lambda 
+		&= \text{max}\lr{
+			- \inv{b}, \text{min}\lr{ 
+				\inv{b}, \frac{t}{\nu^2}
+		}
+		}
+\end{align}
+We can see that when $|t/\nu^2| < \inv{b}$, this leads to the tail bound for sub-Gaussian random variables, which gives us the top half of the desired result (the case where $0 \leq t < \nu^2 /b$). However, for $t \geq \nu^2/b$, i.e. for $t = C \nu^2/b$ for $C \geq 1$, this yields
+\begin{align}
+		\lambda 
+	&= \text{max}\lr{
+		- \inv{b}, \text{min}\lr{ 
+			\inv{b}, \frac{C}{b}
+		}
+	}
+	= \inv{b} \\
+	e^{\nu^2 \lambda^2 / 2 - \lambda t}
+	&= e^{\onehalf \frac{\nu^2}{b^2} - \frac{t}{b}} \\
+	&\leq e^{\onehalf \frac{t}{b} - \frac{t}{b}} \\
+	&= e^{-\frac{t}{2b}}
+\end{align}
+and we have the desired result.
+
+
+
+\clearpage
+\section*{Problem 1 (c) Case Study}
+\question{Suppose $Z$ is a mean-zero random variable between $[-1, 1]$ and $\text{var}(Z) = \gamma^2 \ll 1$.}	
+
+\begin{enumerate}
+	\item From part (a), we know that, since $Z$ is bounded, $Z$ is sub-Gaussian. Substituting $a=-1$ and $b=1$, we have the desired result:
+	\begin{align}
+		\sigma^2
+			&= \frac{((-1) - (1))^2}{4} = 1
+	\end{align}
+
+
+
+	\item First, as we showed in part (a), we can use the fact that
+	\begin{align}
+		\E[\lambda]{(Z - \E[\lambda]{Z})^2} \leq \E[\lambda]{Z^2}
+	\end{align}
+	and focus on upper-bounding $\E[\lambda]{Z^2}$. Utilizing the provided hint regarding $F_Z(u) = \Prob{Z \leq u}$, we can write
+	\begin{align}
+		\E[\lambda]{Z^2} 
+			&= \int_{-1}^{1} u^2 \frac{  e^{\lambda u} }{ \E{e^{\lambda Z}}  } \mathrm{d}F_Z(u)
+	\end{align}
+	Since the integral is over $-1 \leq u \leq 1$, we can assert the following about the fraction in the integrand (noting also that $|\lambda| \leq 1$):
+	\begin{align}
+		\E{e^{\lambda Z}} 
+			&= \int_{-1}^{1} e^{\lambda u} dF_Z(u) \geq e^{-1} \int_{-1}^{1} dF_Z(u) = e^{-1} \\
+		\frac{  e^{\lambda u} }{ \E{e^{\lambda Z}}  }  
+			&\leq \frac{e^{1} }{ e^{-1} } = e^2 
+	\end{align}
+	Therefore, we can upper-bound $\E[\lambda]{Z^2}$ as
+	\begin{align}
+		\E[\lambda]{Z^2} 
+			&\leq e^2 \int_{-1}^{1} u^2 \mathrm{d}F_Z(u) = e^2 \gamma^2  = O(\gamma^2)
+	\end{align}
+
+	We can then apply the same logic of problem 1(a) part (3) to get a bound on $\E{e^{\lambda Z}}$:
+	\begin{align}
+		\E{e^{\lambda Z}} 
+			&\leq \exp\lr{   \int_{0}^{\lambda} \mathrm{d}^2\lambda' e^2 \gamma^2 } = \exp\lr{  \onehalf \lambda^2e^2\gamma^2 } 
+			\quad (\forall |\lambda| \leq 1)
+	\end{align}
+	Therefore, $Z$ is sub-exponential with parameter $(O(\gamma), 1)$. 
+	
+	
+	\item The sub-Gaussian and sub-exponential tail bounds for Z are as follows:
+	\begin{align}
+		\mtgreen{[sub-Gaussian]}\qquad 
+		\Prob{Z \geq t} 
+			&~\leq~ e^{- \frac{t^2}{2} } \quad (\forall t \in \R) \label{eq:1c-sg} \\
+		\mtgreen{[sub-exponential]}\qquad
+		\Prob{Z \geq t}
+			&~\leq~ \begin{cases}
+				e^{-\frac{t^2}{2 O(\gamma^2)}} & 0 \leq t < O(\gamma^2) \\
+				e^{-\frac{t}{2}} & t > O(\gamma^2)
+			\end{cases}
+	\end{align}
+	Since $\gamma^2 << 1$, the sub-exponential bound only decays like $O(e^{-t^2})$ for a very small range of $t$, whereas the sub-Gaussian bound applies for all $t \in \R$. Also, since the tighter bound for the sub-exponential only holds for $0 \leq t \leq O(\gamma^2)$, we won't get better than $e^{-O(\gamma^2)}$ in that regime. Therefore, the sub-Gaussian bound is significantly stronger than the sub-exponential bound.
+\end{enumerate}
+
+
+
+\clearpage
+\section*{Problem 1 (d) Sub-exponential concentration}
+
+We can plug in the form of $X^*$ into the MGF
+\begin{align}
+	\E{ e^{\lambda \lr{ X^* - \E{X^*}  }  } }
+		&= \E{  e^{\lambda\lr{ \sum_{k=1}^{n} X_k - \sum_{k=1}^{n} \mu_k }  } } \\
+		&=  \E{  e^{\lr{ \sum_{k=1}^{n} \lambda (X_k -  \mu_k )}  }} \\
+		&= \prod_{k=1}^{n} \E{ e^{ \lambda (X_k - \mu_k)  }} \qquad \mtgreen{[by independence]} \\
+		&\leq \prod_{k=1}^{n} e^{\nu_k^2\lambda^2 / 2} \qquad (\forall |\lambda| < \min_k \inv{b_k}) 
+\end{align}
+So, assuming all $b_k > 0$\footnote{Which appears to be true from other definitions, e.g. see http://www.stat.cmu.edu/~arinaldo/Teaching/36709/S19/Scribed\_Lectures/Feb5\_Aleksandr.pdf} we have that  $b^* = \max_k {b_k}$. Finally, this gives us the bound
+\begin{align}
+	\prod_{k=1}^n e^{\nu_k^2 \lambda^2 / 2}
+	= e^{  \frac{\lambda^2}{2}  \sum_{k=1}^{n} \nu_k^2    }
+	 \qquad (\forall |\lambda| < \inv{b^*})
+\end{align}
+and thus $X^*$ is sub-exponential with $\nu^* = \sqrt{ \sum_{k=1}^{n} \nu_k^2    }$. and $b^* = \max_k {b_k}$. 
+
+
+
+\clearpage 
+\section*{Problem 1 (e) Bernstein inequality variant}
+\question{Prove the following tail bound by applying part (b) 
+	\begin{align}
+		\Prob{\inv{n} \lr{X^* - \mu^*} \geq t}
+			~\leq~ \begin{cases}
+					e^{- \frac{n^2 t^2}{2(\nu^*)^2} } & 0 \leq t < \frac{(\nu^*)^2}{n b^*} \\
+					e^{-\frac{nt}{2b^*}} & t \geq \frac{( \nu^* )^2}{  n b^* }
+			\end{cases}
+	\end{align}
+}
+
+If we simply plug in the result from part (b) for sub-exponential variables for the case of $X^*$, which we've already shown is sub-exponential, we get
+
+\begin{align}
+	\Prob{X^* \geq \mu^* + t} 
+	\leq \begin{cases}
+		e^{- \frac{t^2}{2 (\nu^*)^2}} & 0 \leq t < (\nu^*)^2 / b^* \\
+		e^{-\frac{t}{2b^*}} & t \geq (\nu^*)^2 / (b^*)
+	\end{cases}
+\end{align}
+
+Therefore, the problem is essentially asking us to show how scaling a sub-exponential random variable by $\inv{n}$ affects its tail bound. We can apply some simple arithmetic operations to see that the problem is asking us to find the tail bound for
+\begin{align}
+	\Prob{  X^* \geq nt + \mu^*}
+\end{align}
+In other words, we can just replace $t$ from part (b) with $nt$, immediately yielding the desired result:
+\begin{align}
+\Prob{\inv{n} \lr{X^* - \mu^*} \geq t}
+~\leq~ \begin{cases}
+	e^{- \frac{n^2 t^2}{2(\nu^*)^2} } & 0 \leq t < \frac{(\nu^*)^2}{n b^*} \\
+	e^{-\frac{nt}{2b^*}} & t \geq \frac{( \nu^* )^2}{  n b^* }
+\end{cases}
+\end{align}
+
+
+\clearpage 
+\section*{Problem 1 (f) Case study II}
+
+\question{Consider the cases where $X_1, \ldots, X_n$ are all independent distributed as the random variable $Z$ in part (c).  Derive the tail bound for $X^*$ in two ways.}
+
+First, notice that since $\E{Z} = 0$, we have $\E{X^*} = \insum \E{X_i} = \mu^* = 0$. 
+
+\begin{enumerate}
+	\item \question{Only using the fact that $X_i$'s are sub-Gaussian with variance proxy 1.} We know that the sum of independent sub-Gaussian random variables is itself sub-Gaussian with, for this case,
+	\begin{align}
+		\Prob{  \inv{n} X^* \geq t }
+			&~\leq~ \exp\lr{   - \frac{n^2t^2}{2\insum \sigma_i^2}  }
+			= \exp \lr{   - \frac{nt^2}{2 }  } \quad (\forall t \in \R)
+	\end{align}
+	
+	\item \question{Using the fact that $X_i$ are sub-exponential with parameter $(\nu_i, b_i)$ where $\nu_i = O(\gamma)$, $b_i = 1$.} In this case, we know that the sum $X^*$ is also sub-exponential with parameters $(\nu^*, b^*)$ of the form derived in part  (d), with associated tail bound
+	\begin{align}
+		\Prob{\inv{n} X^* \geq t} 
+			&~\leq~ \begin{cases}
+				e^{- \frac{n^2t^2}{2 (\nu^*)^2}} & 0 \leq t < \frac{ (\nu^*)^2 }{ n b^*} \\
+				e^{-\frac{nt}{2b^*}} & t \geq \frac{ (\nu^*)^2 }{ n b^*}
+			\end{cases}
+	\end{align}
+	Since $b^* = \max_k b_k$, and we are given that all $b_k = 1$, $b^* = 1$ as well. For $\nu^*$, we have
+	\begin{align}
+		\nu^* &= \sqrt{\sum_{k=1}^{n} O(\gamma)^2} = \sqrt{n O(\gamma ^2)} \\
+		\Prob{\inv{n} X^* \geq t} 
+		&~\leq~ \begin{cases}
+			e^{- \frac{n t^2}{2O(\gamma^2)}} & 0 \leq t < O(\gamma^2) \\
+			e^{-\frac{n t}{2}} & t \geq O(\gamma^2)
+		\end{cases}
+	\end{align}
+\end{enumerate}
+
+
+\question{Compare the two tail bounds for $X^*/n$ and discuss which one is stronger. Intuitively discuss why one bound is stronger than the other when $n$ is sufficiently big ( as $\gamma$ is fixed.)}
+
+First, notice that the only difference between these two tail bounds and those derived in part (c) are the factor of $n$ in the numerator of the fraction in the exponential. Notably, the sub-exponential bound still applies for the same ranges of $t$ as in part (c). Since $X^* / n \overset{p}{\to} 0$, the region of ``interest'' for t, so to speak, also decreases as $n$ increases. That means that, for large n, the fast regime in $0 \leq t < O(\gamma^2)$ becomes more relevant with large n. Since $\gamma^2 \ll 1$, the sub-exponential bound in the fast regime is stronger than the sub-Gaussian bound. 
+ 
+ 
+ 
+ \clearpage 
+ \section*{Problem 2(a)}
+ \question{Let $m$ be the median of $P$, i.e. $m$ that satisfies $P(X \leq m) = \onehalf$. Let $\hat{m}_n = \text{med}\lr{X_1, \ldots, X_n}$ be the sample median, defined as 
+ 	\begin{align}
+ 		\text{med}\lr{X_1, \ldots, X_{n}} \triangleq \onehalf \lr{ X_{(n/2)} + X_{(n/2 + 1)} }
+ 		\quad \text{where } X_{(1)} \leq \cdots \leq X_{(n)} \text{ are the sorted version of } X_1, \ldots, X_n
+ \end{align}}
+
+ \question{
+	For any $t > 0$, show that conditioned on the event $\hat{m}_n < m - t$, the following event happens with probability 1
+	\begin{align}
+		\inv{n} \insum \mathbf{1}\{  X_i < m - t \} ~\geq~ \onehalf 
+	\end{align} 
+}
+
+If $\hat{m}_n < m - t$, then we know that $X_{i} < m - t$ for all $i \geq \frac{n}{2}$ by definition of $\hat{m}_n$. Therefore, 
+\begin{align}
+	\inv{n} \sum_{i=1}^n \mathbf{1} \{ X_{i} < m - t  \} \geq \inv{n} \sum_{i=1}^{n/2}  \mathbf{1} \{ X_{i} < m - t  \}
+	= \inv{n} \frac{n}{2} = \onehalf 
+\end{align}
+
+
+\clearpage 
+ \section*{Problem 2(b)}
+ 
+ Let $Y_i = \mathbf{1}\{ X_i < m - t \}$, with $\E{Y_i} = P(X_i < m - t)$. Since $Y_i \in \{0, 1\}$, we know that $Y_i$ is sub-Gaussian with parameter $\sigma^2 = \inv{4}$. Therefore, $Z = \sum_i Y_i$ is also sub-Gaussian, and has parameter $\sigma^2 = \insum \inv{4} = \frac{n}{4}$. This gives us the following tail bounds:
+ \begin{align}
+ 	\Prob{ |Y_i - \mu_{Y_i}  | \geq t } &\leq 2\exp\lr{  -2 t^2 } \\
+ 		\Prob{ | Z - \mu_{Z}  | \geq t } &\leq 2\exp\lr{  -2 \frac{t^2}{n} } 
+ \end{align}
+
+Furthermore we can also show that the event $\{ \inv{n}Z \geq \onehalf \} $ can be expressed as an event containing an integral over the density $p(x)$, which we can then use to get a bound in terms of $p(m)$. 
+\begin{align}
+	\Prob{\inv{n} Z \geq \onehalf}
+		&= \Prob{Z \geq n/2} \\
+		&= \Prob{ Z - \mu_z \geq n/2 - \mu_z } \\
+	\frac{n}{2} - \mu_z 
+		&= \frac{n}{2} - n \Prob{X < m - t}  \\
+		&= n \left[  \onehalf - \Prob{X < m - t} \right] \\
+	\onehalf - \Prob{X < m - t}
+		&= \Prob{X \leq  m} - \Prob{  X < m - t}\\
+		&= \int_{m - t}^{m} p(x) \mathrm{d} x \label{eq:2b-hi}
+\end{align}
+
+We'll now use the integral in \ref{eq:2b-hi} to get a bound in terms of $p(m)$. We first note that $\forall \epsilon > 0$, $\exists t_0 > 0$ such that $\forall t' \in (0, t_0)$,
+\begin{align}
+	|  p(m) - p(m - t') | \leq \epsilon 
+\end{align}
+Therefore, $\forall \epsilon > 0$, $\exists t_0 > 0$ such that $\forall t' \in (0, t_0)$:
+\begin{align}
+	\int_{m - t}^{m} p(x) \mathrm{d} x  
+		&\geq \int_{m - t}^{m} p(m) \mathrm{d} x  - \int_{m - t}^{m}  |p(m - t') - p(m) | \mathrm{d} x  \\
+		&\geq tp(m) - \epsilon t
+\end{align}
+If $\epsilon < \onehalf p(m)$, this yields $tp(m) - \epsilon t \geq \onehalf t p(m)$. We can plug this back in to obtain the desired result:
+\begin{align}
+	\Prob{\inv{n} Z  \geq \onehalf }
+		&\leq \exp\lr{ -2 n\lr{  \int_{m - t}^{m} p(x) \mathrm{d} x     }^2  } \\
+		&\leq \exp\lr{  -2n \lr{ \onehalf t p(m) }^2  } \\
+		&= \exp\lr{  -\onehalf n p(m)^2 t^2 }
+\end{align}
+
+ 
+
+ 
+ 
+ \clearpage 
+ \section*{Problem 2(c)}
+ 
+ \question{Show $\exists n_0$ s.t. $\forall n \geq n_0$ w.p. at least 1 - $\delta$, we have
+\begin{align}
+	|\hat m_n - m |
+		\leq \inv{p(m)} \sqrt{   \frac{2 \log(2 / \delta)}{n}}
+	\end{align}
+}
+
+
+From part(a), we know that the following two events occur with equal probability:
+\begin{align}
+	\hat m_n < m - t 
+	\qquad \text{and} \qquad
+	\inv{n} \insum \mathbf{1}\{  X_i < m - t \} \geq \onehalf
+\end{align}
+
+Note that this is true because, if we let $A := \{ \inv{n} \insum \mathbf{1}\{  X_i < m - t \} \geq \onehalf \}$ and $B:=\{  \hat m_n < m - t   \}$, we can see that
+\begin{align}
+	\Prob{A}
+		&= P(A, B) + P(A, \lnot B) \\
+		&= P(A \mid B) P(B) + P(A \mid \lnot B) P(\lnot B) \\
+		&= P(B)+ P(A \mid \lnot B) P(\lnot B) \quad \mtgreen{[part (a)]} \\
+		&= P(B) 
+\end{align}
+since $\Prob{A \mid \lnot B} = 0$. From part (b) we know that
+\begin{align}
+	\Prob{ \hat m_n < m -t  } \leq \exp\lr{- \onehalf n p(m)^2 t^2}
+\end{align}
+In other words
+\begin{align}
+	\Prob{ |\hat m_n - m| \leq t} \geq 1 - 2 \exp\lr{- \onehalf n p(m)^2 t^2}
+\end{align}
+Let $t = \inv{p(m)} \sqrt{2 \log(2/\delta) / n}$. Then
+\begin{align}
+	2 \exp\lr{- \onehalf n p(m)^2 t^2} 
+		&= \delta 
+\end{align}
+which means the following event occurs with probability at least $1 - \delta$
+\begin{align}
+		|\hat m_n - m |
+	\leq \inv{p(m)} \sqrt{   \frac{2 \log(2 / \delta)}{n}}
+\end{align}
+
+
+
+
+
+ 
+
+
+
+\clearpage 
+\section*{Problem 2(d)}
+\question{Show that 
+	\begin{align}
+		Y_{\lr{ \lfloor n/2 - \epsilon n  \rfloor }}
+		\leq \hat m_n \leq
+		Y_{\lr{ \lceil n/1 + 1 \rceil }}
+	\end{align}
+}
+
+We can show this by bounding the number of $Y_i$'s that are larger/smaller than $\hat m_n$. Let $N(x) := |\{ Y_i: Y_i \geq \hat x  \}|$ denote the number of $Y_i$'s greater than or equal to $x$. By definition, we know that there are at least $n/2$ variables in $\{X_1, \ldots, X_n\}$ greater than or equal to the median. Since we are told that $\epsilon > 1/2$, we also know that $(1 - \epsilon)n = n - k > n/2$ (we also know that $n$ is even). Therefore, we can assert
+\begin{align}
+	N(\hat m_n) \geq \frac{n}{2} - k 
+\end{align}
+If there are at least $\frac{n}{2} - k$ number of $Y_i$'s greater than or equal to $\hat m_n$, then necessarily there must be at most $(n - k) - (\frac{n}{2} - k) = \frac{n}{2}$  number of $Y_i$'s strictly less than $\hat m_n$. Therefore, $\hat m_n \leq Y_{\lr{ \lceil n/2 + 1 \rceil }}$. \\
+
+We can apply the same kind of logic to obtain the other side of the desired inequality. Namely, since at most $n / 2$ number of $Y_i$'s are strictly greater than $\hat m_n$, we have that at least $(n- k) - \frac{n}{2} = \frac{n}{2} - k = \frac{n}{2} - \epsilon n$ are less than or equal to $\hat m_n$. Combining these two results yields
+\begin{align}
+			Y_{\lr{ \lfloor n/2 - \epsilon n  \rfloor }}
+	\leq \hat m_n \leq
+	Y_{\lr{ \lceil n/1 + 1 \rceil }}
+\end{align}
+
+
+
+\clearpage 
+\section*{Problem 2(e)}
+\question{Show $\exists n_0$ and $\exists \epsilon_0$ s.t. $\forall n \geq n_0$ and $\forall \epsilon \leq \epsilon_0$, w.p. at least $1 -\delta$
+	\begin{align}
+		|\hat m_n - \mu | \leq C \lr{  \epsilon + \sqrt{\log(2/\delta) / n}  }
+	\end{align}
+}
+
+As suggested by the hint, proceed by proving the concentration of the quantiles. Let
+\begin{align}
+	\alpha_- &= \frac{1 - 2\epsilon}{2(1 - \epsilon)} \\
+	\alpha_+ &= \frac{\frac{n}{2} + 1}{(1 - \epsilon)n}
+\end{align}
+
+Similarly, let $q_{\alpha_-}$ and $q_{\alpha_+}$ denote the corresponding quantiles of $\mathcal{N}(\mu, 1)$ (the distribution of the $Y_i$'s). We can then apply the result from part (b)
+
+\begin{align}
+	\Prob{ Y_{\lr{ \lceil n/2 + 1 \rceil }} - q_{\alpha_+} \geq t }
+	&\leq \exp\lr{ - \onehalf (1-\epsilon) n p(q_{\alpha_+})^2 t^2 } \\
+	&< \exp\lr{ - \inv{4} n p(q_{\alpha_+})^2 t^2 }
+\end{align}
+where the last inequality follows from the fact that $\epsilon < \onehalf$. Then we can apply part (c) to assert that there exists $n_0$ such that for any even integer $n \geq n_0$, with probability at least $1 - \delta$, we have
+\begin{align}
+	Y_{\lr{ \lceil n/2 + 1 \rceil }} 
+	&\leq q_{\alpha_+} + \frac{1}{p(q_{\alpha_+})} \sqrt{\frac{ 4 \log(2/\delta) }{ n }} 
+\end{align}
+
+We can repeat the previous steps for $Y_{\lr{ n/2 - \epsilon n }}$ and $\alpha_-$ as follows:
+\begin{align}
+	\Prob{ Y_{\lr{ \lfloor n/2 - \epsilon n \rfloor }} - q_{\alpha_-} \geq t }
+		&\leq \exp\lr{ - \inv{4} n p(q_{\alpha_-})^2 t^2 } \\
+	Y_{\lr{ \lfloor n/2 - \epsilon n \rfloor }}
+		&\geq q_{\alpha_-} + \frac{1}{p(q_{\alpha_-})} \sqrt{\frac{ 4 \log(2/\delta) }{ n }}
+\end{align}
+
+So with probability at least $1 - \delta$, and using the result from part (d):
+\begin{align}
+	q_{\alpha_-} + \frac{1}{p(q_{\alpha_-})} \sqrt{\frac{ 4 \log(2/\delta) }{ n }} 
+		\leq Y_{\lr{ \lfloor n/2 - \epsilon n \rfloor }} 
+		\leq \hat m_n 
+		\leq Y_{\lr{ \lceil n/2 + 1 \rceil }} 
+		\leq q_{\alpha_+} + \frac{1}{p(q_{\alpha_+})} \sqrt{\frac{ 4 \log(2/\delta) }{ n }} 
+\end{align}
+
+Therefore if we can show, for $n \geq n_0$ and $\epsilon \leq \epsilon_0$,  that $q_{\alpha_-}$ and $q_{\alpha_+}$ can be bounded in the form of
+\begin{align}
+	q_{\alpha_-}
+	&\geq \mu - C\epsilon \\
+	q_{\alpha_+}
+	&\leq \mu + C\epsilon 
+\end{align}
+we'll have the desired result. Note that $q_x$, which here is the $x$th quantile of the normal distribution, is continuous and differentiable\footnote{Specifically, for the normal distribution, the quantile function $q_x = F^{-1}_X(x)$ is the inverse CDF. The derivative of $q_x$ is thus the derivative of the inverse CDF of the normal distribution, which is \begin{align}
+		\deriv{}{x}F^{-1}_X(x) = \inv{ p(F^{-1}_X(x)) } = \inv{p(q_x)}
+	\end{align}
+where $p(x)$ is the density function.}, with derivative being the PDF of the normal distribution. Note that $q_{\onehalf} = \mu$. We can then do a taylor expansion centered on $q_{\onehalf}$, with a temporary abuse of notation (the $\delta$ below is unrelated to the $\delta$ in this problem):
+\begin{align}
+	q_{\onehalf - \delta} 
+		&\geq \mu - C\delta \\
+	q_{\onehalf + \delta} 
+		&\leq \mu + C\delta 
+\end{align}
+Since $\alpha_+ = \onehalf + \inv{1-\epsilon}\lr{ \onehalf \epsilon + n }$,
+\begin{align}
+	q_{\alpha_+} 
+		&\leq \mu + C \inv{1-\epsilon}\lr{ \onehalf \epsilon + n }  \\
+	q_{\alpha_+} + \frac{1}{p(q_{\alpha_+})} \sqrt{\frac{ 4 \log(2/\delta) }{ n }} 
+		&\leq  \mu + C\epsilon + \frac{1}{p(q_{\alpha_+})} \sqrt{\frac{ 4 \log(2/\delta) }{ n }} \\
+		&\leq \mu + C\lr{  \epsilon + \sqrt{\frac{  \log(2/\delta) }{ n }} }
+\end{align}
+for $C > \frac{2}{p(q_{\alpha_+})}$. 
+
+\Needspace{10\baselineskip}
+Similarly, $\alpha_- = \onehalf -  \inv{1-\epsilon}\lr{ \onehalf \epsilon  }$, which results in
+\begin{align}
+	q_{\alpha_-} + \frac{1}{p(q_{\alpha_-})} \sqrt{\frac{ 4 \log(2/\delta) }{ n }} 
+		&\geq \mu - C \lr{  \epsilon +  \sqrt{\frac{  \log(2/\delta) }{ n }} }
+\end{align}
+for $C >  \frac{2}{p(q_{\alpha_-})}$. \\
+
+Combining these two results, we require $C > \frac{2}{\min\left\{ p(q_{\alpha_+}), p(q_{\alpha_-})    \right\}} $. Therefore 
+\begin{align}
+		  \mu - C \lr{  \epsilon +  \sqrt{\frac{  \log(2/\delta) }{ n }} } 
+		\leq \hat m_n 
+		\leq \mu + C\lr{  \epsilon + \sqrt{\frac{  \log(2/\delta) }{ n }} }
+\end{align}
+and we have the desired result.
+
+
+
+
+	
+	
+\end{document}

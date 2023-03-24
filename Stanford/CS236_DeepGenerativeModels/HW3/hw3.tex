@@ -1,0 +1,383 @@
+\documentclass[11pt]{article}
+\usepackage{fullpage,amsmath,amssymb,graphicx}
+
+\usepackage{bm}
+\usepackage{cancel}
+\usepackage{comment}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage[top=1in, bottom=1in, left=0.8in, right=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{lmodern} % Nice fonts?
+\usepackage{mathtools} 
+\usepackage{needspace}
+\usepackage{paralist}
+\usepackage[parfill]{parskip} % no indents on new paragraphs.
+\usepackage{pifont}
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+
+% Muh packagez :)
+\usepackage{../../Packages/MathCommands}
+\usepackage{../../Packages/BrandonColors}
+\usepackage{../../Packages/BrandonBoxes}
+\usepackage{../../Packages/CS221}
+%\usepackage{../Packages/MachineLearningUtils}
+
+%\setlength{\parskip}{1pt}
+%\setlength{\columnseprule}{0.1pt}
+%\setlength{\columnsep}{0.6cm}
+%\setlength\tabcolsep{0.1cm}
+\renewcommand{\arraystretch}{1.2}
+\renewcommand\vec[2][]{\bm{#2}_{#1}}
+\newcommand\p{\noindent}
+
+\newcommand\myfig[2][0.3\textwidth]{\begin{figure}[h!]\centering\includegraphics[width=#1]{#2}\end{figure}}
+\newcommand\myspace[1][]{\vspace{#1\bigskipamount}\Needspace{10\baselineskip}}
+\newcommand\tlab[1]{\tag{#1}\label{#1}}
+\newcommand\Var[1]{\mathrm{Var}\left[#1\right]}
+
+
+\newcommand{\bx}{{\boldsymbol{x}}}
+\newcommand{\by}{{\boldsymbol{y}}}
+\newcommand{\bz}{{\boldsymbol{z}}}
+\newcommand{\bmu}{{\boldsymbol{\mu}}}
+\newcommand{\bb}{{\boldsymbol{b}}}
+\newcommand{\abs}[1]{\left| #1\right|}
+
+\newcommand{\points}[1]{{\textbf{[#1 points]}}}
+\newcommand{\ruleskip}{\bigskip\hrule\bigskip}
+\newcommand{\nodify}[1]{{\sc #1}} 
+\newcommand{\Size}[2]{{\rm SIZE}_{#1}(#2)}
+\newcommand{\KL}[0]{D_{\mathrm{KL}}}
+\newcommand{\csisep}[4]{\emph{CSI-sep}_{#1}({#2};{#3} \mid {#4})}
+
+
+\renewcommand{\arraystretch}{1.5}
+
+%\setlength{\parindent}{0pt} \setlength{\parskip}{0.5ex}
+\usepackage{tikz,tkz-graph}
+\usetikzlibrary{
+	matrix,
+	graphs,
+	graphs.standard,
+	positioning,chains,fit,shapes,calc,
+	decorations.pathreplacing
+}
+
+% bluesec
+\newcommand\bluesec[2][]{\myspace[#1] \p \blue{#2}}
+
+
+
+\begin{document}
+
+\begin{center}
+	{\Large CS 236 Autumn 2019/2020 Homework 3}
+	
+	\begin{tabular}{rl}
+		SUNet ID: & 06009508 \\
+		Name: & Brandon McKinzie \\
+		Collaborators: & N/A
+	\end{tabular}
+\end{center}
+
+\p By turning in this assignment, I agree by the Stanford honor code and declare
+that all of this is my own work.
+
+
+\rule{\linewidth}{0.4pt}
+
+\section*{Problem 2: Generative adversarial networks (15 points)}
+
+\bluesec{Part 4}. 
+
+\myfig[\textwidth]{figs/1_4.png}
+
+\clearpage
+\section*{Problem 2: Generative adversarial networks (15 points)}
+\question{Unfortunately, this form of loss for $L_G$ suffers from a \emph{vanishing gradient} problem. In terms of the discriminator's logits, the minimax loss is  \[
+	L_G^{\text{minimax}}(\theta; \phi) = \mathbb{E}_{\bz \sim \mathcal{N}(0,I)}[ \log (1 - \sigma(h_\phi(G_\theta(\bz)))) ] 
+	\]
+	
+	Show that the derivative of $L_G^{\text{minimax}}$ with respect to $\theta$ is approximately $0$ if $D(G_\theta(\bz)) \approx 0$, or equivalently, if $h_\phi(G_\theta(\bz)) \ll 0$. You may use the fact that $\sigma'(x) = \sigma(x) (1 - \sigma(x))$. Why is this problematic for the training of the generator when the discriminator successfully identifies a fake sample $G_\theta(\bz)$?}
+	
+	Below, I take the derivative with respect to $\theta$ and evaluate it for the case of $\sigma(h_\phi(G_\theta(\bz))) \approx 0$. 
+	\begin{align}
+		\pderiv{L_G^{\text{minimax}}(\theta; \phi) }{\theta}
+			&= \pderiv{}{\theta} \mathbb{E}_{\bz \sim \mathcal{N}(0,I)}[ \log (1 - \sigma(h_\phi(G_\theta(\bz)))) ] \\
+			&= \mathbb{E}_{\bz \sim \mathcal{N}(0,I)}[ \pderiv{}{\theta} \log (1 - \sigma(h_\phi(G_\theta(\bz)))) ] \\
+		\pderiv{}{\theta} \log (1 - \sigma(h_\phi(G_\theta(\bz))))
+			&= \inv{1 - \sigma(h_\phi(G_\theta(\bz)))} \pderiv{}{\theta}  (1 - \sigma(h_\phi(G_\theta(\bz)))) \\
+			&=	- \inv{1 - \sigma(h_\phi(G_\theta(\bz)))} \pderiv{}{\theta}  \sigma(h_\phi(G_\theta(\bz))) \\
+		\pderiv{}{\theta}  \sigma(h_\phi(G_\theta(\bz)))
+			&=  \sigma(h_\phi(G_\theta(\bz))) (1 -  \sigma(h_\phi(G_\theta(\bz))))  \pderiv{}{\theta} h_\phi(G_\theta(\bz)) \\
+		\therefore
+		\pderiv{L_G^{\text{minimax}}(\theta; \phi) }{\theta} \bigg|_{h_{\phi} <<0}
+			&= \mathbb{E}_{\bz \sim \mathcal{N}(0,I)}[  
+				- \frac{ 
+					\sigma(h_\phi(G_\theta(\bz))) (1 -  \sigma(h_\phi(G_\theta(\bz))))  \pderiv{}{\theta} h_\phi(G_\theta(\bz)) 
+			}{
+				1 - \sigma(h_\phi(G_\theta(\bz)))
+			}  ]  \\
+					&= \mathbb{E}_{\bz \sim \mathcal{N}(0,I)}[  
+		- 
+			\sigma(h_\phi(G_\theta(\bz)))  \pderiv{}{\theta} h_\phi(G_\theta(\bz)) ] \\
+			&\approx 0
+	\end{align}
+	This is problematic since it suggests that if our generator $G_{\theta}$ is horrible -- that is, it produces obviously fake samples from the perspective of our discriminator (or, equivalently, if our discriminator is perfect) -- then its gradients will be (nearly) zero and thus its parameters won't get updated.
+	
+	
+
+\clearpage
+
+\myfig[\textwidth]{figs/2_2.png}
+	
+	
+	
+\clearpage
+\section*{Problem 3: Divergence minimization (25 points)}
+
+\bluesec{Part 1}. \question{Show that $L_D$ is minimized when $D_\phi = D^*$, where \[
+	D^*(\bx) = \frac{p_\text{data}(\bx)}{p_\theta(\bx) + p_\text{data}(\bx)}.
+	\] (Hint: for a fixed $\bx$, what $t$ minimizes $f(t) = -p_\text{data}(\bx) \log t - p_\theta(\bx) \log (1 - t) $?)}
+	
+	First we expand out the equation for $L_D$ as an integral:
+	\begin{align}
+		L_D(\phi; \theta) 	
+			&= - \int \left[  p_{data}(\bx) \log D_\phi(\bx) + p_{\theta}(\bx) \log(1 - D_\phi(\bx)) \right] \mathrm{d} \bx 
+	\end{align}
+	
+	The derivative of the integrand with respect to $D$ is
+	\begin{align}
+		p_{data}(\bx) \inv{D_\phi(\bx)} - p_{\theta}(\bx) \inv{1 - D_\phi(\bx)}
+	\end{align}
+	
+	We can set this to zero and solve for $D$ to obtain $D^*$.
+	\begin{align}
+		p_{data}(\bx) \inv{D_\phi(\bx)} &= p_{\theta}(\bx) \inv{1 - D_\phi(\bx)} \\
+		p_{data}(\bx) (1 - D_\phi(\bx)) &= p_{\theta}(\bx) D_\phi(\bx) \\
+		p_{data}(\bx) &= D_\phi(\bx) ( p_{\theta}(\bx)  +  p_{data}(\bx)) \\
+		D_\phi(\bx) &= \frac{    p_{data}(\bx)  }{   p_{\theta}(\bx)  +  p_{data}(\bx)  }
+	\end{align}
+	
+	\clearpage
+\bluesec{Part 2}. \question{Recall that $D_\phi(\bx) = \sigma(h_\phi(\bx))$. Show that the logits $h_\phi(\bx)$ of the discriminator estimate the log of the likelihood ratio of $\bx$ under the true distribution compared to the model's distribution; that is, show that if $D_\phi = D^*$, then \[
+	h_\phi(\bx) = \log \frac{p_\text{data}(\bx)}{p_\theta(\bx)}
+	\]}
+
+	We just plug in $D_\phi(\bx) = \sigma(h_\phi(\bx))$ and solve for $h_{\phi}(\bx)$ using basic arithmetic:
+	\begin{align}
+		 \sigma(h_\phi(\bx)) 
+		 	&= \frac{    p_{data}(\bx)  }{   p_{\theta}(\bx)  +  p_{data}(\bx)  } \\
+		 \text{Let } F 
+		 	&:=  \frac{    p_{data}(\bx)  }{   p_{\theta}(\bx)  +  p_{data}(\bx)  } \\
+		 \inv{1 + e^{-h_{\phi}(\bx)}}  
+		 	&= F \\
+		 1 
+		 	&= (1 + e^{-h_{\phi}(\bx)}) F \\
+		 	&= F + F e^{-h_{\phi}(\bx)} \\
+		 \frac{1-F}{F} 
+		 	&= e^{-h_{\phi}(\bx)} \\
+		 \log \frac{1-F}{F} 
+		 	&= -h_{\phi}(\bx) \\
+		 \therefore h_{\phi}(\bx)
+		 	&= \log \frac{F}{1-F} \\
+		 	&= \log \frac{p_\text{data}(\bx)}{p_\theta(\bx)}
+	\end{align}
+	
+	\clearpage
+\bluesec{Part 3}. \question{Consider a generator loss defined by the sum of the minimax loss and the non-saturating loss, \[
+	L_G(\theta; \phi) = \mathbb{E}_{\bx \sim p_\theta(\bx)} [ \log (1 - D_\phi(\bx)) ] -\mathbb{E}_{\bx \sim p_\theta(\bx)} [ \log D_\phi(\bx) ] .
+	\]
+	
+	Show that if $D_\phi = D^*$, then \[
+	L_G(\theta; \phi) = \textrm{KL}(p_\theta(\bx) || p_\text{data}(\bx)).
+	\]}
+
+	Again, we just plug in for $D^*$ and shuffle some terms around to arrive at the result.
+	\begin{align}
+		L_G(\theta; \phi)
+			&= \mathbb{E}_{\bx \sim p_\theta(\bx)} [ \log ( \frac{    p_{\theta}(\bx)  }{   p_{\theta}(\bx)  +  p_{data}(\bx)  }  ) ] -\mathbb{E}_{\bx \sim p_\theta(\bx)} [ \log \frac{    p_{data}(\bx)  }{   p_{\theta}(\bx)  +  p_{data}(\bx)  }  ]  \\
+			&= \mathbb{E}_{\bx \sim p_\theta(\bx)} [ \log  \frac{    p_{\theta}(\bx)  }{   p_{\theta}(\bx)  +  p_{data}(\bx)  }   /  \frac{    p_{data}(\bx)  }{   p_{\theta}(\bx)  +  p_{data}(\bx)  }  ] \\
+			&= \mathbb{E}_{\bx \sim p_\theta(\bx)} [ \log  \frac{    p_{\theta}(\bx)  }{  p_{data}(\bx) } ] \\
+			&= \textrm{KL}(p_\theta(\bx) || p_\text{data}(\bx))
+	\end{align}
+	
+
+\clearpage
+\bluesec{Part 4}. \question{Recall that when training VAEs, we minimize the negative ELBO, an upper bound to the negative log likelihood. Show that the negative log likelihood, $-\mathbb{E}_{\bx \sim p_\text{data}(\bx)} [\log p_\theta(\bx)]$, can be written as a KL divergence plus an additional term that is constant with respect to $\theta$. }
+
+
+We can use the definition of $KL(p_{data}(x) || p_{\theta}(x))$ and rearrange some terms:
+\begin{align}
+	KL(p_{data}(x) || p_{\theta}(x))
+		&\triangleq \E[x \sim p_{data}(x)]{\log \frac{ p_{data}(x) }{ p_{\theta}(x)  }} \\
+		&= \E[x \sim p_{data}(x)]{\log p_{data}(x) }  - \E[x \sim p_{data}(x)]{\log  p_{\theta}(x) } \\
+	\therefore
+	 - \E[x \sim p_{data}(x)]{\log  p_{\theta}(x) } 
+	 	&= KL(p_{data}(x) || p_{\theta}(x)) -  \E[x \sim p_{data}(x)]{\log p_{data}(x) }
+\end{align}
+and we see that $- \E[x \sim p_{data}(x)]{\log  p_{\theta}(x) } $ can be written as $KL(p_{data}(x) || p_{\theta}(x))$ plus a $\theta$-independent term, $-  \E[x \sim p_{data}(x)]{\log p_{data}(x) }$. This of course implies that 
+
+\begin{align}
+	\min_{\theta} -\E[x \sim p_{data}(x)]{\log  p_{\theta}(x) } 
+	&= \min_{\theta} \left[ KL(p_{data}(x) || p_{\theta}(x))  -  \E[x \sim p_{data}(x)]{\log p_{data}(x) } \right] \\
+	&= \min_{\theta}   KL(p_{data}(x) || p_{\theta}(x))
+\end{align}
+
+\question{Does this mean that a VAE decoder trained with ELBO and a GAN generator trained with the $L_G$ defined in the previous part are implicitly learning the same objective? Explain.}
+
+No, they are not the same, since the GAN generator from the previous part minimizes
+\begin{align}
+	L_G(\theta; \phi)
+		&= KL(p_{\theta}(x) || p_{data}(x))
+\end{align}
+and $ KL(p_{\theta}(x) || p_{data}(x)) \ne  KL(p_{data}(x) || p_{\theta}(x))$ since the KL divergence is not symmetric.
+
+
+\clearpage
+\section*{Problem 4: Conditional GAN with projection discriminator (20 points)}
+
+\bluesec{Part 1}. \question{Suppose that when $(\bx,y) \sim p_{\text{data}}(\bx, y)$, there exists a feature mapping $\varphi$ under which $\varphi(\bx)$ becomes a mixture of $m$ unit Gaussians, with one Gaussian per class label $y$. Assume that when $(\bx, y) \sim p_\theta(\bx, y)$, $\varphi(\bx)$ also becomes a mixture of $m$ unit Gaussians, again with one Gaussian per class label $y$. Concretely, we assume that the ratio of the conditional probabilities can be written as \[
+	\frac{ p_{\text{data}}(\bx|y)}{p_\theta(\bx|y)} =  \frac{\mathcal{N}(\varphi(\bx) | \bmu_y, I)}{\mathcal{N}(\varphi(\bx) | \hat\bmu_y, I)},
+	\] where $\bmu_y$ and $\hat{\bmu}_y$ are the means of the Gaussians for $p_{\text{data}}$ and $p_\theta$ respectively.
+	
+	Show that under this simplifying assumption, the optimal discriminator's logits $h^*(\bx,y)$ can be written in the form \[
+	h^*(\bx,y) = {\by}^T ({A} \varphi(\bx) + {\bb})
+	\] for some matrix ${A}$ and vector ${\bb}$, where ${\by}$ is a one-hot vector denoting the class $y$. In this problem, the discriminator's output and logits are related by $D_\phi(\bx, y) = \sigma(h_\phi(\bx, y))$. (Hint: use the result from problem 2.2.)}
+
+To rephrase the question a bit for clarity: there exists some mapping $\varphi : (\vec x \in \R ^d, y) \mapsto \vec r \in \R^{r}$ where $\vec r$ is modeled by the distribution $\mathcal{N}(\vec r; \vec[y]{\mu}, I)$. The result from problem 3.2 states that the optimal unconditional discriminator's logits $h^*(\vec x)$ satisfy
+\begin{align}
+	h^*(\vec x)
+		&= \log \frac{p_{data}(\vec x)}{p_{\theta}(\vec x)}
+\end{align}
+
+For the class-conditional setting, our optimal discriminator logits $h^*(\vec x, y)$ will instead follow
+\begin{align}
+h^*(\vec x, y)
+	&= \log \frac{p_{data}(\vec x \mid y)}{p_{\theta}(\vec x \mid y)} \\
+	&= \log \frac{\mathcal{N}(\varphi(\bx) | \bmu_y, I)}{\mathcal{N}(\varphi(\bx) | \hat\bmu_y, I)} \\
+	&= \log \frac{   \exp\lr{ - \onehalf \lr{ \varphi(\bx) - \vec[y]{\mu}  }^T \lr{ \varphi(\bx)- \vec[y]{\mu}  }  }      }{  
+		\exp\lr{ - \onehalf \lr{ \varphi(\bx) - \vec[y]{\hat \mu}  }^T \lr{ \varphi(\bx)- \vec[y]{\hat \mu}  }  }  	
+     } \\
+ 	&=  - \onehalf \lr{ \varphi(\bx)- \vec[y]{\mu}  }^T \lr{ \varphi(\bx) - \vec[y]{\mu}  }   + \onehalf \lr{ \varphi(\bx) - \vec[y]{\hat \mu}  }^T \lr{ \varphi(\bx)- \vec[y]{\hat \mu}  } \\
+ 	&=\varphi(\bx)^T \left[ \vec[y]{\mu} - \vec[y]{\hat \mu}  \right] + \onehalf \lr{  \vec[y]{\hat \mu}^2 - \vec[y]{\mu}^2   }
+\end{align}
+
+We can equivalently rewrite this to use the one-hot vector $\vec y$ by defining an $m$-element vector $\vec b$ whose $i$th entry equals $ \onehalf \lr{  \vec[i]{\hat \mu}^2 - \vec[i]{\mu}^2   }$ (corresponding to class $i$). Similarly, we define the matrix $\matr A$ with $m$ rows and $r$ columns (dimensionality of $\varphi(\bx)$), with $A_{i,:} := \vec[i]{\mu} - \vec[i]{\hat\mu}$. This results in
+\begin{align}
+	h^*(\vec x, y)
+		&= \lr{  \matr A \varphi(\bx) + \vec b}_{y} \\
+		&= \vec{y}^T \lr{  \matr A \varphi(\bx) + \vec b}
+\end{align}
+
+
+
+\clearpage
+
+\myfig[\textwidth]{figs/4_2.png}
+
+
+
+\clearpage
+\section*{Problem 5: Wasserstein GAN (35 points)}
+
+\bluesec{Part 1}. \question{Let $p_\theta(x) = \mathcal{N}(x|\theta, \epsilon^2)$ and $p_\text{data}(x) = \mathcal{N}(x|\theta_0, \epsilon^2)$ be normal distributions with standard deviation $\epsilon$ centered at $\theta \in \mathbb{R}$ and $\theta_0 \in \mathbb{R}$ respectively. Show that \[
+	\mathrm{KL}(p_\theta(x) || p_\text{data}(x)) = \frac{(\theta - \theta_0)^2}{2\epsilon^2}.
+	\]}
+
+\begin{align}
+	\mathrm{KL}(p_\theta(x) || p_\text{data}(x)) 
+		&= \E[x \sim p_{\theta}]{   \log \frac{p_{\theta}(x)}{p_{data}(x)}   } \\
+		&= \int_{\R}  p_{\theta}(x)  \log \frac{p_{\theta}(x)}{p_{data}(x)} \mathrm{d} x \\
+		&= \int_{\R} \mathcal{N}(x \mid \theta, \epsilon^2) \log \frac{
+			\exp \lr{ - \frac{ (x - \theta)^2  }{ 2 \epsilon^2  }   }
+			}{
+			\exp \lr{ - \frac{ (x - \theta_0)^2  }{ 2 \epsilon^2  }   }
+			} \mathrm{d} x \\
+		&= \int_{\R} \mathcal{N}(x \mid \theta, \epsilon^2) \lr{
+			- \inv{2\epsilon^2} \lr{
+				(x - \theta)^2 - (x - \theta_0)^2
+		}} \mathrm{d}x \\
+		&= \int_{\R} \mathcal{N}(x \mid \theta, \epsilon^2) \lr{
+				- \inv{2\epsilon^2} \lr{
+					-2x\theta + \theta^2 + 2x\theta_0 - \theta_0^2
+				}
+		} \mathrm{d} x \\
+		&= \inv{2\epsilon^2} \int_{\R} \mathcal{N}(x \mid \theta, \epsilon^2)  \lr{
+				2x (\theta - \theta_0) + \theta_0^2 - \theta^2
+		} \mathrm{d} x \\
+	&= \inv{2\epsilon^2} \E[x \sim p_{\theta}]{
+		2x (\theta - \theta_0) + \theta_0^2 - \theta^2
+	} \\
+	&= \inv{2\epsilon^2} \lr{ 2 \theta (\theta - \theta_0) + \theta_0^2 - \theta^2 } \\
+	&= \inv{2\epsilon^2} \lr{ 2\theta^2 - 2\theta \theta_0 + \theta_0^2 - \theta^2   } \\
+	&=  \inv{2\epsilon^2} \lr{ \theta^2 - 2\theta \theta_0 + \theta_0^2    }  \\
+	&= \frac{(\theta - \theta_0)^2}{2\epsilon^2}
+\end{align}
+	
+	
+\bluesec[10]{Part 2}. \question{Suppose $p_\theta(x)$ and $p_\text{data}(x)$ both place probability mass in only a very small part of the domain; that is, consider the limit $\epsilon \to 0$. What happens to $\mathrm{KL}(p_\theta(x) || p_\text{data}(x))$ and its derivative with respect to $\theta$, assuming that $\theta \ne \theta_0$? Why is this problematic for a GAN trained with the loss function $L_G$ defined in problem 2.3?}
+
+As $\epsilon \to 0$, $KL \to \infty$. It's derivative,
+
+\begin{align}
+	\pderiv{}{\theta} \frac{(\theta - \theta_0)^2}{2\epsilon^2}
+		= \frac{2(\theta - \theta_0)}{2\epsilon^2} 
+		= \frac{\theta - \theta_0}{\epsilon^2}
+\end{align}
+also goes to $\infty$ as $\epsilon \to 0$. We saw in problem 3.3 that if $D_{\phi} = D^*$, then $L_G(\theta, \phi) = KL(p_\theta(x) || p_{data}(x))$. Therefore, if we have a sufficiently good discriminator $\approx D^*$, small $\epsilon \to 0$, and $\theta \ne \theta_0$, our losses and gradients will explode and prevent our model from training successfully.
+	
+	
+\clearpage
+\bluesec[10]{Part 3}. \question{To avoid this problem, we'll propose an alternative objective for the discriminator and generator. Consider the following alternative objectives: \begin{align*}
+	L_D(\phi; \theta) &= \mathbb{E}_{x \sim p_\theta(x)}[D_\phi(x)] - \mathbb{E}_{x \sim p_\text{data}(x)}[D_\phi(x)] \\
+	L_G(\theta; \phi) &= -\mathbb{E}_{x \sim p_\theta(x)}[D_\phi(x)],
+	\end{align*} where $D_\phi$ is no longer constrained to functions that output a probability; instead $D_\phi$ can be a function that outputs any real number. As defined, however, these losses are still problematic. Again consider the limit $\epsilon \to 0$; that is, let $p_\theta(x)$ be the distribution that outputs $\theta \in \mathbb{R}$ with probability $1$, and let $p_\text{data}(x)$ be the distribution that outputs $\theta_0 \in \mathbb{R}$ with probability $1$. Why is there no discriminator $D_\phi$ that minimizes this new objective $L_D$?}
+
+In this case, $L_D$ simply becomes
+\begin{align}
+	L_D(\phi, \theta) = D_{\phi}(\theta) - D_{\phi}(\theta_0)
+\end{align}
+Proceed via proof by contradiction. Assume that there exists some $D^*$ that minimizes $L_D$. Since $D$ can be any function that outputs a real number, let another function $D^{**}$ be defined as
+\begin{align}
+	D^{**}
+		&= \begin{cases}
+			D^*(\theta) - 1 & \text{if } x = \theta \\
+			D^*(\theta_0) & \text{if } x= \theta_0 \\
+			0 & \text{otherwise}
+		\end{cases}
+\end{align}
+Plugging this into $L_D$ reveals
+\begin{align}
+	L_{D^{**}}(\phi, \theta)
+		&= D^{**}(\theta) - D^{**}(\theta_0) \\
+		&= D^{*}(\theta) - 1 - D^*(\theta_0) \\
+		&= L_{D^*}(\phi, \theta) - 1
+\end{align}
+and we see that $L_{D^{**}} < L_{D^*}$, which contradicts our premise that $D^* = \argmin_{D} L_D(\phi, \theta)$. Therefore, there does not exist any function $D$ that minimizes this form of $L_D$ (under the assumptions of $p_{\theta}$, $p_{data}$, etc). 
+	
+\clearpage	
+\bluesec[10]{Part 4}. \question{Let's tweak the alternate objective so that an optimal discriminator exists. Consider the same objective $L_D$ and the same limit $\epsilon \to 0$. Now, suppose that $D_\phi$ is restricted to differentiable functions whose derivative is always between $-1$ and $1$. It can still output any real number. Is there now a discriminator $D_\phi$ out of this class of functions that minimizes $L_D$? Briefly describe what the optimal $D_\phi$ looks like as a function of $x$.}
+	
+If we add the constraint that $-1 < \pderiv{D_{\phi}(x)}{x} < 1$, then
+\begin{align}
+	-|\theta - \theta_0| 
+	< ~ &L_D(\phi, \theta) \eq D_{\phi}(\theta) - D_{\phi}(\theta_0)~ 
+	< |\theta - \theta_0| \\
+	\inf &L_D(\phi, \theta) = -|\theta - \theta_0|
+\end{align}
+
+If, for example, we had $\theta \in \R^+$ only, then $D_{\phi}(x) = -x$ would satisfy this.
+
+
+
+
+
+\clearpage
+
+\myfig[\textwidth]{figs/5_5.png}
+
+
+\end{document}

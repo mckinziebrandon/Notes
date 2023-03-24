@@ -1,0 +1,206 @@
+ \documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage[top=1in, bottom=1in, left=0.8in, right=1in]{geometry}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{fit,positioning}
+\usetikzlibrary{calc,arrows.meta}
+\usepackage{pythonhighlight}
+
+
+\newcommand{\bx}{{\boldsymbol{x}}}
+\newcommand{\by}{{\boldsymbol{y}}}
+\newcommand{\bz}{{\boldsymbol{z}}}
+\newcommand{\bmu}{{\boldsymbol{\mu}}}
+\newcommand{\bb}{{\boldsymbol{b}}}
+\newcommand{\abs}[1]{\left| #1\right|}
+
+\newcommand{\points}[1]{{\textbf{[#1 points]}}}
+\newcommand{\ruleskip}{\bigskip\hrule\bigskip}
+\newcommand{\nodify}[1]{{\sc #1}} 
+\newcommand{\Size}[2]{{\rm SIZE}_{#1}(#2)}
+\newcommand{\KL}[0]{D_{\mathrm{KL}}}
+\newcommand{\csisep}[4]{\emph{CSI-sep}_{#1}({#2};{#3} \mid {#4})}
+
+
+\renewcommand{\arraystretch}{1.5}
+
+\setlength{\parindent}{0pt} \setlength{\parskip}{0.5ex}
+\usepackage{tikz,tkz-graph}
+\usetikzlibrary{
+	matrix,
+	graphs,
+	graphs.standard,
+	positioning,chains,fit,shapes,calc,
+	decorations.pathreplacing
+}
+
+
+
+
+\title{CS 236 Homework 3}
+\author{Instructors: Stefano Ermon and Aditya Grover \\ \texttt{\{ermon,adityag\}@cs.stanford.edu}}
+\date{Available: 11/11/2019; Due: 23:59 PST, 12/2/2019}
+\begin{document}
+
+\maketitle
+
+\rule{\linewidth}{0.4pt}
+\paragraph{Problem 1: Flow models (20 points) \\}
+
+In this problem, we will implement a Masked Autoregressive Flow (MAF) model on the Moons dataset, where we define $p_{\text{data}}(\bx)$ over a 2-dimensional space ($\bx \in \mathbb{R}^n$ where $n=2$). Recall that MAF is comprised of Masked Autoregressive Distribution Estimator (MADE) blocks, which has a special masking scheme at each layer such that the autoregressive property is preserved. In particular, we consider a Gaussian autoregressive model:
+$$p(\bx) = \prod_{i=1}^n p(x_i \vert \bx_{<i})$$
+such that the conditional Gaussians $p(x_i \vert \bx_{<i}) = \mathcal{N}(x_i|\mu_i, (\exp(\alpha_i)^2))$ are parameterized by neural networks $\mu_i = f_{\mu_i}(\bx_{<i})$ and $\alpha_i = f_{\alpha_i}(\bx_{<i})$. Note that $\alpha_i$ denotes the log standard deviation of the Gaussian $p(x_i \vert \bx_{<i})$.
+
+As seen in lecture, a normalizing flow uses a series of deterministic and invertible mappings $f:\mathbb{R}^n \rightarrow \mathbb{R}^n$ such that $x = f(z)$ and $z = f^{-1}(x)$ to transform a simple prior distribution $p_z$ (e.g. isotropic Gaussian) into a more expressive one. In particular, a normalizing flow which composes
+$k$ invertible transformations $\{f_j \}_{j=1}^k$ such that $\bx = f^k \circ f^{k-1}\circ \cdots \circ f^1(\bz_0) $ 
+takes advantage of the change-of-variables property:
+
+$$\log p(\bx) = \log p_z(f^{-1}(\bx)) + \sum_{j=1}^k \log \abs{\det \left( \frac{\partial f_j^{-1}(\bz_j)}{\partial \bz_{j}} \right)}$$
+
+In MAF, the forward mapping is: $x_i = \mu_i + z_i \cdot \exp(\alpha_i)$, and the inverse mapping is: $z_i = (x_i - \mu_i)/\exp(\alpha_i)$. The log of the absoluate value of the Jacobian is:
+$$\log \abs{\det \left( \frac{\partial f^{-1}}{\partial \bx} \right)} = - \sum_{i=1}^n \alpha_i$$
+where $\mu_i$ and $\alpha_i$ are as defined above. 
+
+Your job is to implement and train a 5-layer MAF model on the Moons dataset for 100 epochs by modifying the \texttt{MADE} and \texttt{MAF} classes in the \texttt{flow\_network.py} file. Note that we have provided an implementation of the sequential-ordering masking scheme for MADE.
+
+\begin{enumerate}
+    \item \textbf{[5 points]} Implement the \texttt{forward} function in the \texttt{MADE} class in \texttt{codebase/flow\_network.py}. The forward pass describes the mapping $x_i = \mu_i + z_i \cdot \exp(\alpha_i)$.
+    
+    \item \textbf{[5 points]} Implement the \texttt{inverse} function in the \texttt{MADE} class in \texttt{codebase/flow\_network.py}. The inverse pass describes the mapping $z_i = (x_i - \mu_i)/\exp(\alpha_i)$
+    
+    \item \textbf{[7 points]} Implement the \texttt{log\_probs} function in the \texttt{MAF} class in \texttt{codebase/flow\_network.py}. Then train the MAF model for 50 epochs by executing \texttt{python run\_flow.py}. [Hint: you should be getting a validation/test loss of around 1.2 nats]
+
+    \item \textbf{[3 points]} Visualize 1000 samples drawn the model after is has been trained, which you can do by finding the figure in \texttt{maf/samples\_epoch50.png}. Attach this figure in your writeup -- your samples will not be perfect, but should for the most part resemble the shape of the original dataset.
+    
+    Please package all of the programming parts (1.3, 2.2, 4.2, and 5.5) together using \texttt{make\_submission.sh} and submit the resulting ZIP file on GradeScope.
+\end{enumerate}
+
+\paragraph{Problem 2: Generative adversarial networks (15 points) \\}
+
+In this problem, we will implement a generative adversarial network (GAN) that models a high-dimensional data distribution $p_\text{data}(\bx)$, where $\bx \in \mathbb{R}^n$. To do so, we will define a generator $G_\theta : \mathbb {R}^k \to \mathbb{R}^n$; we obtain samples from our model by first sampling a $k$-dimensional random vector $\bz \sim \mathcal{N}(0, I)$ and then returning $G_\theta(\bz)$. 
+
+We will also define a discriminator $D_\phi : \mathbb{R}^n \to (0,1)$ that judges how realistic the generated images $G_\theta(\bz)$ are, compared to samples from the data distribution ${x} \sim p_\text{data}(\bx)$. Because its output is intended to be interpreted as a probability, the last layer of the discriminator is frequently the \textbf{sigmoid} function, \[
+\sigma(x) = \frac{1}{1 + e^{-x}},\]which constrains its output to fall between $0$ and $1$. For convenience, let $h_\phi(\bx)$ denote the activation of the discriminator right before the sigmoid layer, i.e.~let $D_\phi(\bx) = \sigma(h_\phi(\bx))$. The values $h_\phi(\bx)$ are also called the discriminator's \textbf{logits}.
+
+There are several common variants of the loss functions used to train GANs. They can all be described as a procedure where we alternately perform a gradient descent step on $L_D(\phi;\theta)$ with respect to $\phi$ to train the discriminator $D_\phi$, and a gradient descent step on $L_G(\theta; \phi)$ with respect to $\theta$ to train the generator $G_\theta$: \[
+    \min_\phi L_D(\phi; \theta), \qquad \min_\theta L_G(\theta; \phi).
+\]
+
+In lecture, we talked about the following losses, where the discriminator's loss is given by \[
+    L_D(\phi; \theta) = -\mathbb{E}_{\bx\sim p_\text{data}(\bx)} [ \log D_\phi(\bx) ] - \mathbb{E}_{\bz \sim \mathcal{N}(0,I)} [\log(1 - D_\phi(G_\theta(\bz)))],
+\] and the generator's loss is given by the \textbf{minimax loss}\[
+    L_G^{\text{minimax}}(\theta; \phi) = \mathbb{E}_{\bz \sim \mathcal{N}(0,I)}[ \log (1 - D_\phi(G_\theta(\bz))) ].
+\]
+
+\begin{enumerate}
+    \item \textbf{[5 points]} Unfortunately, this form of loss for $L_G$ suffers from a \emph{vanishing gradient} problem. In terms of the discriminator's logits, the minimax loss is  \[
+     L_G^{\text{minimax}}(\theta; \phi) = \mathbb{E}_{\bz \sim \mathcal{N}(0,I)}[ \log (1 - \sigma(h_\phi(G_\theta(\bz)))) ] .
+    \]
+    
+    Show that the derivative of $L_G^{\text{minimax}}$ with respect to $\theta$ is approximately $0$ if $D(G_\theta(\bz)) \approx 0$, or equivalently, if $h_\phi(G_\theta(\bz)) \ll 0$. You may use the fact that $\sigma'(x) = \sigma(x) (1 - \sigma(x))$. Why is this problematic for the training of the generator when the discriminator successfully identifies a fake sample $G_\theta(\bz)$?
+    
+    \item \textbf{[10 points]} Because of this vanishing gradient problem, in practice, $L_G^{\text{minimax}}$ is typically replaced with the \textbf{non-saturating loss}
+    \[
+        L_G^{\text{non-saturating}}(\theta; \phi) = -\mathbb{E}_{z \sim \mathcal{N}(0,I)} [ \log D_\phi(G_\theta(\bz)) ] .
+    \] 
+    
+    To turn the non-saturating loss into a concrete algorithm, we will take alternating gradient steps on Monte Carlo estimates of $L_D$ and $L^{\text{non-saturating}}_G$: 
+    \begin{align*}
+         L_D(\phi; \theta) &\approx -\frac{1}{m}\sum_{i=1}^m \log D_\phi(\bx^{(i)}) - \frac{1}{m}\sum_{i=1}^m \log(1 - D_\phi(G_\theta(\bz^{(i)})), \\
+        L^{\text{non-saturating}}_G(\theta; \phi) &\approx -\frac{1}{m}\sum_{i=1}^m \log D_\phi(G_\theta(\bz^{(i)})),
+    \end{align*} where $m$ is the batch size, and for $i = 1, \ldots, m$, we sample $\bx^{(i)} \sim p_{\text{data}}(\bx)$ and $\bz^{(i)} \sim \mathcal{N}(0,I)$.
+    
+    Implement and train a non-saturating GAN on Fashion MNIST for one epoch. Read through \texttt{run\_gan.py}, and in \texttt{codebase/gan.py}, implement the \texttt{loss\_nonsaturating} function. To train the model, execute \texttt{python run\_gan.py}. You may monitor the GAN's output in the \texttt{out\_nonsaturating} directory. Note that because the GAN is only trained for one epoch, we cannot expect the model's output to produce very realistic samples, but they should be roughly recognizable as clothing items.
+\end{enumerate}
+
+
+\paragraph{Problem 3: Divergence minimization (25 points)\\}
+
+Now, let us analyze some theoretical properties of GANs. For convenience, we will denote $p_\theta(\bx)$ to be the distribution whose samples are generated by first sampling $\bz \sim \mathcal{N}(0, I)$ and then returning the sample $G_\theta(\bz)$. With this notation, we may compactly express the discriminator's loss as \[
+ L_D(\phi; \theta) = -\mathbb{E}_{\bx\sim p_\text{data}(\bx)} [ \log D_\phi(\bx) ] - \mathbb{E}_{\bx \sim p_\theta(\bx)} [\log(1 - D_\phi(\bx))].
+\]
+ 
+\begin{enumerate}
+    \item \textbf{[10 points]} Show that $L_D$ is minimized when $D_\phi = D^*$, where \[
+        D^*(\bx) = \frac{p_\text{data}(\bx)}{p_\theta(\bx) + p_\text{data}(\bx)}.
+    \] (Hint: for a fixed $\bx$, what $t$ minimizes $f(t) = -p_\text{data}(\bx) \log t - p_\theta(\bx) \log (1 - t) $?)
+    
+    \item \textbf{[5 points]} Recall that $D_\phi(\bx) = \sigma(h_\phi(\bx))$. Show that the logits $h_\phi(\bx)$ of the discriminator estimate the log of the likelihood ratio of $\bx$ under the true distribution compared to the model's distribution; that is, show that if $D_\phi = D^*$, then \[
+        h_\phi(\bx) = \log \frac{p_\text{data}(\bx)}{p_\theta(\bx)}.
+    \]
+    
+    \item \textbf{[5 points]} Consider a generator loss defined by the sum of the minimax loss and the non-saturating loss, \[
+        L_G(\theta; \phi) = \mathbb{E}_{\bx \sim p_\theta(\bx)} [ \log (1 - D_\phi(\bx)) ] -\mathbb{E}_{\bx \sim p_\theta(\bx)} [ \log D_\phi(\bx) ] .
+    \]
+    
+    Show that if $D_\phi = D^*$, then \[
+        L_G(\theta; \phi) = \textrm{KL}(p_\theta(\bx) || p_\text{data}(\bx)).
+    \]
+    
+    \item \textbf{[5 points]} Recall that when training VAEs, we minimize the negative ELBO, an upper bound to the negative log likelihood. Show that the negative log likelihood, $-\mathbb{E}_{\bx \sim p_\text{data}(\bx)} [\log p_\theta(\bx)]$, can be written as a KL divergence plus an additional term that is constant with respect to $\theta$. Does this mean that a VAE decoder trained with ELBO and a GAN generator trained with the $L_G$ defined in the previous part are implicitly learning the same objective? Explain.
+\end{enumerate}
+
+
+\paragraph{Problem 4: Conditional GAN with projection discriminator (20 points) \\}
+
+So far, we have trained GANs that sample from a given dataset of images. However, many datasets come with not only images, but also labels that specify the class of that particular image. In the MNIST dataset, we have both the digit's image as well as its numerical identity. It is natural to want to generate images that correspond to a particular class. 
+
+Formally, an \textit{unconditional} GAN is trained to produce samples $\bx \sim p_\theta(\bx)$ that mimic samples $\bx \sim p_\text{data}(\bx)$ from a data distribution. In the class-conditional setting, we instead have have labeled data $(\bx,y) \sim p_\text{data}(\bx,y)$ and seek to train a model $p_\theta(\bx,y)$. Since it is the class conditional generator $p_\theta(\bx|y)$ that we are interested in, we will express $p_\theta(\bx,y) = p_\theta(\bx|y) p_\theta(y)$. We will set $p_\theta(\bx|y)$ to be the distribution given by $G_\theta(\bz,y)$, where $\bz \sim \mathcal{N}(0,I)$ as usual. For simplicity, we will assume $p_{\text{data}}(y) = \frac{1}{m}$ and set $p_\theta(y) = \frac{1}{m}$, where $m$ is the number of classes. In this case, the discriminator's loss becomes 
+\begin{align*}
+    L_D(\phi; \theta) 
+        &= -\mathbb{E}_{(\bx,y)\sim p_\text{data}(\bx,y)} [ \log D_\phi(\bx,y) ] - \mathbb{E}_{(\bx,y) \sim p_\theta(\bx,y)}[\log(1 - D_\phi(\bx,y))] \\
+        &= -\mathbb{E}_{(\bx,y)\sim p_\text{data}(\bx,y)} [ \log D_\phi(\bx,y) ] - \mathbb{E}_{y \sim p_\theta(y)}[ \mathbb{E}_{\bz \sim \mathcal{N}(0,I)} [\log(1 - D_\phi(G_\theta(\bz,y),y))]].
+\end{align*}
+
+Therefore, the main difference for the conditional GAN is that we must structure our generator $G_\theta(\bz,y)$ and discriminator $D_\phi(\bx,y)$  to accept the class label $y$ as well. For the generator, one simple way to do so is to encode $y$ as a one-hot vector $\by$ and concatenate it to $\bz$, and then apply neural network layers normally. (A one-hot representation of a class label $y$ is an $m$-dimensional vector $\by$ that is $1$ in the $y$th entry and $0$ everywhere else.)
+
+In practice, the effectiveness of the model is strongly dependent on the way the discriminator depends on $y$. One heuristic with which to design the discriminator is to mimic the form of the theoretically optimal discriminator. That is, we can structure the neural network used to model $D_\phi$ based on the form of $D^*$, where $D^*$ minimizes $L_D$. To calculate the theoretically optimal discriminator, though, it is necessary to make some assumptions.
+    
+\begin{enumerate}
+    \item \textbf{[10 points]} Suppose that when $(\bx,y) \sim p_{\text{data}}(\bx, y)$, there exists a feature mapping $\varphi$ under which $\varphi(\bx)$ becomes a mixture of $m$ unit Gaussians, with one Gaussian per class label $y$. Assume that when $(\bx, y) \sim p_\theta(\bx, y)$, $\varphi(\bx)$ also becomes a mixture of $m$ unit Gaussians, again with one Gaussian per class label $y$. Concretely, we assume that the ratio of the conditional probabilities can be written as \[
+       \frac{ p_{\text{data}}(\bx|y)}{p_\theta(\bx|y)} =  \frac{\mathcal{N}(\varphi(\bx) | \bmu_y, I)}{\mathcal{N}(\varphi(\bx) | \hat\bmu_y, I)},
+    \] where $\bmu_y$ and $\hat{\bmu}_y$ are the means of the Gaussians for $p_{\text{data}}$ and $p_\theta$ respectively.
+    
+    Show that under this simplifying assumption, the optimal discriminator's logits $h^*(\bx,y)$ can be written in the form \[
+        h^*(\bx,y) = {\by}^T ({A} \varphi(\bx) + {\bb})
+    \] for some matrix ${A}$ and vector ${\bb}$, where ${\by}$ is a one-hot vector denoting the class $y$. In this problem, the discriminator's output and logits are related by $D_\phi(\bx, y) = \sigma(h_\phi(\bx, y))$. (Hint: use the result from problem 2.2.)
+    
+    \item \textbf{[10 points]} Implement and train a conditional GAN on Fashion MNIST for one epoch. The discriminator has the structure described in part 1, with $\varphi$, $A$ and $b$ parameterized by a neural network with a final linear layer, and the generator accepts a one-hot encoding of the class. In \texttt{codebase/gan.py}, implement the \texttt{conditional\_loss\_nonsaturating} function. To train the model, execute \texttt{python run\_conditional\_gan.py}. You may monitor the GAN's output in the \texttt{out\_nonsaturating\_conditional} directory. You should be able to roughly recognize the categories that correspond to each column.
+\end{enumerate}
+
+\paragraph{Problem 5: Wasserstein GAN (35 points)\\}
+In many cases, the GAN algorithm can be thought of as minimizing a divergence between a data distribution $p_\text{data}(\bx)$ and the model distribution $p_\theta(\bx)$. For example, the minimax GAN discussed in the lectures minimizes the Jensen-Shannon divergence, and the loss in problem 2.3 minimizes the KL divergence. In this problem, we will explore an issue with these divergences and one potential way to fix it.
+
+\begin{enumerate}
+    \item \textbf{[5 points]} Let $p_\theta(x) = \mathcal{N}(x|\theta, \epsilon^2)$ and $p_\text{data}(x) = \mathcal{N}(x|\theta_0, \epsilon^2)$ be normal distributions with standard deviation $\epsilon$ centered at $\theta \in \mathbb{R}$ and $\theta_0 \in \mathbb{R}$ respectively. Show that \[
+        \mathrm{KL}(p_\theta(x) || p_\text{data}(x)) = \frac{(\theta - \theta_0)^2}{2\epsilon^2}.
+    \]
+    
+    \item \textbf{[5 points]} Suppose $p_\theta(x)$ and $p_\text{data}(x)$ both place probability mass in only a very small part of the domain; that is, consider the limit $\epsilon \to 0$. What happens to $\mathrm{KL}(p_\theta(x) || p_\text{data}(x))$ and its derivative with respect to $\theta$, assuming that $\theta \ne \theta_0$? Why is this problematic for a GAN trained with the loss function $L_G$ defined in problem 2.3?
+    
+    \item \textbf{[5 points]} To avoid this problem, we'll propose an alternative objective for the discriminator and generator. Consider the following alternative objectives: \begin{align*}
+         L_D(\phi; \theta) &= \mathbb{E}_{x \sim p_\theta(x)}[D_\phi(x)] - \mathbb{E}_{x \sim p_\text{data}(x)}[D_\phi(x)] \\
+        L_G(\theta; \phi) &= -\mathbb{E}_{x \sim p_\theta(x)}[D_\phi(x)],
+    \end{align*} where $D_\phi$ is no longer constrained to functions that output a probability; instead $D_\phi$ can be a function that outputs any real number. As defined, however, these losses are still problematic. Again consider the limit $\epsilon \to 0$; that is, let $p_\theta(x)$ be the distribution that outputs $\theta \in \mathbb{R}$ with probability $1$, and let $p_\text{data}(x)$ be the distribution that outputs $\theta_0 \in \mathbb{R}$ with probability $1$. Why is there no discriminator $D_\phi$ that minimizes this new objective $L_D$?
+    
+    \item \textbf{[5 points]} Let's tweak the alternate objective so that an optimal discriminator exists. Consider the same objective $L_D$ and the same limit $\epsilon \to 0$. Now, suppose that $D_\phi$ is restricted to differentiable functions whose derivative is always between $-1$ and $1$. It can still output any real number. Is there now a discriminator $D_\phi$ out of this class of functions that minimizes $L_D$? Briefly describe what the optimal $D_\phi$ looks like as a function of $x$.
+    
+    \item \textbf{[15 points]} The Wasserstein GAN with gradient penalty (WGAN-GP) enables stable training by penalizing functions whose derivatives are too large. It achieves this by adding a penalty on the $2$-norm of the gradient of the discriminator at various points in the domain. It is defined by \begin{align*}
+        L_D(\phi; \theta) &= \mathbb{E}_{\bx \sim p_\theta(\bx)}[D_\phi(\bx)] - \mathbb{E}_{\bx \sim p_\text{data}(\bx)}[D_\phi(\bx)] + \lambda \mathbb{E}_{\bx \sim r_\theta(\bx)} [(|| \nabla D_\phi(\bx) ||_2 - 1)^2] \\
+        L_G(\theta; \phi) &= -\mathbb{E}_{\bx \sim p_\theta(\bx)}[D_\phi(\bx)],
+    \end{align*} where $r_\theta(\bx)$ is defined by sampling $\alpha \sim \mathrm{Uniform}([0,1])$, $\bx_1 \sim p_\theta(\bx)$, and $\bx_2 \sim p_\text{data}(\bx)$, and returning $\alpha \bx_1 + (1 - \alpha )\bx_2$. The hyperparameter $\lambda$ controls the strength of the penalty; a setting that usually works is $\lambda = 10$.
+    
+    Implement and train WGAN-GP for one epoch on Fashion MNIST. In \texttt{codebase/gan.py}, implement the \texttt{loss\_wasserstein\_gp} function. To train the model, execute \texttt{python run\_gan.py --loss\_type wasserstein\_gp}. You may monitor the GAN's output in the \texttt{out\_wasserstein\_gp} directory.
+\end{enumerate}
+
+\end{document}
+

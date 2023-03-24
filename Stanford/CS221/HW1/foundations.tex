@@ -1,0 +1,427 @@
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+% P  R  E  A  M  B  L  E
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\documentclass[11pt]{article}
+\usepackage{amsbsy, amsmath, amssymb, authblk}
+
+%\usepackage{array} 
+%\usepackage{algorithm2e}
+
+\usepackage{booktabs, bm}
+\usepackage[small,labelfont=bf,up,singlelinecheck=false]{caption}
+\usepackage{cancel}
+\usepackage{comment}
+%\usepackage{fancyhdr}
+%\usepackage[default]{lato}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+%\usepackage[utf8]{inputenc}
+%	\inputencoding{latin1}
+%	\inputencoding{utf8}
+%\usepackage{lettrine}
+%\usepackage[sc]{mathpazo}
+\usepackage{lmodern} % Nice fonts?
+%\usepackage{mathrsfs}
+\usepackage{mathtools} 
+%\usepackage{marvosym} % silly bullet-point symbols (misc symbols)
+%\usepackage{microtype}
+\usepackage{minitoc}         % left in case it is needed elsewhere
+\setcounter{secttocdepth}{5} % idem
+\usepackage{etoc} % for toc before each section.
+%\usepackage{multicol}
+\usepackage{needspace}
+\usepackage{paralist}
+%\usepackage{polynom} 			% typesetting polynomial long division
+%\usepackage{setspace}
+%	\onehalfspacing 
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{ulem} 				% for strikeout \sout command.
+%\usepackage{verbatim}
+
+% Muh packagez :)
+\usepackage{../../Packages/MathCommands}
+\usepackage{../../Packages/BrandonColors}
+\usepackage{../../Packages/BrandonBoxes}
+\usepackage{../../Packages/NoteTaker}
+\usepackage{../../Packages/CS221}
+%\usepackage{../Packages/MachineLearningUtils}
+
+
+%\usepackage{program}
+% DL BOOK CONVENTIONS
+\renewcommand\vec[2][]{\bm{#2}_{#1}}
+
+\DeclareDocumentCommand{\slice}
+	{ O{t} O{1} m }
+	{\vec[\langle #2 \ldots #1 \rangle]{#3}}
+
+\newcommand\myfig[2][0.3\textwidth]{\begin{figure}[h!]\centering\includegraphics[width=#1]{#2}\end{figure}}
+\newcommand\myspace[1][]{\vspace{#1\bigskipamount}}
+\newcommand\p{\Needspace{10\baselineskip} \noindent}
+\newcommand\tlab[1]{\tag{#1}\label{#1}}
+\newcommand\Var[1]{\mathrm{Var}\left[#1\right]}
+
+
+%\usepackage{program}
+
+\usepackage{layout} % Type \layout() anywhere to see values of layout frame.
+%\usepackage{showframe} % Displays layout frame on all pages
+\usepackage{marginnote}
+\renewcommand*{\marginfont}{\scriptsize}
+
+\usepackage{listings}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Java,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows, automata, shapes, snakes, positioning}
+\usetikzlibrary{bayesnet}
+
+
+\titleformat*{\subsubsection}{\small\scshape}
+\newcommand\subsub[1]{\Needspace{15\baselineskip}\hrule\subsubsection{#1}\hrule}
+\newcommand\matgrad[2]{\nabla_{\mathbf{#2}} #1}
+
+% O{T} means "optional with default value of `T`"
+% m means mandatory argument
+\DeclareDocumentCommand{\vecseq}
+	{ O{n} m }
+	{ \{  \vec[1]{#2}, \ldots, \vec[#1]{#2}   \}  }
+\DeclareDocumentCommand{\seq}
+	{ O{n} m }
+	{ \{ #2_1, \ldots #2_#1 \} }
+\DeclareDocumentCommand{\dotseq}
+	{ O{n} m }
+	{ #2_1, \ldots #2_#1 }
+	
+\newcommand\QA[2]{\item \red{Q}: #1
+	\begin{compactitem}
+		\item \green{A}: #2
+	\end{compactitem}}
+	
+\newcommand\myref[1]{\purple{[#1]}}
+
+\definecolor{forgeblue}{HTML}{018C9F}
+% Gray table borders
+\makeatletter
+\def\rulecolor#1#{\CT@arc{#1}}
+\def\CT@arc#1#2{%
+	\ifdim\baselineskip=\z@\noalign\fi
+	{\gdef\CT@arc@{\color#1{#2}}}}
+\let\CT@arc@\relax
+\rulecolor{forgeblue}
+\makeatother
+
+%\setlength{\parskip}{1pt}
+%\setlength{\columnseprule}{0.1pt}
+%\setlength{\columnsep}{0.6cm}
+%\setlength\tabcolsep{0.1cm}
+\renewcommand{\arraystretch}{1.2}
+
+% <>~<>~<> DEFINITION ENVIRONMENT <>~<>~<>
+\begin{comment}
+\newenvironment{definition}[1][-0.5em] {
+	\vspace*{#1}
+	\begin{quote}
+		\itshape\small 
+	}
+	{	
+	\end{quote}	
+}
+\end{comment}
+
+\DeclareDocumentEnvironment{definition}{O{-0.5em} o}{
+	\IfNoValueTF{#2}{}{\textbf{#2}}
+	\vspace*{#1}
+	\begin{quote}
+		\itshape\small}
+	{\end{quote}}
+
+\makeatletter
+\newcommand*\dotp{\mathpalette\dotp@{.5}}
+\newcommand*\dotp@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+
+% Title
+\title{\vspace{-10mm}\fontsize{24pt}{8pt}\selectfont\textbf{Homework 1: Foundations}\vspace*{-4mm}}
+% Author
+\author{Brandon McKinzie}
+% Date
+\date{}
+
+% --------------------------------------------------------------
+% --------------------------------------------------------------
+
+
+
+\renewcommand\cftsecfont{\small\bfseries}
+\renewcommand\cftsubsecfont{\scriptsize}
+\renewcommand\cftsubsubsecfont{\scriptsize}
+
+\renewcommand\cftsecafterpnum{\vskip-5pt}
+\renewcommand\cftsubsecafterpnum{\vskip-7pt}
+\renewcommand\cftsubsubsecafterpnum{\vskip-7pt}
+
+\begin{document}
+
+\maketitle
+
+\section{Problem 1: Optimization and Probability}
+
+
+\blue{(a)}. \question{Let $\dotseq{x}$ be real numbers representing positions on a number line. Let $\dotseq{w}$ be (strictly) positive real numbers representing the importance of each of these positions. Consider the quadratic function: $f(\theta)=\onehalf \insum w_i(\theta - x_i)^2$. What value of $\theta$ minimizes $f(\theta)$? You can think about this problem as trying to find the point $\theta$  that's not too far away from the $x_i$'s. Over time, hopefully you'll appreciate how nice quadratic functions are to minimize. How will your answer change if some of the $w_i$'s are negative?}
+
+We can find $\theta^* = \argmin_{\theta} f(\theta)$ by taking the derivative of $f$ with respect to $\theta$, setting to zero, and solving for $\theta$:
+\begin{align}
+	\pderiv{f(\theta)}{\theta}
+		&= \onehalf \insum w_i \pderiv{}{\theta} (\theta - x_i)^2\\
+	0	&= \onehalf \insum w_i \cdot 2 \cdot (\theta - x_i)\\
+	0	&= \insum w_i  (\theta - x_i)\\
+	0	&= \theta \insum w_i  - \insum w_i x_i  \\
+	\theta &= \frac{ \vec{w} \dotp \vec{x} }{\insum w_i}
+\end{align}
+And we see that $\theta^*$ is the weighted average of the $x_i$'s, where the weights are the $w_i$'s. One could also interpret it as $\theta^* = \E{x}$ with each $x\sim p(x)$ and $p(x_i) = w_i / \sum_j w_j$ (the empirical distribution). If some of the $w_i$ values are negative, then we can no longer interpret it as a weighted average or expectation value. It would also drive $\theta$ further from any $x_i$ with $w_i <0 $ instead of closer. 
+
+\myspace[1.5]
+\Needspace{15\baselineskip}
+\p \blue{(b)}. \question{In this class, there will be a lot of sums and maxes. Let's see what happens if we switch the order. Let 
+	\begin{align}
+		f(\vec x) &= \sum_{i=1}^d \max_{s \ \in \{1, -1\}} s x_i \\
+		g(\vec x) &= \max_{s \in \{1, -1\}} \sum_{i = 1}^{d} s x_i
+	\end{align}
+	where $\vec x \in \R^d$. Does $f(\vec x) \le g(\vec x)$, $f(\vec x) = g(\vec x)$, $f(\vec x) \ge g(\vec x)$ hold for all $\vec x$? Prove it.
+}
+
+Let $\mathcal P = \{ p \in [1..d] \mid x_p \ge 0  \}$. Similarly, let $\mathcal N = \{ n \in [1..d] \mid x_n < 0  \}$. Then
+\begin{align}
+	\idsum x_i = \sum_{p \in \mathcal P} |x_p| - \sum_{n \in \mathcal N} |x_n|
+\end{align}
+Also note that $|x_i| \ge x_i$ for all $x_i \in \R$. 
+
+\begin{align}
+	f(\vec x)
+		&= \idsum \max(x_i, -x_i) = \idsum |x_i| \\
+	g(\vec x)
+		&= \max\left[
+			\idsum x_i, 
+			- \idsum x_i
+		\right] \\
+		&= \max\left[
+		\sum_{p \in \mathcal P} |x_p| - \sum_{n \in \mathcal N} |x_n|, 
+		\sum_{n \in \mathcal N} |x_n| - \sum_{p \in \mathcal P} |x_p|
+		\right]
+\end{align}
+Since it is true that both
+\begin{align}
+	\idsum |x_i| &\ge \sum_{p \in \mathcal P} |x_p| - \sum_{n \in \mathcal N} |x_n|\\
+	\text{and}\quad \idsum |x_i| &\ge \sum_{n \in \mathcal N} |x_n| - \sum_{p \in \mathcal P} |x_p|
+\end{align}
+we see that $f(\vec x) \ge g(\vec x)$ for all $\vec x$. 
+
+
+
+
+\myspace
+\p \blue{(c)}. \question{Suppose you repeatedly roll a fair six-sided die until you roll a 1 (and then you stop). Every time you roll a 2, you lose \textit{a} points, and every time you roll a 6, you win \textit{b} points. You do not win or lose any points if you roll a 3, 4, or a 5. What is the expected number of points (as a function of a and b) you will have when you stop?}
+
+Let random variable $X_i : [1..6] \mapsto \R$ map the outcome of roll $i$ to the number of points received on that turn only (note that we are not told $a$ or $b$ are integers, so I use $\R$ to maintain generality):
+\begin{align}
+	\E{X_i}
+		&= \sum_{j=1}^6 X_i(j) P(j)  \\
+		&= \inv{6} \sum_{j=1}^6 X_i(j) \\
+		&=  \frac{b - a}{6} 
+\end{align}
+which gives us the expected number of points for any given roll. Now, let $N$ denote the random variable representing the total number of rolls we get for a given trial run (with our first 1 occurring on the $N$th roll). We can use the law of total expectation along with linearity of expectation to compute the expected number of points $X = X_1 + \ldots + X_N$ for a given trial.
+
+\begin{align}
+	\E{X} 
+		=  \E{ \E{X \mid N} } 
+		&= \sum_{n=1}^{\infty} \E{X \mid N{=}n} P(N{=}n) \\
+	\E{X \mid N{=}n}
+		&= \sum_{i = 1}^{n -1} \E{X_i \mid N{=}n} \\
+		&= (n - 1) \frac{b -a}{5} \\
+	 \therefore \E{X}
+	 	&= \sum_{n=1}^{\infty} (n - 1) \frac{b -a}{5} (5/6)^{n-1} (1/6) \\
+	 	&= \sum_{n=0}^{\infty} n \frac{b -a}{5} (5/6)^{n} (1/6) \\
+	 	&= \frac{b -a}{5} (1/6) (5/6) 36 \\
+	 	&= b - a
+\end{align}
+
+\myspace
+\p \blue{(d)}. \question{You are playing a game with a fair five-sided die (sides 1,2,3,4,5 and probability $\inv{5}$ of coming up each of these). At each turn, you have an option to quit and win 15 points (and thus roll no more) or to win 3 points and roll the dice. If at any point, you roll an even number, the game ends, and you leave with your total winnings. Else you conitnue onto the next turn. What is the optimal strategy and why? What would change if the dice was weighted so that the probability of rolling an even number was 0?}
+
+The probability of continuing the game when you roll is $P(odd) = 3/5$, and the probability of the game ending on a given roll is $P(even) = 2/5$. The random variable $X$ denotes the number of odd roles until the first even\footnote{So $X=k$ means k odd roles in a row, and with the result of the k+1 roll as even.}. This follows a geometric distribution:
+\begin{align}
+	P(X{=}k)
+		&= p_{odd}^k \cdot  p_{even} \\
+	\E{X}
+		&= \frac{ p_{odd} }{ p_{even} } = 3/2
+\end{align}
+Let $Y_n$ denote the total number of points received if we commit to exactly $n$ rolls and then quit. We can find a formula for $\E{Y_n}$ as follows. 
+\begin{align}
+	\E{Y_1}
+		&= 3 \cdot \frac{3}{5} + 0 \cdot \frac{2}{5} \\
+	\E{Y_2}
+		&= 6 \cdot \frac{3}{5}^2 + 0 \cdot \frac{2}{5}\frac{3}{5} + 0 \cdot 1 \cdot \frac{2}{5} \\ 
+	\E{Y_n}
+		&= (3n) \cdot \frac{3}{5}^{n}
+\end{align}
+The optimal strategy would be to commit to rolling $n^* = \argmax_n \E{Y_n}$ times. Of course, this yields a non-integer value of $n$, so we choose from the 2 integers on either side with larger value of $\E{Y_n}$. Taking the derivative, and solving for $n$ yields $n = 1 / \ln(5/3) \approx 1.96$. Since $\E{Y_2} > \E{Y_1}$, the optimal strategy is to (attempt to) roll twice and then quit, since that corresponds to the maximal expected return. 
+
+This is, of course, assuming a hyper-rational agent with zero risk aversion. If, for example, we got 1 million dollars if we quit instead of roll, any logical human will not choose to roll at all, and just take the 1 million dollars. 
+
+If $P(even)=0$, then you should continue playing indefinitely, since each roll guarantees an additional 3 points. 
+
+
+\clearpage
+\p \blue{(e)}. \question{What value of p maximizes L(p)? What is an intuitive interpretation of this value of p? }
+
+\begin{align}
+	\log L(p)
+		&= 4\log(p) + 3\log(1 - p) \\
+	\pderiv{\log L(p)}{p}
+		&= \frac{4}{p} - \frac{3}{1- p} \\
+	 \frac{4}{p^*} 
+	 	&= \frac{3}{1- p^*} \\
+	 3p^*
+	 	&= 4(1 - p^*) \\
+	 p^* &= \frac{4}{7}
+\end{align}
+Intuitively, we maximize the probability of observing 4 heads in 7 tosses if we set the probability of getting heads to 4/7, which also corresponds to $\E{X_7} = 4$ ($X_7$ is the random variable for number of heads in 7 tosses). 
+
+
+% ----------- 1f -----------
+\clearpage
+\p \blue{(f)}. \question{Let's practice taking gradients, which is a key operation for being able to optimize continuous functions. Compute the gradient $\nabla f(\vec w)$, where \begin{align}
+f(\vec w) &= \insum \jnsum (\vec[i]{a}^T \vec w - \vec[j]{b}^T \vec w)^2 + \lambda ||\vec w||_2^2
+\end{align}}
+
+
+I'll be using the following property:
+\begin{align}
+	\nabla_{\vec w} \vec{x}^T \vec w = \vec x
+\end{align}
+
+We can then compute the gradient as follows:
+\begin{align}
+	\nabla_{\vec w} f(\vec w)
+		&= \insum \jnsum \nabla_{\vec w} (\vec[i]{a}^T \vec w - \vec[j]{b}^T \vec w)^2 + \lambda \nabla_{\vec w} ||\vec w||_2^2 \\
+		&=  \insum \jnsum 2 (\vec[i]{a}^T \vec w - \vec[j]{b}^T \vec w) (\vec[i]{a} - \vec[j]{b}) + 2 \lambda \vec w \\
+\end{align}
+
+\begin{comment}
+[3 points] Suppose the probability of a coin turning up heads is 0<p<1, and that we flip it 7 times and get {H,H,T,H,T,T,H}. We know the probability (likelihood) of obtaining this sequence is L(p)=pp(1−p)p(1−p)(1−p)p=p4(1−p)3. Now let's go back and ask the question: what value of p maximizes L(p)? What is an intuitive interpretation of this value of p? 
+Hint: Consider taking the derivative of logL(p). You can also directly take the derivative of L(p), but it is cleaner and more natural to differentiate logL(p). You can verify for yourself that the value of p which maximizes logL(p) must also maximize L(p) (you are not required to prove this in your solution).
+
+[3 points] Let's practice taking gradients, which is a key operation for being able to optimize continuous functions. For w∈ℝd (represented as a column vector) and constants ai,bj∈ℝd (also represented as column vectors) and λ∈ℝ, define the scalar-valued function
+f(w)=∑i=1n∑j=1n(a⊤iw−b⊤jw)2+λ‖w‖22,
+where the vector is w=(w1,…,wd)⊤ and ‖w‖2=∑dk=1w2k‾‾‾‾‾‾‾‾√ is known as the L2 norm. Compute the gradient ∇f(w). 
+Recall: the gradient is a d-dimensional vector of the partial derivatives with respect to each wi:
+∇f(w)=(∂f(w)∂w1,…∂f(w)∂wd)⊤.
+If you're not comfortable with vector calculus, first warm up by working out this problem using scalars in place of vectors and derivatives in place of gradients. Not everything for scalars goes through for vectors, but the two should at least be consistent with each other (when d=1). Do not write out summation over dimensions, because that gets tedious.
+\end{comment}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\clearpage 
+\section{Problem 2: Complexity}
+
+
+\p \blue{(a)} \question{ Suppose we have an image of a human face consisting of $n \times n$ pixels. In our simplified setting, a face consists of two eyes, two ears, one nose, and one mouth, each represented as an arbitrary axis-aligned rectangle (i.e. the axes of the rectangle are aligned with the axes of the image). As we'd like to handle Picasso portraits too, there are no constraints on the location or size of the rectangles. How many possible faces (choice of its component rectangles) are there? In general, we only care about asymptotic complexity, so give your answer in the form of $O(n^c)$ or $O(c^n)$ for some integer c.}
+
+Starting with the simplest setting of a single rectangular component. There are exactly $\sum_{w=1}^n\sum_{h=1}^n (n - w + 1) (n - h + 1)$ possibilities, which is $\mathcal O (n^4)$ overall. Since the rectangles are allowed to overlap\footnote{I was explicitly told this during the SCPD office hour}, the fact that there are 6 squares instead of 1 only introduces a constant factor, keeping the overall complexity still at $\mathcal{O}(n^4)$. 
+
+\clearpage
+\p \blue{(b)} \question{Suppose we have an $n \times n$ grid. We start in the upper-left corner (position (1,1)), and we would like to reach the lower-right corner (position (n,n)) by taking single steps down and right. Define a function c(i,j) to be the cost of touching position (i,j), and assume it takes constant time to compute. Note that c(i,j) can be negative. Give an algorithm for computing the minimum cost in the most efficient way. What is the runtime (just give the big-O)?}
+
+Let $C^*(i, j)$ denote the minimum total cost to reach $(i, j)$ from the starting point. The final minimum cost, $C^*(n, n)$, is a result of coming from one of two positions on the previous step, either $(n - 1, n)$ or $(n, n - 1)$. Therefore,  
+\begin{align}
+	C^*(n, n) = min\left[
+		C^*(n - 1, n) + c(n, n),
+		C^*(n, n - 1) + c(n, n)
+	\right]
+\end{align}
+In other words, all we have to do is walk along each possible path while caching the values of $C^*(i, j)$ as we go. Due to the black-box definition of $c(i, j)$ that we've been given, we must visit all possible nodes, giving us a lower-bound of $\mathcal{O}(n^2)$. Fortunately, since we are caching our results, and since the total minimum cost to reach a given node can be computed in terms of the total minimum cost of previous nodes, we only have to compute $C^*(i, j)$ once for any given $(i, j)$ and can do each computation in $\mathcal{O}(1)$ time due to our caching approach.  This results in a total runtime of $\mathcal{O}(n^2)$ which means it is maximally efficient. 
+
+\clearpage
+\p \blue{(c)} \question{ Suppose we have a staircase with n steps (we start on the ground, so we need n total steps to reach the top). We can take as many steps forward at a time, but we will never step backwards. How many ways are there to reach the top? Give your answer as a function of n. For example, if n=3, then the answer is 4. The four options are the following: (1) take one step, take one step, take one step (2) take two steps, take one step (3) take one step, take two steps (4) take three steps.}
+
+Let $X(n)$ denote the number of ways to reach the top if there are $n$ stairs. We can observe a pattern by writing out the first few cases of $n$. 
+\begin{align}
+	X(1) &= 1 \\
+	X(2) &= 2 \\
+	X(3) &= 1 + 2 + 1 = 4  \\
+	X(4) &= 1 + 4 + 2 + 1 = 8 \\
+	X(5) &= 1 + 8 + 4 + 2 + 1 = 16
+\end{align}
+The recursion is now clear. We can then progressively simplify to get the final function of $n$ as follows. 
+\begin{align}
+	X(n)  &= 1 + \sum_{i=2}^{n} 2^{i - 2} \\
+	&= 1 + \sum_{i=1}^{n -1} 2^{i - 1} \\
+	&= 2^{n - 1}
+\end{align}
+
+
+
+\clearpage
+\p \blue{(d)} \question{Consider the scalar-valued function f(w) from Problem 1e. Devise a strategy that first does preprocessing in $O(nd^2)$ time, and then for any given vector w, takes $O(d^2)$ time instead to compute f(w). 
+	Hint: Refactor the algebraic expression; this is a classic trick used in machine learning. Again, you may find it helpful to work out the scalar case first.}
+
+%f(\vec w) &= \insum \jnsum (\vec[i]{a}^T \vec w - \vec[j]{b}^T \vec w)^2 + \lambda ||\vec w||_2^2
+\begin{align}
+	\insum \jnsum (\vec[i]{a}^T \vec w - \vec[j]{b}^T \vec w)^2
+		&= \insum \jnsum (\vec[i]{a}^T \vec w)^2 + (\vec[j]{b}^T \vec w)^2 - 2 (\vec[i]{a}^T \vec w)(\vec[j]{b}^T \vec w) \\
+		&= \insum \jnsum \vec{w}^T \vec[i]{a} \vec[i]{a}^T \vec{w} + \vec{w}^T \vec[j]{b} \vec[j]{b}^T \vec{w} - 2 \vec{w}^T \vec[i]{a} \vec[j]{b}^T \vec{w} \\
+		&= \vec{w}^T \left[
+			\insum \jnsum \vec[i]{a} \vec[i]{a}^T
+			+ \vec[j]{b} \vec[j]{b}^T
+			- 2 \vec[i]{a} \vec[j]{b}^T 
+		\right] \vec{w} \\
+		&= \vec{w}^T \left[
+			\left( \insum \vec[i]{a} \vec[i]{a}^T \right)
+			+ \left( \jnsum  \vec[j]{b} \vec[j]{b}^T \right)
+			- 2  \left( \insum \vec[i]{a}  \right) \left( \jnsum \vec[j]{b}^T \right) 
+			\right] \vec{w} \\
+\end{align}
+The preprocessing is shown in the innermost parentheses. The computation of $\vec[i]{a}\vec[i]{a}^T$ is $\mathcal{O}(d^2)$ and it is computed $n$ times, for an overall $\mathcal{O}(nd^2)$. The same is true for the $\vec[j]{b}$ parentheses. Similarly, the individual sums over the $\vec[i]{a}$ and $\vec[j]{b}$ are each $\mathcal{O}(n)$, and then incur the additional $d^2$ when computing the resultant $d \times d$ matrix, for again a total of $\mathcal{O}(nd^2)$. Therefore, our preprocessing is $\mathcal{O}(3nd^2) \equiv \mathcal{O}(nd^2)$.  Our preprocessing yields a $d \times d$ matrix $\matr D$, and for any vector $\vec w$ we simply compute $\vec{w}^T \matr D \vec w$, which is $\mathcal{O}(d^2)$.  
+
+
+
+
+
+
+\end{document}

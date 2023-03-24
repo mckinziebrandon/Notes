@@ -1,0 +1,248 @@
+\documentclass[11pt]{article}
+\usepackage{fullpage,amsmath,amssymb,graphicx}
+
+\usepackage{bm}
+\usepackage{cancel}
+\usepackage{comment}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{lmodern} % Nice fonts?
+\usepackage{mathtools} 
+\usepackage{paralist}
+\usepackage{pifont}
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+
+% Muh packagez :)
+\usepackage{../../Packages/MathCommands}
+%\usepackage{../../Packages/BrandonColors}
+%\usepackage{../../Packages/BrandonBoxes}
+%\usepackage{../../Packages/NoteTaker}
+\usepackage{../../Packages/CS221}
+%\usepackage{../Packages/MachineLearningUtils}
+
+%\setlength{\parskip}{1pt}
+%\setlength{\columnseprule}{0.1pt}
+%\setlength{\columnsep}{0.6cm}
+%\setlength\tabcolsep{0.1cm}
+\renewcommand{\arraystretch}{1.2}
+
+\newcommand\p{\noindent}
+
+
+\begin{document}
+
+\begin{center}
+	{\Large CS 236 Autumn 2019/2020 Homework 1}
+	
+	\begin{tabular}{rl}
+		SUNet ID: & 06009508 \\
+		Name: & Brandon McKinzie \\
+		Collaborators: & N/A
+	\end{tabular}
+\end{center}
+
+\p By turning in this assignment, I agree by the Stanford honor code and declare
+that all of this is my own work.
+
+\section*{Problem 1: MLE and KL Divergence}
+
+\begin{align}
+	D_{KL}(\hat p (y \mid x) || p_{\theta}(y \mid x))
+		&= \E[\hat p (y \mid x)]{\log \frac{\hat p (y \mid x)}{p_{\theta}(y \mid x)}     } \\
+		&= \E[\hat p (y \mid x)]{\log \hat p (y \mid x) } - \E[\hat p (y \mid x)]{\log p_{\theta}(y \mid x)   } \\
+	\argmin_{\theta \in \Theta} \E[\hat p (x)]{D_{KL} (\hat p (y \mid x) || p_{\theta}(y \mid x))  }
+		&= \argmin_{\theta \in \Theta} \E[\hat p (x)]{ 
+			\E[\hat p (y \mid x)]{\log \hat p (y \mid x) } - \E[\hat p (y \mid x)]{\log p_{\theta}(y \mid x)   }
+		}  \\
+		&= \argmin_{\theta \in \Theta} 
+		\E[\hat p (y,  x)]{\log \hat p (y \mid x) } - \E[\hat p (y,  x)]{\log p_{\theta}(y \mid x)   } \\
+		&=  - \argmin_{\theta \in \Theta}  \E[\hat p (y,  x)]{\log p_{\theta}(y \mid x)   } \\
+		&= \argmax_{\theta \in \Theta} \E[\hat p (y,  x)]{\log p_{\theta}(y \mid x)   }
+\end{align}
+
+\clearpage
+\section*{Problem 2: Logistic Regression and Naive Bayes}
+
+We are asked to show that $\forall \theta$, $\exists \gamma$ such that
+\begin{align}
+	p_{\theta}(y \mid x) &= p_{\gamma}(y \mid x)
+\end{align}
+
+\p First, note that we can rewrite $p_{\theta}(y \mid x)$ using Bayes' rule and basic probability:
+\begin{align}
+	p_{\theta}(y \mid x)
+		&= \frac{p_{\theta}(x \mid  y) p_{\theta}(y)}{ \sum_{y'}   p_{\theta}(x \mid  y') p_{\theta}(y')   }
+\end{align}
+
+\p Then, substituting in the formulas we were provided:
+\begin{align}
+p_{\theta}(y \mid x)
+	&= \frac{   \mathcal{N}(x \mid \mu_y, \sigma^2 I) \pi_y       }{ \sum_{y'}    \mathcal{N}(x \mid \mu_{y'}, \sigma^2 I) \pi_{y'}      } \\
+	&= \frac{    \exp \left( - (x - \mu_{y} )^2 / (2 \sigma^2)  \right) \pi_y    }{ \sum_{y'}  \exp \left( - (x - \mu_{y'} )^2 / (2 \sigma^2)  \right) \pi_{y'}    }
+\end{align}
+where I've used compact notation to denote $(x - \mu_y)^T(x - \mu_y)$ simply as $(x - \mu_y)^2$. In what follows, let $\alpha = - \inv{2\sigma^2}$. I'll also be writing $x^T x$ as $x^2$, etc. We can expand this out as follows:
+\begin{align}
+	\frac{    \exp \left( - (x - \mu_{y} )^2 / (2 \sigma^2)  \right) \pi_y    }{ \sum_{y'}  \exp \left( - (x - \mu_{y'} )^2 / (2 \sigma^2)  \right) \pi_{y'}    } 
+		&= \frac{  
+			\pi_y \cancel { e^{\alpha x^2} } e^{\alpha \mu_y^2} e^{-\alpha 2 x^T \mu_y}
+		}{
+		\sum_{y'}  \pi_{y'} \cancel{ e^{\alpha x^2} } e^{\alpha \mu_{y'}^2} e^{-\alpha 2 x^T \mu_{y'}}
+		} \\
+		&= \frac{  
+			\pi_y e^{\alpha \mu_y^2} e^{-\alpha 2 x^T \mu_y}
+		}{
+			\sum_{y'}  \pi_{y'}  e^{\alpha \mu_{y'}^2} e^{-\alpha 2 x^T \mu_{y'}}
+		} \\
+\end{align}
+
+\p Therefore, for any $\theta$, if we define $\gamma$ using:
+\begin{align}
+	b_y &:= \log( \pi_y e^{\alpha \mu_y^2} ) = \log(\pi_y) + \alpha \mu_y^2 \\
+	w_y &:= -2\alpha \mu_{y}
+\end{align}
+then we will satisfy $p_{\theta}(y \mid x) = p_{\gamma}(y \mid x)$. 
+
+
+
+
+\clearpage
+\section*{Problem 3: Conditional Independence and Parameterization}
+
+
+\begin{enumerate}
+	\item The total number of independent parameters is ($\prod_{i=1}^{n} k_i$) - 1. 
+	
+	
+
+	\item Our network factorizes the joint distribution as
+	\begin{align}
+		p(X_1, X_2, \ldots, X_n)
+			&= p(X_1) 
+				\left[ \prod_{i=2}^{m} p(X_i \mid X_{i-1}, \ldots, X_1) \right] 
+				\left[  \prod_{i=m+1}^{n} p(X_i \mid X_{i-1}, \ldots, X_{i-m}) \right]
+	\end{align}
+	\begin{compactitem}
+		\item $p(X_1)$ requires $k_1 - 1$ parameters.
+		
+		\item For $1 < i \le m$, $p(X_i \mid X_{i-1}, \ldots, X_1)$ requires $(\prod_{j=1}^{i} k_j) - 1$ parameters.
+		
+		\item For $i > m$, $p(X_i \mid X_{i-1}, \ldots, X_{i - m})$ requires $(\prod_{j=i-m}^{i} k_j) - 1$ parameters.
+	\end{compactitem}
+	
+	In total, the number of parameters is thus
+	\begin{align}
+		(k_1 -1) +  \sum_{i=2}^{m} \left[ ( \prod_{j=1}^{i} k_j ) -1 \right] +  \sum_{i=m+1}^{n} \left[ ( \prod_{j=i-m}^{i} k_j ) -1\right] 
+	\end{align}
+	\begin{comment}
+		\item Our network factorizes the joint distribution as
+	\begin{align}
+	& p(X_1) 
+	\left[ \prod_{i=2}^{m} p(X_i \mid X_{i-1}, \ldots, X_1) \right] 
+	\left[  \prod_{i=m+1}^{n} p(X_i \mid X_{i-1}, \ldots, X_{i-m}) \right] \\
+	=~ & p(X_1, \ldots, X_m)
+	\left[  \prod_{i=m+1}^{n} p(X_i \mid X_{i-1}, \ldots, X_{i-m}) \right] 
+	\end{align}
+	\begin{compactitem}
+		\item $p(X_1, \ldots, X_m)$ requires $(\prod_{i=1}^m k_i) -1$ parameters.
+		
+		\item For $i > m$, $p(X_i \mid X_{i-1}, \ldots, X_{i - m})$ requires $(\prod_{j=i-m}^{i} k_j) - 1$ parameters.
+	\end{compactitem}
+	
+	In total, the number of parameters is thus
+	\begin{align}
+	\left[ \prod_{i=1}^m k_i \right]  + \left[ \sum_{i=m+1}^{n} \prod_{j=i-m}^{i} k_j  \right] - m
+	\end{align}
+	\end{comment}
+	
+	\item To represent a Bayesian network over $X_1, \ldots, X_n$ with $\sum_{i=1}^{n} (k_i -1)$ parameters, you'd need to impose $X_i \perp X_{j}$ $\forall i, j \ne i$. 
+
+
+\end{enumerate}
+
+
+
+
+
+
+
+
+
+\clearpage
+\section*{Problem 4: Autoregressive Models}
+
+
+\question{Given any choice of $\{\mu_i, \sigma_i\}_{i=1}^n$, does there always exist a choice of $\{\hat \mu_i, \hat \sigma_i\}_{i=1}^n$ such that $p_f = p_r$?}\\
+
+\p As suggested by the hint, consider the case where $n = 2$. Then we have
+\begin{align}
+	p_f(x_1, x_2)
+		&= \mathcal{N}(x_1 \mid \mu_1, \sigma_1^2) \mathcal{N}(x_2 \mid \mu_2(x_1), \sigma_2^2(x_1)) \\
+	p_r(x_1, x_2)
+		&= \mathcal{N}(x_1 \mid \hat \mu_1 (x_2),  \hat \sigma_1^2(x_2))
+		 	  \mathcal{N}(x_2 \mid \hat \mu_2, \hat \sigma_2^2) 
+\end{align}
+which reveals the answer that \textit{no, these models do not cover the same hypothesis space of distributions}. \\
+
+\p For example, if $\mu_1 = 0$ and $\sigma_1^2$ is sufficiently close to zero, then for negligibly small $\epsilon$:
+\begin{align}
+ 	p_f(x_1, x_2) 
+ 		&\approx 
+ 	\begin{cases}
+ 		0 & |x_1| < \epsilon \\
+ 		\mathcal N(x_2 \mid \mu_2(x_1), \sigma_2^2(x_1)) & |x_1| > \epsilon 
+ 	\end{cases} 
+\end{align}
+The only way to ensure $p_r = p_f$ in this case is for $\mu_2(x_1)$ and $\sigma_2^2(x_1)$ to be constants (since $\hat \mu_2$ and $\hat \sigma_2^2$ are constants). Otherwise, $p_f(x_1, x_2)$ is essentially a gaussian over $x_2$ with moving mean and variance as a function of $x_1$, which $p_r$ is not able to model.
+
+
+
+
+
+
+\clearpage
+\section*{Problem 5: Monte Carlo Integration}
+
+\begin{enumerate}
+	\item \question{Show that $A$ is an unbiased estimator of $p(x)$.}
+	\begin{align}
+		\E[p(z)]{A} 
+			&= \inv{k} \sum_{i=1}^{k} \E[p(z)]{p(x \mid z^{(i)})} \\
+			&= \inv{k} \sum_{i=1}^{k} p(x) \\
+			&= p(x)
+	\end{align}
+	
+	
+	\item \question{Is $\log A$ and unbiased estimator of $\log p(x)$? Explain why or why not.} No, $\log A$ is not an unbiased estimator of $\log p(x)$, because $\E[p(z)]{\log(f(z))} \ne \log \E[p(z)]{f(z)}$\footnote{Note that if $A$ were not a function of the $z^{(i)}$ variables, \textit{then} (trivially) $\E[p(z)]{\log(A)} = \log \E[p(z)]{A} = \log A$}.
+	
+	
+\end{enumerate}
+
+
+
+
+\clearpage
+\section*{Problem 6: Programming Assignment}
+
+\begin{enumerate}
+	\item \question{Suppose we wish to find an efficient bit representation for the 50257 tokens. That is, every token is represented as $(\dotseq{a}{n})$, where $a_i \in \{0, 1\}, \forall i = 1, 2, \ldots, n$. What is the minimal n that we can use?} 
+	
+	Since we are confined to use a fixed-length code of size $n$, we cannot exploit regularities/patterns in the data distribution. As such, the minimal $n$ we can use is $\lceil \lg 50257 \rceil = 16$. 
+	
+	\item \question{If the number of possible tokens increases from 50257 to 60000, what is the increase in the number of parameters? Give an exact number and explain your answer.} 
+	
+	The only layer that is impacted by this is the final fully-connected layer, which projects the transformer state to the output vocabulary space. The FC layer has a kernel with $768 \times V$ parameters (where V is vocabulary size)\footnote{GPT2 does not use a bias vector in their final projection. See line 171 of their model.py file.}. Therefore, increasing $V$ from 50257 to 60000 results in a parameter increase of 
+	\begin{align}
+		768 \times (60000 -50257 ) 
+	\end{align}
+	which is equal to \textbf{7,482,624} additional parameters. 
+\end{enumerate}
+
+
+
+
+
+
+\end{document}

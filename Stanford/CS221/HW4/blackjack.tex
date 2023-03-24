@@ -1,0 +1,416 @@
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+% P  R  E  A  M  B  L  E
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\documentclass[11pt]{article}
+\usepackage{amsbsy, amsmath, amssymb, authblk}
+
+%\usepackage{array} 
+%\usepackage{algorithm2e}
+
+\usepackage{booktabs, bm}
+\usepackage[small,labelfont=bf,up,singlelinecheck=false]{caption}
+\usepackage{cancel}
+\usepackage{comment}
+%\usepackage{fancyhdr}
+%\usepackage[default]{lato}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+%\usepackage[utf8]{inputenc}
+%	\inputencoding{latin1}
+%	\inputencoding{utf8}
+%\usepackage{lettrine}
+%\usepackage[sc]{mathpazo}
+\usepackage{lmodern} % Nice fonts?
+%\usepackage{mathrsfs}
+\usepackage{mathtools} 
+%\usepackage{marvosym} % silly bullet-point symbols (misc symbols)
+%\usepackage{microtype}
+\usepackage{minitoc}         % left in case it is needed elsewhere
+\setcounter{secttocdepth}{5} % idem
+\usepackage{etoc} % for toc before each section.
+%\usepackage{multicol}
+\usepackage{needspace}
+\usepackage{paralist}
+%\usepackage{polynom} 			% typesetting polynomial long division
+%\usepackage{setspace}
+%	\onehalfspacing 
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{ulem} 				% for strikeout \sout command.
+%\usepackage{verbatim}
+
+% Muh packagez :)
+\usepackage{../../Packages/MathCommands}
+\usepackage{../../Packages/BrandonColors}
+\usepackage{../../Packages/BrandonBoxes}
+\usepackage{../../Packages/NoteTaker}
+\usepackage{../../Packages/CS221}
+%\usepackage{../Packages/MachineLearningUtils}
+
+
+%\usepackage{program}
+% DL BOOK CONVENTIONS
+\renewcommand\vec[2][]{\bm{#2}_{#1}}
+
+\DeclareDocumentCommand{\slice}
+	{ O{t} O{1} m }
+	{\vec[\langle #2 \ldots #1 \rangle]{#3}}
+
+\newcommand\myfig[2][0.3\textwidth]{\begin{figure}[h!]\centering\includegraphics[width=#1]{#2}\end{figure}}
+\newcommand\myspace[1][]{\vspace{#1\bigskipamount}}
+\newcommand\p{\Needspace{10\baselineskip} \noindent}
+\newcommand\tlab[1]{\tag{#1}\label{#1}}
+\newcommand\Var[1]{\mathrm{Var}\left[#1\right]}
+
+
+%\usepackage{program}
+
+\usepackage{layout} % Type \layout() anywhere to see values of layout frame.
+%\usepackage{showframe} % Displays layout frame on all pages
+\usepackage{marginnote}
+\renewcommand*{\marginfont}{\scriptsize}
+
+\usepackage{listings}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Java,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows, automata, shapes, snakes, positioning}
+\usetikzlibrary{bayesnet}
+
+
+\titleformat*{\subsubsection}{\small\scshape}
+\newcommand\subsub[1]{\Needspace{15\baselineskip}\hrule\subsubsection{#1}\hrule}
+\newcommand\matgrad[2]{\nabla_{\mathbf{#2}} #1}
+
+% O{T} means "optional with default value of `T`"
+% m means mandatory argument
+\DeclareDocumentCommand{\vecseq}
+	{ O{n} m }
+	{ \{  \vec[1]{#2}, \ldots, \vec[#1]{#2}   \}  }
+\DeclareDocumentCommand{\seq}
+	{ O{n} m }
+	{ \{ #2_1, \ldots #2_#1 \} }
+\DeclareDocumentCommand{\dotseq}
+	{ O{n} m }
+	{ #2_1, \ldots #2_#1 }
+	
+\newcommand\QA[2]{\item \red{Q}: #1
+	\begin{compactitem}
+		\item \green{A}: #2
+	\end{compactitem}}
+	
+\newcommand\myref[1]{\purple{[#1]}}
+
+\definecolor{forgeblue}{HTML}{018C9F}
+% Gray table borders
+\makeatletter
+\def\rulecolor#1#{\CT@arc{#1}}
+\def\CT@arc#1#2{%
+	\ifdim\baselineskip=\z@\noalign\fi
+	{\gdef\CT@arc@{\color#1{#2}}}}
+\let\CT@arc@\relax
+\rulecolor{forgeblue}
+\makeatother
+
+%\setlength{\parskip}{1pt}
+%\setlength{\columnseprule}{0.1pt}
+%\setlength{\columnsep}{0.6cm}
+%\setlength\tabcolsep{0.1cm}
+\renewcommand{\arraystretch}{1.2}
+
+% <>~<>~<> DEFINITION ENVIRONMENT <>~<>~<>
+\begin{comment}
+\newenvironment{definition}[1][-0.5em] {
+	\vspace*{#1}
+	\begin{quote}
+		\itshape\small 
+	}
+	{	
+	\end{quote}	
+}
+\end{comment}
+
+\DeclareDocumentEnvironment{definition}{O{-0.5em} o}{
+	\IfNoValueTF{#2}{}{\textbf{#2}}
+	\vspace*{#1}
+	\begin{quote}
+		\itshape\small}
+	{\end{quote}}
+
+\makeatletter
+\newcommand*\dotp{\mathpalette\dotp@{.5}}
+\newcommand*\dotp@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+
+% Title
+\title{\vspace{-10mm}\fontsize{24pt}{8pt}\selectfont\textbf{Homework 4: Peeking Blackjack}\vspace*{-4mm}}
+% Author
+\author{Brandon McKinzie}
+% Date
+\date{}
+
+% --------------------------------------------------------------
+% --------------------------------------------------------------
+
+
+
+\renewcommand\cftsecfont{\small\bfseries}
+\renewcommand\cftsubsecfont{\scriptsize}
+\renewcommand\cftsubsubsecfont{\scriptsize}
+
+\renewcommand\cftsecafterpnum{\vskip-5pt}
+\renewcommand\cftsubsecafterpnum{\vskip-7pt}
+\renewcommand\cftsubsubsecafterpnum{\vskip-7pt}
+
+\begin{document}
+
+\maketitle
+
+\section*{Problem 1: Value Iteration}
+
+\question{In this problem, you will perform the value iteration updates manually on a very basic game just to solidify your intuitions about solving MDPs. The set of possible states in this game is \{-2, -1, 0, 1, 2\}. You start at state 0, and if you reach either -2 or 2, the game ends. At each state, you can take one of two actions: \{-1, +1\}.
+
+If you're in state s and choose +1:
+\begin{compactitem}
+	\item You have a 70\% chance of reaching the state s+1.
+	\item You have a 30\% chance of reaching the state s-1.
+\end{compactitem}
+
+If you're in state s and choose -1:
+\begin{compactitem}
+	\item You have a 20\% chance of reaching the state s+1.
+	\item You have an 80\% chance of reaching the state s-1.
+\end{compactitem}
+
+
+If your action results in transitioning to state -2, then you receive a reward of 20. If your action results in transitioning to state 2, then your reward is 100. Otherwise, your reward is -5. Assume the discount factor $\gamma$ is 1.
+}
+
+
+\textbf{(a)} \question{Give the value of $V_\text{opt}(s)$ for each state s after 0, 1, and 2 iterations of value iteration. Iteration 0 just initializes all the values of V to 0. Terminal states do not have any optimal policies and take on a value of 0.}
+
+By definition $\V[0][opt]{s} \leftarrow 0$. Using this and the fact that $\gamma = 1$, we can compute 
+\begin{align}
+	\V[1][opt]{s}
+		&= \max_{a \in \{+1, -1\}} \sum_{s' \in \{s+1, s-1\}} T(s, a, s') R(s, a, s') \\
+		&= \max \left\{
+			 0.7 R(s, 1, s{+}1) {+} 0.3 R(s, 1, s {-}1), ~
+			0.2 R(s, {-}1, s{+}1) {+} 0.8 R(s, {-}1, s{-}1)
+	\right\}
+	\\
+	\V[1][opt]{0}
+		&= \max \left\{
+		0.7 (-5) {+} 0.3 (-5), ~
+		0.2 (-5) {+} 0.8 (-5)
+		\right\} = -5 
+	\\
+	\V[1][opt]{-1}
+		&= \max \left\{
+			0.7 (-5) {+} 0.3 (20), ~
+			0.2 (-5) {+} 0.8 (20)
+			\right\} 
+		= 15
+	\\
+	\V[1][opt]{1}
+		&= \max \left\{
+		0.7 (100) {+} 0.3 (-5), ~
+		0.2 (100) {+} 0.8 (-5)
+		\right\} 
+		= 68.5
+	\\
+	\V[1][opt]{-2} &= \V[1][opt]{2} = 0
+\end{align}
+
+We then use these values to compute the next iteration.
+\begin{align}
+	\V[2][opt]{s}
+		&= \max_{a \in \{+1, -1\}} \sum_{s' \in \{s+1, s-1\}} T(s, a, s') \left[ 
+			R(s, a, s') + \V[1][opt]{s'}
+		\right]
+	\\
+	\V[2][opt]{0} 
+		&= \max\left\{
+			0.7 (-5 + 68.5) + 0.3 (-5 + 15), ~
+			0.2 (-5 + 68.5) + 0.8 (-5 + 15)
+		\right\}
+		\\
+		&= 47.45 
+	\\
+	\V[2][opt]{-1}
+		&= \max\left\{
+			0.7 (-5 -5) + 0.3 (20),
+			0.2 (-5 - 5) + 0.8 (20)
+		\right\}\\
+		&= 14
+	\\
+	\V[2][opt]{1}
+		&= \max\left\{
+			0.7 (100) + 0.3 (-5 -5),
+			0.2 (100) + 0.8 (-5 -5)
+		\right\}\\
+		&= 67
+	\\
+	\V[2][opt]{-2} &= \V[2][opt]{2} = 0
+\end{align}
+
+
+
+
+\clearpage
+\textbf{(b)} \question{What is the resulting optimal policy $\pi_{opt}$ for all non-terminal states?}
+
+\begin{align}
+	\pi_{opt}(0) &= {+}1 \\
+	\pi_{opt}(-1) &= {-}1 \\
+	\pi_{opt}(1) &= {+}1
+\end{align}
+
+
+
+
+% -------------------------------------------------
+\clearpage
+\section*{Problem 2: Transforming MDPs}
+
+\question{Let's implement value iteration to compute the optimal policy on an arbitrary MDP. Later, we'll create the specific MDP for Blackjack.}
+
+\textbf{(a)} I provided a counterexample in the code.
+
+\clearpage
+\textbf{(b)} \question{Suppose we have an acyclic MDP for which we want to find the optimal value at each node. We could run value iteration, which would require multiple iterations -- but it would be nice to be more efficient for MDPs with this acyclic property. Briefly explain an algorithm that will allow us to compute $V_{opt}$  for each node with only a single pass over all the  triples.}
+
+For acyclic graphs, we can work our way from terminal (end-state) nodes back to the start state node. This will allow us to only do a single pass over the $(s, a, s')$ triples because for all of the end state nodes $s_{end}$, we'll have $V_{opt}(s_{end}) = 0$. All edges that originate from a chance node to an end state node will be computed next. Specifically, for each end-state node $s_{end}$, we'll compute 
+\begin{align}
+T(s, a, s_{end}) [R(s, a, s_{end}) + \gamma \cancel{ V_{opt}(s_{end}) }]
+\qquad
+\forall (s, a):T(s, a, s_{end}) > 0
+\end{align}
+and continue working our way back until we reach the start state. Note that this is a dynamic programming approach.
+
+
+
+
+
+
+
+
+
+
+\clearpage
+\textbf{(c)} \question{Suppose we have an MDP with states$\text{States}$ and a discount factor $\gamma < 1$, but we have an MDP solver that can only solve MDPs with discount factor of 1. How can we leverage the MDP solver to solve the original MDP?
+	
+Let us define a new MDP with states $\text{States}' = \text{States} \cup \{ o \}$, where $o$ is a new state. Let's use the same actions $(\text{Actions}'(s) = \text{Actions}(s))$, but we need to keep the discount $\gamma' = 1$. Your job is to define new transition probabilities $T'(s, a, s')$ and rewards $\text{Reward}'(s, a, s')$ in terms of the old MDP such that the optimal values $V_\text{opt}(s) \forall s \in \text{States}$ are equal under the original MDP and the new MDP.}
+
+% Since convergence depends on \textit{either} $\gamma < 1$ \textit{or} an acyclic graph, our goal is to have our new MDP be an acyclic representation of the original one. 
+
+We can arrive at the result by first seeing what happens when we factor out gamma in the summation of
+\begin{align}
+	V_{opt}(s)
+		&= \max_{a \in \text{Actions}(s)} Q(s, a) \\
+	Q(s, a)	
+		&= \sum_{s'} T(s, a, s') \left[
+			R(s, a, s') + \gamma V_{opt}(s')
+		\right] \\
+		&= \sum_{s'} \gamma T(s, a, s') \left[
+			\inv{\gamma} R(s, a, s') + V_{opt}(s')
+		\right] \\
+		&= \sum_{s'} T'(s, a, s') \left[ R'(s, a, s') + V_{opt}(s') \right]
+\end{align}
+and voil\'{a}, $\gamma$ is gone, if we define
+\begin{align}
+	T'(s, a, s') &= \gamma T(s, a, s') \\
+	R'(s, a, s') &= \inv{\gamma} T(s, a, s')
+\end{align}
+where $s' \ne o$. In order to satisfy the constraint that $\sum_{s'} T'(s, a, s') = 1$, we define
+\begin{align}
+	T'(s, a, o) := 1 - \gamma 
+\end{align}
+which gives us 
+\begin{align}
+	\sum_{s'} T'(s, a, s') 
+		&= \left( \sum_{s' \ne o} \gamma T(s, a, s') \right) + T'(s, a, o) \\
+		&= (\gamma) + (1 - \gamma) \\
+		&= 1
+\end{align}
+We see that $\gamma$ in this reformulation represents the probability of transitioning to any state that isn't $o$. Lastly, to ensure that the new state $o$ does not impact $V_{opt}$, we define
+\begin{align}
+	R(s, a, o) &:= 0 \\
+	IsEnd(o) &:= \text{True}
+\end{align}
+which also implies that $V_{opt}(o) = 0$. 
+
+
+
+
+
+
+
+
+% -------------------------------------------------
+\clearpage
+\section*{Problem 4: Learning to Play Blackjack}
+
+
+
+\textbf{(b)} \question{Now let's apply Q-learning to an MDP and see how well it performs in comparison with value iteration. First, call simulate using your Q-learning code and the identityFeatureExtractor() on the MDP smallMDP (defined for you in submission.py), with 30000 trials and default explorationProb.
+	
+	
+How does the Q-learning policy compare with a policy learned by value iteration (i.e., for how many states do they produce a different action)? (Don't forget to set the explorationProb of your Q-learning algorithm to 0 after learning the policy.) Now run simulate() on largeMDP, again with 30,000 trials. How does the policy learned in this case compare to the policy learned by value iteration? What went wrong?}
+
+
+For the smallMDP, Q-learning and value iteration returned the same action for about 80 percent of the states (given by mdp.states). For the largeMDP, they agreed for 83 percent of all states. The larger MDP has a substantially larger state space to explore.
+
+
+
+
+
+
+\clearpage
+\textbf{(d)} \question{Sometimes, we might reasonably wonder how an optimal policy learned for one MDP might perform if applied to another MDP with similar structure but slightly different characteristics. For example, imagine that you created an MDP to choose an optimal strategy for playing "traditional" blackjack, with a standard card deck and a threshold of 21. You're living it up in Vegas every weekend, but the casinos get wise to your approach and decide to make a change to the game to disrupt your strategy: going forward, the threshold for the blackjack tables is 17 instead of 21. If you continued playing the modified game with your original policy, how well would you do? (This is just a hypothetical example; we won't look specifically at the blackjack game in this problem.)}
+
+
+The problem with \texttt{FixedRLAlgorithm} is that it is unable to modify its policy to better suit the modified MDP. This leads to suboptimal results when run it on modifiedMDP. Q-learning, however, is able to modify its policy in order to adapt to the modified MPD. Therefore, we' expect togr observe higher rewards when running Q-learning on modifiedMDP compared to FixedRLAlgorithm\footnote{There is some bug in my Q-learning implementation that is causing it to output lower rewards than I'd expect.}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}

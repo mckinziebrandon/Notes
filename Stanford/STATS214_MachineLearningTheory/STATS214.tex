@@ -1,0 +1,2098 @@
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+% P  R  E  A  M  B  L  E
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\documentclass[11pt]{article}
+\usepackage{amsbsy, amsmath, amssymb, authblk}
+
+%\usepackage{array} 
+%\usepackage{algorithm2e}
+\usepackage{algorithmic}
+
+\usepackage{booktabs, bm}
+\usepackage{braket}
+\usepackage[small,labelfont=bf,up,singlelinecheck=false]{caption}
+\usepackage{cancel}
+\usepackage{comment}
+%\usepackage{fancyhdr}
+%\usepackage[default]{lato}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+%\usepackage[utf8]{inputenc}
+%	\inputencoding{latin1}
+%	\inputencoding{utf8}
+%\usepackage{lettrine}
+%\usepackage[sc]{mathpazo}
+\usepackage{lmodern} % Nice fonts?
+\usepackage{mathrsfs}
+\usepackage{mathtools} 
+%\usepackage{marvosym} % silly bullet-point symbols (misc symbols)
+%\usepackage{microtype}
+\usepackage{minitoc}         % left in case it is needed elsewhere
+\setcounter{secttocdepth}{5} % idem
+\usepackage{etoc} % for toc before each section.
+%\usepackage{multicol}
+\usepackage{needspace}
+\usepackage{paralist}
+\usepackage{pifont}
+%\usepackage{polynom} 			% typesetting polynomial long division
+%\usepackage{setspace}
+%	\onehalfspacing 
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{ulem} 				% for strikeout \sout command.
+%\usepackage{verbatim}
+
+% Muh packagez :)
+\usepackage{../../Packages/MathCommands}
+\usepackage{../../Packages/BrandonColors}
+\usepackage{../../Packages/BrandonBoxes}
+\usepackage{../../Packages/NoteTaker}
+
+%\usepackage{program}
+% DL BOOK CONVENTIONS
+\renewcommand\vec[2][]{\bm{#2}_{#1}}
+
+\DeclareDocumentCommand{\slice}
+	{ O{t} O{1} m }
+	{\vec[\langle #2 \ldots #1 \rangle]{#3}}
+
+\usepackage{layout} % Type \layout() anywhere to see values of layout frame.
+%\usepackage{showframe} % Displays layout frame on all pages
+\usepackage{marginnote}
+\renewcommand*{\marginfont}{\scriptsize}
+
+\usepackage{listings}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Java,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows, automata, shapes, snakes, positioning}
+\usetikzlibrary{bayesnet}
+
+
+% hi?
+\renewcommand\dotseq[2]
+{#1^{(1)}, \ldots, #1^{(#2)}}
+\renewcommand\rdotseq[2]
+{#1^{(#2)}, \ldots, #1^{(1)}} % reversed
+
+
+%\setlength{\parskip}{1pt}
+%\setlength{\columnseprule}{0.1pt}
+%\setlength{\columnsep}{0.6cm}
+%\setlength\tabcolsep{0.1cm}
+\renewcommand{\arraystretch}{1.2}
+
+\DeclareDocumentEnvironment{definition}{O{-0.5em} o}{
+	\IfNoValueTF{#2}{}{\textbf{#2}}
+	\vspace*{#1}
+	\begin{quote}
+		\itshape\small}
+	{\end{quote}}
+
+% author, title, affiliation, date.
+\DeclareDocumentCommand{\citepaper}{ m m m m }{
+	\vspace{-1em}
+	{\footnotesize #1, ``#2'' \textit{#3}, (#4).}
+}
+
+\newcommand\task{\mathscr{T}}
+\newcommand\mc{\mathcal}
+
+\newcommand{\ntknabla}[1]{\nabla_{\theta} f_{\theta^0}\left( #1 \right)}
+
+% \innerprod{x}{y} == <x, y>
+\RenewDocumentCommand{\innerprod}{ m m }{ 
+	\left\langle #1, #2 \right\rangle
+}
+
+
+\begin{document}
+\dosecttoc
+\tableofcontents
+
+
+
+
+% ==================================================================================
+% Lectures
+% ==================================================================================
+\mysection{Lectures}\label{Lectures}
+
+% --------------------------------------------------------------------------------------------
+\lecture{Lectures}{Supervised Learning and Empirical Risk Minimization}{September 20, 2021}
+
+All the basic stuff:
+\begin{compactitem}
+	\item Loss function $\ell: \mathcal Y \times \mathcal Y \mapsto \R$ accepts model prediction $\hat y$ and the true label $y$. We assume $\ell(\hat y, y) \geq 0$. 
+
+	\item Goal: find a model $h: \mathcal X \mapsto \mathcal Y$ that minimizes the \green{expected loss}:\marginnote{AKA population loss, expected risk, population risk}
+	\graybox{
+		L(h) \triangleq \E[(x,y) \sim p]{\ell(h(x), y)} \label{eq:pop-risk}
+	}
+
+	\item \green{Hypothesis class} $\mathcal H$ is a set of functions $h: \mathcal X \mapsto \mathcal Y$ that we want to consider/search over for finding the best one. 
+	
+	\item \green{Excess Risk} of a specific model $h$ wrt the hypothesis class $\mathcal H$ is the difference bw the population risk of $h$ and the best possible population risk inside $\mathcal H$:
+	\graybox{
+		E(h) \triangleq L(h) - \inf_{g \in \mathcal H} L(g) \label{eq:excess-risk}
+	}
+\end{compactitem}
+
+\bluesec{Empirical Risk Minimization} \tstamp{38:50}. 
+\begin{compactitem}
+	\item Although we'd like to minimize the \textit{population} risk $L(h)$ (eq \ref{eq:pop-risk}), we only have access to our finite training set, so we instead compute the \green{empirical risk}:
+	\begin{align}
+			\hat L(h) &= \inv{n} \insum \ell(h(\ival[i]{x}), \ival[i]{y})
+	\end{align}
+
+	\item \green{Empirical Risk Minimization} (ERM) is the method of finding the minimizer of $\hat L$:
+	\graybox{
+		\hat h &\triangleq \argmin_{h \in \mathcal H} \hat L(h)
+	}
+
+	\item The empirical risk is an unbiased estimator of the population risk:
+	\begin{align}
+			\E[P(x, y)]{\hat L(h)} &= L(h)
+	\end{align}
+	which is due to our assumption that each example is drawn iid from P. 
+\end{compactitem}
+
+\begin{myquote}
+	The key question that we seek to answer in the first part of this course is: what guarantees do we have on the excess risk for the parameters learned by ERM? The hope with ERM is that minimizing the training error will lead to small testing error. One way to make this rigorous is by showing that the  ERM minimizer's excess risk is bounded.
+\end{myquote}
+
+\bluesec{Asymptotic Analysis} \tstamp{44:00}. An asymptotic approach is one that considers $n \rightarrow \infty$ and tries to derive bounds on quantities of interest. Specifically for ERM, our goal will be to show the excess risk (eq \ref{eq:excess-risk}) of $\hat{\theta}_{ERM}$ is small\footnote{$\hat \theta_{ERM} \triangleq \argmin_{\theta \in \Theta} \hat L(\theta)$. Also note that $\theta \in \Theta$ is used interchangeably with $h \in \mathcal H$.}.  Specifically, we'll prove that the excess risk as bounded as below:
+\graybox{
+		L(\hat \theta) - \argmin_{\theta \in \Theta} L(\theta)
+			&\leq \frac{c}{n} + o \lr{ \inv{n} }
+}
+where $c$ is a problem-dependent constant that does not depend on $n$, and $o(\inv{n})$ just means "terms that are lower-order than $\inv{n}$. 
+
+\marginnote{$\mathcal H = \{  h_{\theta}: \theta \in \R^p \}$ $\hat \theta \triangleq \argmin_{\theta \in \Theta} \hat{L} (h_{\theta})$ $\theta^* = \argmin_{\theta} L(\theta)$.}[2em]
+\begin{itemdefinition}{Theorem 2.1}
+	{Assume the following: \begin{compactitem}
+			\item Consistency of $\hat{\theta}$: $\hat{\theta}  \overset{p}{\to} \theta^{*}$ as $n \to \infty$\footnote{The notation $a \overset{p}{\to} b$ means ``converges in probability,'' which is what we say when $a$ and $b$ are random variables. Formally:\begin{align} 
+				\lim_{n \to \infty} \Prob{  || \hat \theta - \theta^* || \geq \epsilon } = 0 \quad \forall \epsilon > 0
+		 	\end{align}} \tstamp{57:40}
+			\item The hessian\footnote{The Hessian matrix the symmetric matrix defined by \begin{align}
+					\lr{ \nabla^2 L(\theta^*) }_{i,j} &\triangleq \frac{\partial^2 L}{\partial \theta^*_{i} \partial \theta^*_{j}}
+			\end{align} It is also the Jacobian matrix of the gradient of the function $f$: $\matr H(f(\vec x)) = \matr J (\nabla f(\vec x))$.} $\nabla^{2}L(\theta^{*})$ is full rank. 
+			\item ``Other appropriate regularity conditions hold.''
+		\end{compactitem}}
+	
+	\item $\sqrt{n}\lr{ \hat\theta - \theta^*} = O_P(1)$, where $O_P(1)$ reads ``is bounded in probability to 1''\footnote{A sequence of random variables  $\{\vec[n]{x} \} $ is \green{bounded in probability} if for any $\epsilon > 0$, there exist $M$ and $N$ such that $\Prob{ ||\vec[n]{x}|| >M }  < \epsilon$ for all $n > N$. }. \marginnote{Note that $\hat\theta$ is a function of $n$; we just are omitting that for compactness}.
+	
+	\item $n \lr{ L(\hat\theta) - L(\theta^*) } = O_P(1)$
+	
+	\item $\sqrt{n} \lr{ \hat\theta - \theta^*}  \overset{d}{\to} \Gauss{\vec 0,   \minv{H} Cov\left[  \nabla \ell\lr{(x, y); \theta^*} \right]   \minv{H}    }$ where $\matr H = \nabla^2 L(\theta^*)$. The notation $\rvec{x} \overset{d}{\to} p(\rvec{x})$ means ``the distribution of the random variable $\rvec x$ converges to $p(\rvec x)$.''
+	
+	\item $n \lr{ L(\hat\theta) - L(\theta^*) } \overset{d}{\to} \onehalf ||S||_2^2$ where $S \sim \Gauss{\vec 0,   \minv{H} Cov\left[  \nabla \ell\lr{(x, y); \theta^*} \right]   \minv{H}    }$. 
+	
+	\item $\lim_{n \to \infty} \E{   n \lr{ L(\hat\theta) - L(\theta^*) } } = \onehalf \text{tr}\lr{   \minv{H} Cov\left[  \nabla \ell\lr{(x, y); \theta^*} \right]  }$
+\end{itemdefinition}
+
+\textbf{Thoughts/observations}. 
+\begin{compactitem}
+	\item In English, the first property just reads ``the difference between the ERM  minimizer and the true minimizer doesn't blow up as $n \to \infty$; it is bounded/converges in some sense.'' However, it's weird that you need to tack on the $\sqrt n$. Isn't the following equivalent: $(\hat\theta - \theta^*) = O_P(\inv{\sqrt{n}})$. 
+	
+	\item I have no idea how/why you can say that $\Delta L \approx \inv{n}$ but $\Delta \theta \approx \inv{\sqrt{n}}$, i.e. that $\Delta \theta / \Delta L \approx \sqrt{n}$
+\end{compactitem}
+
+\begin{example}[Review: Taylor Series]
+	A \green{power series} is an infinite series of the form $\sum_{k=0}^{\infty} c_k (x - a)^k$ where the coefficients $c_k$ and the \textbf{center} of the series $a$ are constants. Recall that if a function $f$ is differentiable at a point $a$, it can be approximated near $a$ by its tangent line:
+	\begin{align}
+		f(x) \approx f(a) + f'(a) (x - a)
+	\end{align}
+	Let's denote this by $p_1(x)$ -- this is a first-order approximation of $f$ at $a$, since $p_1(a) = f(a)$ and $p'_1(a) = f'(a)$. We can find successively higher-order approximations by adding the next term in the power series, which here would be $c_2(x - a)^2$, and solving for $c$ based on the constraints that all derivatives (from order 0 to n -- where $n$ is 2 here) must be the same as the original function's. For the 2nd order approximation, we end up finding that $c_2 = \onehalf f''(a)$. 
+	
+	The general form of a Taylor expansion for some function $f(x)$ about $x \eq a$ is thus
+	\graybox{
+		f(x) &= \sum_{n=0}^{\infty} \dfrac{   f^{(n)}(a)   }{n!} \lr{x - a}^n
+	}
+	
+	So, how good are these approximations? \green{Taylor's Theorem} states:
+	\begin{align}
+		f(x) 
+		&= p_n(x) + R_n(x) \\
+		R_n(x) 
+		&= \frac{  f^{ (n+1)}(c) }{ (n + 1)! } (x - a)^{n+1} 
+	\end{align}
+	for some point $c$ between $x$ and $a$. 
+\end{example}
+
+\begin{example}[Review: Central Limit Theorem (CLT) (Theorem 2.2)]
+	Let $X_1, \cdots, X_n$ be iid random variables, and let $\hat X = \inv{n} \insum X_i$. Assume the covariance matrix $\Sigma$ \red{is finite} (?). Then, as $n \to \infty$, we have 
+	\begin{align}
+		\hat{X} &\overset{p}{\to} \E{X} \\
+		\sqrt{n}\lr{  \hat X - \E{X} } 
+			&\overset{d}{\to} \Gauss{0, \Sigma} \\
+		\sqrt{n}\lr{  \hat X - \E{X} } 
+			&= O_P(1)
+	\end{align}
+\end{example}
+
+\begin{itemdefinition}{Lemma 2.3}{}
+	\item If $Z \sim \Gauss{0, \Sigma}$ and $A$ is a \red{deterministic matrix}, then $AZ \sim \Gauss{0, A \Sigma A^T}$. 
+	
+	\item If $Z \sim \Gauss{0, \Sigma^{-1}}$ and $Z \in \R^p$, then $Z^T \Sigma Z \sim \chi^2(p)$, where $\chi^2(p)$ is the chi-squared distribution with $p$ degrees of freedom. 
+\end{itemdefinition}
+
+\textbf{Proof of Theorem 2.1} \tstamp{1:12:00}. 
+\begin{align}
+	0 &= \nabla \hat{L}(\hat\theta) 
+	      = \nabla \hat{L}(\theta^*) + \nabla^2 \hat{L}(\theta^*)(\hat\theta - \theta^*) + O(||\hat\theta - \theta^*||_2^2) \\
+	\hat\theta - \theta^*
+		&\approx  - \lr{ \nabla^2 \hat{L}(\theta^*)  }^{-1}   \nabla \hat{L}(\theta^*)  \\
+	\sqrt{n}\lr{\hat\theta - \theta^*} 
+		&\approx  - \lr{ \nabla^2 \hat{L}(\theta^*)   }^{-1}  \sqrt{n}   \nabla \hat{L}(\theta^*)  
+\end{align}
+
+
+\begin{comment}
+\begin{definition}[-1em][suh]
+	uh
+\end{definition}
+\end{comment}
+
+\bluesec{Summary}. First, the main notation that was new to me:
+\begin{compactitem}
+	\item \textbf{Converges in Probability}: (\href{https://www.wikiwand.com/en/Convergence_of_random_variables#/Definition_2}{wiki}) A sequence $\{ X_n \}$ of random variables \green{converges in probability} towards the random variable $X$ if for all $\epsilon > 0$:
+	\begin{align} 
+		\lim_{n \to \infty} \Prob{  ||  X_n - X || > \epsilon } = 0 
+	\end{align}
+
+	\item \textbf{Bounded in Probability} (\href{https://stats.stackexchange.com/questions/155667/understanding-big-little-o-p-o-p-notation-for-estimators/155679#155679}{stackexchange}) (\href{https://www.wikiwand.com/en/Big_O_in_probability_notation#/Big_O:_stochastic_boundedness}{wiki}) The notation 
+	\begin{align}
+		X_n = O_p(a_n)
+	\end{align}
+	means that the set of values $\{ X_n / a_n \}$ is \green{stochastically bounded}. That is, for any $\epsilon > 0$, there exists a finite $M >0$ and a finite $N > 0$ such that
+	\begin{align}
+		\Prob{ |X_n / a_n | > M } < \epsilon \quad (\forall n > N)
+	\end{align}
+\end{compactitem}
+
+The main equations to remember:
+\graybox{
+	\mtgreen{[Population Risk]} \qquad
+		&L(\theta) \triangleq \E[(x, y) \sim p]{\ell \lr{ x, y; \theta }} \\
+	\mtgreen{[Excess Risk]} \qquad
+		&E(\theta) \triangleq L(\theta) - \inf_{\theta' \in \Theta} L(\theta') \\
+	\mtgreen{[Empirical Risk]} \qquad 
+		&\hat L (\theta) \triangleq \inv{n} \insum \ell \lr{  \ival[i]{x}, \ival[i]{y}; \theta   } \\
+	\mtgreen{[ERM]} \qquad 
+		&\hat\theta \triangleq \argmin_{\theta \in \Theta} \hat L (\theta) \\
+	\mtgreen{[Bound on Excess Risk]} \qquad 
+		&L(\hat \theta) - \argmin_{\theta \in \Theta} L(\theta) \leq \frac{c}{n} + o \lr{ \inv{n} }
+}
+
+
+
+\begin{comment}
+% --------------------------------------------------------------------------------------------
+\lecture{Lectures}{Asymptotic Analysis and Uniform Convergence}{September 22, 2021}
+
+
+% --------------------------------------------------------------------------------------------
+\lecture{Lectures}{Uniform Convergence Part 2 and Finite Hypothesis Class}{September 27, 2021}
+
+\end{comment}
+
+
+% --------------------------------------------------------------------------------------------
+%\lecture{Lectures}{Supervised Learning and Empirical Risk Minimization}{September 20, 2021}
+
+
+% --------------------------------------------------------------------------------------------
+\lecture{Lectures}{Covering Number, Dudley Theorem, Generalization Bounds for Deep Nets}{October 18, 2021}
+
+
+\begin{example}[Proof of Dudley's Theorem \tstamp{28:40}]
+	wow this is extremely long, it lasts until \tstamp{1:00:00}
+	
+	then interpretation stuff until \tstamp{1:15:00}
+\end{example}
+
+
+\bluesec{Covering Number Bounds for Linear Models} \tstamp{1:15:00}. 
+
+\begin{definition}[-1em][Theorem 3 of Zhang'02]
+	Suppose $\{ x_1, \ldots, x_n \}$ are $n$ data points. Let  $p$,$q$ satisfy $\inv{p} + \inv{q} = 1$, with $2 \leq p \leq \infty$. Assume that $||x_i||_p \leq C$ $(\forall i)$. Let $\mathcal F_q \triangleq \{ x \mapsto w^x : ||w||_q \in B \}$. Let $\rho := L_2(p_n)$. Then
+	\begin{align}
+		\log N(\epsilon, \mathcal F_q, \rho)
+			\leq \left[ \frac{B^2C^2}{\epsilon^2} \right] \lg \lr{  2d + 1 }
+	\end{align}
+
+	When $p = q = 2$, can strengthen slightly to 
+	\begin{align}
+		\log N(\epsilon, \mathcal F_2, \rho)
+			&\leq \left[    \frac{B^2C^2}{\epsilon^2} \right] \lg \lr{  2 \min\{ n, d \} + 1 }
+	\end{align}
+\end{definition}
+
+
+---------------------------------------------------------
+\lecture{Lectures}{Implicit Regularization of Noise in SGD}{November 15, 2021}
+
+\bluesec{Noisy SGD}. Loss function $g(\theta)$. SGD does
+\begin{align}
+	\theta_{t+1} 
+		&= \theta_t - \eta \lr{ \nabla g(\theta_t)  + \xi_t  } 
+\end{align}
+where $\E{\xi_t} =0$, and the distribution of $\xi_t$ might depend on $\theta_t$. 
+
+\begin{example}[Warmup: $\onehalf x^2$]
+	Let $g(x) := \onehalf x^2$. Also, denote the scale of the noise as $\sigma$, and let $\xi_t \sim \Gauss{0, 1}$. 
+	\begin{align}
+		x_{t+1}
+			&= x_t - \eta \lr{ \nabla g(x_t) + \sigma \xi_t  } \\
+		x_{t+1} 	
+			&= (1 - \eta)^{t+1} x_0 - \eta \sigma \sum_{k = 0}^{t} \xi_{t- k} (1 - \eta)^k \\
+		\implies \lim_{t \to \infty} x_t 
+			&\sim \Gauss{0, \Theta(\eta \sigma^2)}
+	\end{align}
+	In other words, $x_t$ eventually reaches global minimum and bounces around it. Note that this ``bouncing'' is more affected by the noise than the learning rate. \tstamp{23:45}
+\end{example}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% ==================================================================================
+% Summaries
+% ==================================================================================
+\mysection{Summaries}\label{Summaries}
+
+\lecture{Summaries}{Notation}{October 16, 2021}
+
+\begin{definition}[-1em][Small-O Notation]
+	The statement $f(x) = o(g(x))$ means
+	\begin{align}
+		\lim_{x \to \infty} \frac{f(x)}{g(x)} = 0
+	\end{align}
+\end{definition}
+
+\begin{definition}[-1em][Converges in Probability]
+	NB: ok so it seems like the two notations $X_n \overset{p}{\to} X$ and $X_n = o_p(a_n)$ are both called ``converges in probability'' but mean COMPLETELY different things. 
+	
+	\blue{Convergence to a random variable} ($X_n \overset{p}{\to} X$). A sequence $\{ X_n \}$ of random variables \green{converges in probability} towards the random variable $X$ if for all $\epsilon > 0$:
+	\begin{align} 
+		\lim_{n \to \infty} \Prob{  ||  X_n - X || > \epsilon } = 0 
+	\end{align}
+(\href{https://www.wikiwand.com/en/Convergence_of_random_variables#/Definition_2}{wiki})
+
+	\blue{Convergence to a constant}  ($X_n = o_p(a_n)$). The following two equivalent notations
+	\begin{align}
+		X_n = o_p(a_n) \qquad \text{and} \qquad \frac{X_n}{a_n} = o_p(1)
+	\end{align}
+	both mean 
+	\graybox{
+		\lim_{n \to \infty} \Prob{ \left|\frac{X_n}{a_n}  \right| \geq \epsilon } = 0 \qquad (\forall \epsilon > 0)
+	}
+	i.e. ``For large enough $n$, $X_n$ converges to something [much] less than $a_n$.''
+\end{definition}
+
+\begin{definition}[-1em][Bounded in Probability $X_n = O_p(a_n)$]
+	The notation 
+	\begin{align}
+		X_n = O_p(a_n)
+	\end{align}
+	means that the set of values $\{ X_n / a_n \}$ is \green{stochastically bounded}. That is, for any $\epsilon > 0$, there exists a finite $M >0$ and a finite $N > 0$ such that
+	\begin{align}
+		\Prob{ |X_n / a_n | > M } < \epsilon \quad (\forall n > N)
+	\end{align}
+(\href{https://stats.stackexchange.com/questions/155667/understanding-big-little-o-p-o-p-notation-for-estimators/155679#155679}{stackexchange}) (\href{https://www.wikiwand.com/en/Big_O_in_probability_notation#/Big_O:_stochastic_boundedness}{wiki}) 
+\end{definition}
+
+\begin{algorithm}[Comparison between $O_p$ and $o_p$]
+	Specifically, difference between  $X_n = O_p(a_n)$ and $X_n = o_p(a_n)$:
+		\begin{align}
+		\mgreen{[O_p]}  \qquad 
+		(\forall \epsilon > 0) (\exists \mred{\delta_{\epsilon}}) (\exists N_{\epsilon}) 
+		\text{ s.t. } 
+		&\Prob{ \left|    \frac{X_n}{a_n}  \right|  \geq \mred{\delta_{\epsilon} } }
+		~\leq~ \epsilon 
+		\quad (\forall n > N_{\epsilon}) \\
+		\mgreen{[o_p]}\qquad 
+		(\forall \epsilon > 0)(\forall \mred{ \delta })(\exists N_{\epsilon,\mred{\delta}}) 
+		\text{ s.t. }
+		&\Prob{ \left|   \frac{X_n}{a_n}  \right| \geq \mred \delta }
+		~\leq~ \epsilon 
+		\quad (\forall n > N_{\epsilon,\mred \delta})
+	\end{align}
+	Basically, the difference is all in the $\delta$, and we can see that 
+	\begin{align}
+		X_n = o_p(a_n) \quad \implies \quad X_n = O_p(a_n)
+	\end{align}
+\end{algorithm}
+
+
+\lecture{Summaries}{Asymptotic Analysis}{October 16, 2021}
+
+\bluesec{Goal}: bound the excess risk $\mred{E}(\mblue{\hat \theta}) \triangleq \mred{L}(\mblue{\hat \theta}) - \mred{L}(\mred{\theta^*})$\footnote{Red: population quantities. Blue: empirical quantities.} as follows:
+\graybox{
+	\mred{E}(\mblue{\hat \theta}) \leq \frac{c}{n} + o(\inv{n})
+}
+
+
+
+\begin{itemdefinition}{Asymptotic Bounds for Excess Risk}
+	{Assume the following: \begin{compactitem}
+			\item Consistency of $\hat{\theta}$: $\hat{\theta}  \overset{p}{\to} \theta^{*}$.
+			\item The hessian $\matr H = \nabla^{2}L(\theta^{*})$ is full rank. 
+			\item ``Other appropriate regularity conditions hold.''
+	\end{compactitem}
+	Let $\nabla \ell^* := \nabla \ell\lr{ (x, y); \theta^* }$.}
+	
+	\item $\sqrt{n}\lr{ \hat\theta - \theta^*} = O_P(1)$.
+	
+	\item $\sqrt{n} \lr{ \hat\theta - \theta^*}  \overset{d}{\to} \Gauss{\vec 0,   \minv{H} Cov\left[  \nabla \ell^* \right]   \minv{H}    }$ 
+	
+	\item $n  \mred{E}(\mblue{\hat \theta})  = O_P(1)$
+	
+	\item $n \mred{E}(\mblue{\hat \theta}) \overset{d}{\to} \onehalf ||S||_2^2$ where $S \sim \Gauss{\vec 0,   \matr{H}^{-1/2} Cov\left[  \nabla \ell^* \right]   \matr{H}^{-1/2}    }$. 
+	
+	\item $\lim_{n \to \infty} \E{   n \mred{E}(\mblue{\hat \theta}) } = \onehalf \text{tr}\lr{   \minv{H} Cov\left[  \nabla \ell^* \right]  }$
+\end{itemdefinition}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\lecture{Summaries}{Concentration Inequalities}{October 09, 2021}
+
+Unless explicitly stated otherwise, for some random variable $X$, let 
+\begin{align}
+	\mu_X &\triangleq \E{X} \\
+	\sigma_X &\triangleq \sqrt{\sigma^2_X} = \sqrt{\Var{X}}
+\end{align}
+
+\begin{definition}[-1em][Big-O Notation] 
+	Every occurrence of $O(x)$ is a placeholder for some function $f(x)$ such that $\forall x ~ |f(x)| \leq \morange{C} x$ for some absolute/universal constant $\morange{C} > 0$. 
+	
+	For example:
+	\begin{align}
+		&| \bar X - \mu_{\bar X} | \leq O(\sigma \sqrt{\log n}) \\
+		\equiv \exists \morange{C}  \text{ st } &|\bar X - \mu_{\bar X} | \leq \morange{C} \sigma \sqrt{\log n}
+	\end{align}
+
+	Alternative definition given by a TA: ``The statement $f(n) = O(g(n))$ means there exists a constant $C$ such that $|f(n)| \leq C g(n)$ for all values of $n$.''
+\end{definition}
+
+\begin{definition}[-1em][Hoeffding's Inequality]
+	Let $X_1, X_2, \ldots, X_n$ be i.i.d. real-valued RVs such that $a_i \leq X_i \leq b_i$ almost surely. Define $\bar{X} = \inv{n}\insum X_i$. Then for any $\epsilon > 0$
+	\graybox{
+		\Prob{ |\bar{X} - \mu_{\bar X} | \geq \epsilon  }
+			&~\leq~ 2 \exp\lr{   
+				\frac{-2n^2 \epsilon^2}{ \insum (b_i - a_i)^2  }
+		}
+	}
+	If we let $\mblue{\sigma^2} \triangleq \inv{n^2}\insum (b_i - a_i)^2$ and $\epsilon = \sigma\sqrt{c \log n}$ and plug these back in, we get
+	\begin{align}
+		\Prob{   |\bar{X} - \mu_{\bar X} | \geq \epsilon  }
+			&~\leq~ 2 n^{-2c}
+	\end{align}
+\end{definition}
+
+\begin{definition}[-1em][Chebyshev's Inequality]
+	For any RV $X$ and $\morange{k} \in R$ with $\morange{k} \geq 1$
+	\graybox{
+		\Prob{|X - \mu_X| \geq \morange{k} \sigma_X} &~\leq ~\inv{\morange{k}^2}
+	}
+\end{definition}
+
+\begin{definition}[-1em][Markov's Inequality]
+	If $\varphi: \R_{\geq 0} \to \R_{\geq 0}$ is a monotonically increasing function, $X$ is any RV, $a \geq 0$, and $\varphi (a) > 0$, then
+	\begin{align}
+		\Prob{ |X| \geq a }
+			&~\leq~ \frac{  \E{\varphi\lr{|X|}} }{  \varphi(a) } 
+	\end{align}
+\end{definition}
+
+\begin{comment}
+\begin{example}[Weakness of Chebyshev's Inequality]
+	If we know that $X \sim \Gauss{0, 1}$, then it is possible to show 
+	\begin{align}
+		\Prob{ |X - \mu_x | \geq \underbrace{\sigma_X \sqrt{2 \log\lr{2/\delta}} }_{t}   }  
+			&~\leq~ \delta 
+			\quad \text{for} \quad \delta \eq 2 e^{- \onehalf \frac{t^2}{\sigma_X^2}}
+	\end{align}
+which is a much tighter bound (exponential rate of decay wrt $t$ compared to quadratic decay of Chebyshev). 
+\end{example}
+\end{comment}
+
+\Needspace{10\baselineskip}
+\begin{definition}[-1em][Sub-Gaussian Random Variables]
+	A RV $X$ with finite $\mu_X$ is \green{sub-Gaussian with parameter $\sigma$} if 
+	\graybox{
+		\E{ e^{\lambda (X - \mu_X)  } }
+			&\leq e^{ \onehalf \mgreen{\sigma}^2 \lambda^2}
+		 \qquad (\forall \lambda \in \R)
+	}
+	Equivalently:
+	\graybox{
+		\Prob{ |X - \mu_X |  \geq t } 
+			&~\leq~ 2 \exp \lr{- \frac{t^2}{2\sigma^2} }
+			\qquad (\forall t \in \R)
+	}
+	Furthermore, the sum $Z$ of independent sub-Gaussian RVs $X_1, \ldots, X_n$ with variance proxies $\sigma_1^2, \ldots, \sigma_n^2$ is sub-Gaussian with variance proxy $\insum \sigma_i^2$. As a consequence, we have the tail bound
+	\begin{align}
+		\Prob{ | Z - \mu_Z | \geq t } \leq 2 \exp\lr{  - \frac{t^2}{2 \insum \sigma_i^2} } 
+	\end{align}
+\end{definition}
+
+\begin{definition}[-1em][McDiarmid's Inequality]
+	Suppose $f : \R^n \to \R$ satisfies the \green{bounded difference condition}: $\exists c_1, \ldots, c_n \in \R$ s.t. $\forall x_1, \ldots, x_n, x_i' \in \R$
+	\begin{align}
+			| f(\vec x) - f(\slice[i-1]{x} x_i', \slice[n][i+1]{x}) | \leq c_i
+	\end{align}
+	Then, for any independent RVs $X_1, \ldots, X_n$,
+	\graybox{
+		\Prob{ | f(X_1, \ldots, X_n) - \mu_{f} \geq t } |
+			&~\leq~ 2 \exp\lr{ - \frac{  2t^2  }{ \insum c_i^2 } }
+	}
+\end{definition}
+
+\begin{definition}[-1em][Bounded Difference Inequality]
+	Let $f : \R^n \to \R$. The \green{one-sided differences} of $f$ are defined as
+	\begin{align}
+			D_i^+ f(\vec x)
+		&\triangleq \sup_z f(\slice[i-1]{x}, z, \slice[n][i+1]{x}) - f(\vec x) \\
+		D_i^- f(\vec x) 
+			&\triangleq f(\vec x) - \inf_z f(\slice[i-1]{x}, z, \slice[n][i+1]{x}) 
+	\end{align}
+	For convenience, define 
+	\begin{align}
+		d^+ 
+		&\triangleq \left|\left|  \insum \left| D_i^+ f  \right|^2  \right|\right|_{\infty} 
+		= \sup_{\vec x} \insum \left| D_i^+ f(\vec x) \right|^2 \\
+		d^- 
+			&\triangleq \left|\left|  \insum \left| D_i^- f  \right|^2  \right|\right|_{\infty} 
+			= \sup_{\vec x} \insum \left| D_i^- f(\vec x) \right|^2
+	\end{align}
+	
+	Let $X_1, \ldots, X_n$ be independent RVs. Then $\forall t \geq 0$,
+	\graybox{
+		\Prob{ f(X_1, \ldots, X_n) - \mu_f \geq t }
+			&~\leq~ \exp\lr{ - \frac{ t^2 }{ 4d^-  }  } \\
+		\Prob{ f(X_1, \ldots, X_n) - \mu_f \leq -t }
+		&~\leq~ \exp\lr{ - \frac{ t^2 }{ 4d^+ }  }
+	}
+\end{definition}
+
+\Needspace{10\baselineskip}
+\begin{definition}[-1em][Lipschitz Functions of Gaussian Variables]
+	Let $X_1, \ldots, X_n \overset{i.i.d.}{\sim} \Gauss{0, 1}$, and let $f: \R^n \to R$ be \green{L-Lipschitz} wrt the Euclidean norm $||\cdot||_2$,i.e. that
+	\begin{align}
+		|f(\vec x) - f(\vec y) \leq \mgreen{L} ||x - y||_2 \qquad (\forall x, y \in \R^n)
+	\end{align}
+	Then the variable $f(\vec x) - \mu_f$ is sub-Gaussian with parameter at most $\mgreen{L}$, and hence 
+	\graybox{
+		\Prob{ |f(\vec x) - \mu_f | \geq t }
+			&~\leq~ 2 \exp\lr{  - \frac{t^2}{2\mgreen{L}^2} }
+	}
+\end{definition}
+
+
+
+
+
+
+\lecture{Summaries}{Uniform Convergence}{October 16, 2021}
+
+
+Recall the formula for excess risk: $\mred{E}(\mblue{\hat \theta}) \triangleq \mred{L}(\mblue{\hat \theta}) - \mred{L}(\mred{\theta^*}) \geq 0$. 
+
+\begin{definition}[-1em][Uniform Convergence]
+	A parameter set $\Theta$ exhibits \green{uniform convergence} if $\forall \theta \in \Theta$
+	\graybox{
+		\Prob{ \left| \mblue{\hat L}(\theta) - \mred{L}(\theta) \right| \geq \epsilon   } 
+		~\leq~ \delta 
+	}
+	Henceforth, I will denote 
+	\begin{align}
+		UC(\theta) \triangleq \left| \mblue{\hat L}(\theta) - \mred{L}(\theta) \right| \label{eq:def-uc}
+	\end{align}
+\end{definition}
+
+\begin{example}[Uniform Convergence Implies Generalization]
+	Using simple telescoping sums, we can show $\mred{E}(\mblue{\hat \theta}) \leq 2 \sup_{\theta} UC(\theta)$:
+	\begin{align}
+		\mred{E}(\mblue{\hat \theta}) 
+			&= \lr{  \mred{L}(\mblue{\hat \theta}) - \mblue{\hat L}(\mblue{\hat \theta}) }
+			+ \lr{  \mblue{\hat L}(\mblue{\hat \theta}) - \mblue{\hat L}(\mred{\theta^*})  }
+			+ \lr{ \mblue{\hat L}(\mred{\theta^*})  - \mred{L}(\mred{\theta^*}) } \\
+			&\leq UC(\mblue{\hat \theta}) + UC(\mred{\theta^*} )\\
+			&\leq 2 \sup_{\theta \in \Theta} UC(\theta) \label{eq:uc-implies-gen}
+	\end{align}
+	Therefore, if we can show that our parameter family $\Theta$ exhibits UC, then we can get a bound on the excess risk. \\
+	
+	\textbf{Problem}: recall that we are assuming $0 \leq \ell \leq 1$. Therefore, we can invoke Hoeffding's inequality on $UC(\mred{\theta^*})$. 
+	\begin{align}
+		UC(\mred{\theta^*})
+			&\leq \widetilde{O}\lr{ \inv{\sqrt{n} } }
+	\end{align}
+	\textit{However}, we CANNOT invoke it on $UC(\mblue{\hat \theta})$, since the data-dependence of $\mblue{\hat \theta}$ means that the $\ell_i$ are no longer independent!
+\end{example}
+
+\Needspace{16\baselineskip}
+\begin{definition}[-1em][UC for Finite Hypothesis Class]
+	Suppose $\mathcal H$ is finite and $0 \leq \ell\lr{ (x, y), h } \leq 1$. Then $\forall \delta$ s.t. $0< \delta < \onehalf$, w.p. at least $1-\delta$,
+	\graybox{
+		UC(h) 
+			&\leq \sqrt{ \frac{  \ln |\mathcal H| + \ln(2/\delta) }{ 2n   } } 
+			\qquad (\forall h \in \mathcal H) \\
+		\mtgreen{[corollary]}\qquad 
+		\mred{E}(\mblue{\hat h}) 
+			&\leq \sqrt{ \frac{ 2 \lr{ \ln |\mathcal H| + \ln(2/\delta)} }{ 2n   } } 
+	}
+	where the corollary follows from \ref{eq:uc-implies-gen}. \\
+	
+	\textit{Condensed Proof}: 
+	\begin{compactenum}
+		\item For some fixed $h \in \mathcal H$ and fixed $\epsilon > 0$:
+		\begin{align}
+			\Prob{UC(h)  \geq \epsilon } 
+			&\leq 2 \exp\lr{ -2 n \epsilon^2 } \qquad \mtblue{[Hoeffding]}
+		\end{align}
+	
+		\item To prove $\forall h$, apply the above with union-bound inequality for the event  $\{ UC(h) \geq \epsilon \}$. 
+		\begin{align}
+			\Prob{ \exists h \text{ s.t. } UC(h) \geq \epsilon }
+				&\leq \sum_{h \in \mathcal H} \Prob{ UC(h) \geq \epsilon } \quad \mtblue{[union-bound]} \\
+				&\leq 2 |\mathcal H| \exp\lr{ -2n\epsilon^2 } \quad \mtblue{[step 1]}
+		\end{align}
+	
+		\item Let $\delta =  2 |\mathcal H| \exp\lr{ -2n\epsilon^2 } $. Solve for $\epsilon$ to complete the proof.
+	\end{compactenum}
+\end{definition}
+
+\begin{definition}[-1em][Bounds for Infinite Hypothesis Class]
+	Assumptions: 
+	\begin{compactitem}
+		\item Our infinite $\mathcal H = \{h_{\theta} : \theta \in \R^p, ||\theta||_2 \leq B \}$ for some fixed $B > 0$. 
+		\item $\ell \in [0, 1]$ is $\kappa$-Lipschitz in $\theta$ w.r.t. the $\ell_2$-norm for all $(x, y)$. 
+	\end{compactitem}
+
+	Then with probability at least $1 - O\lr{  e^{  -\Omega(p) }  }$, we have
+	\graybox{
+		(\forall \theta) \quad 
+		UC(\theta) \leq O\lr{ 
+		\sqrt{	\dfrac{   p \max\lr{  \ln\lr{ \kappa B n }, ~ 1 }   }{ n   } }
+		}
+	}
+	
+\end{definition}
+
+
+\bluesec{Summary of Bounds}. 
+\graybox{
+	\text{[finite $\mathcal H$] }  (\forall h \in \mathcal H) \text{ w.h.p. } \quad
+		UC(h) 
+		&\leq \widetilde{O}\lr{ \inv{\sqrt{n} } }
+		\quad \mtblue{[Remark 3.3]} \\
+	\text{[finite $\mathcal H$] } \text{w.h.p. } (\forall h \in \mathcal H) \quad 
+		UC(h) 
+		&\leq \widetilde{O}\lr{ \sqrt{   \frac{\ln |\mathcal H|}{ n }   }  } \\
+	\text{[infinite $\mathcal H$] }
+		\text{w.h.p }
+		(\forall h \in H)\quad 
+		UC(h)
+		&\leq \widetilde{O}\lr{ \sqrt{\frac{p}{n} }  }  \\
+	\mred{E}(\mblue{\hat \theta}) 
+		&\leq 2 \sup_{\theta \in \Theta} UC(\theta) \\
+	\mred{E}(\mblue{\hat \theta})
+		&\leq \frac{c}{n} + o\lr{ \inv{n} }
+}
+
+
+
+
+\lecture{Summaries}{Rademacher Complexity}{October 20, 2021}
+
+\begin{definition}[-1em][Rademacher Complexity]
+	Let $\mathcal F = \{ f : Z \to \R  \}$ and Let $P$ be a distribution over $Z$. The (average) \green{Rademacher complexity} of $\mathcal F$ is defined as 
+	\graybox{
+		R_n(\mathcal F)
+			&\triangleq 
+			\E[z_1, \ldots, z_n \overset{i.i.d.}{\sim} P]{ 
+				\E[\sigma_1, \ldots, \sigma_n \overset{i.i.d.}{\sim}  \{ \pm 1 \} ]{
+					\sup_{f \in \mathcal F} \inv{n} \insum \sigma_i f(z_i)
+				}
+			} \label{eq:def-rademacher}
+	}
+	Furthermore,
+	\begin{align}
+		\E[z_1, \ldots, z_n \overset{i.i.d.}{\sim} P]{ 
+			\sup_{f \in \mathcal F} \inv{n} \insum f(z_i) - \E[z \sim P]{f(z)}
+		} &\leq 2 R_n(\mathcal F)
+	\end{align}
+\end{definition}
+
+\begin{definition}[-1em][Empirical Rademacher Complexity]
+	Given a dataset $S = \{ z_1, \ldots, z_n \}$, the \green{empirical Rademacher complexity} is just the inner part of \ref{eq:def-rademacher}:
+	\begin{align}
+		R_S(\mathcal F) &\triangleq \E[\sigma_1, \ldots, \sigma_n \overset{i.i.d.}{\sim}  \{ \pm 1 \} ]{
+			\sup_{f \in \mathcal F} \inv{n} \insum \sigma_i f(z_i)
+		}
+	\end{align}
+	
+	Suppose $\forall f \in \mathcal F$, $0 \leq f(z) \leq 1$. Then w.p. at least $1 - \delta$,
+	\begin{align}
+		\sup_{f \in \mathcal F} \left[	  
+				\inv{n}\insum f(z_i) - \E{f(z)}
+			\right]
+			&\leq 2 R_S(\mathcal F) + 3 \sqrt{\frac{\log(2 / \delta)}{2n}} \\
+		\mred{L}(h) - \mblue{L}(h)
+			&\leq 2 R_s(\mathcal F) + 3 \sqrt{\frac{\log(2 / \delta)}{2n}}
+	\end{align}
+	
+\end{definition}
+
+
+\begin{definition}[-1em][$\epsilon$-cover]
+	The set $\mathcal C$ is an $\epsilon$-cover of $\mathcal Q$ w.r.t. metric $\rho$ if $\forall v \in \mathcal Q$, $\exists v' \in \mathcal C$ such that $\rho(v, v') \leq \epsilon$. 
+\end{definition}
+
+\begin{definition}[-1em][Covering Number]
+	The \green{covering number} $N(\epsilon, \mathcal Q, \rho)$,  is the minimum size of an $\epsilon$-cover. 
+	
+	The standard metric we'll use is $\rho(v, v') = \inv{\sqrt{n} }|| v - v' ||_2$, with the leading coefficient inserted for convenience. 
+\end{definition}
+
+\begin{definition}[-1em][Theorem 4.24]
+	Let $\mathcal F$ be a family of functions $Z \mapsto [-1, 1]$. Then
+	\begin{align}
+		R_S(\mathcal F)
+			&\leq \inf_{\epsilon > 0} \lr{
+				\epsilon + \sqrt{\dfrac{ 2 \log N(\epsilon, \mathcal F, L_2(P_n))  }{  n  }}
+			}
+	\end{align}
+\end{definition}
+
+Proof of stuff that doesn't seem to be in scribe notes yet (associated w/material around 4.6) starts around \tstamp{23:30}. 
+
+\begin{definition}[-1em][Dudley's Theorem]
+	If $\mathcal F$ is a function class from $Z$ to $\R$, then 
+	\begin{align}
+		R_S(\mathcal F)
+			\leq 12 \int_0^{\infty}  \sqrt{\dfrac{ 2 \log N(\epsilon, \mathcal F, L_2(P_n))  }{  n  }} \mathrm{d}\epsilon
+	\end{align}
+\end{definition}
+
+\myspace
+\subsub{Rademacher Complexity Bounds for Concrete Models and Losses}
+\myspace
+
+\begin{definition}[-1em][Talagrand's Lemma]
+	Let $\phi :\R \to \R$ be a $\kappa$-Lipschitz function. Then
+	\begin{align}
+		R_S(\phi \circ \mathcal H) \leq \kappa R_S(\mathcal H)
+	\end{align}
+\end{definition}
+
+\begin{definition}[-1em][Linear Models with Bounded $\ell_2$ Norm]
+	Let $\mathcal H = \{ x \mapsto \langle w, x \rangle \mid w \in \R^d, \norm{w}  \leq B  \}$ for some constant $B > 0$. Moreover, \red{assume} $\E[x \sim P]{\norm{x}^2} \leq C^2$, where $P$ is some distribution and $C > 0$ is a constant. Then 
+	\graybox{
+		R_s(\mathcal H)
+			&\leq \frac{B}{n} \sqrt{  \insum \norm{x^{(i)}}^2 } \\
+		R_n(\mathcal H) 
+			&\leq \frac{BC}{\sqrt n}
+	}
+\end{definition}
+
+\begin{definition}[-1em][Linear Models with Bounded $\ell_1$ Norm]
+	Let $\mathcal H = \{ x \mapsto \langle w, x \rangle \mid w \in \R^d, \norm[1]{w}  \leq B  \}$ for some constant $B > 0$. Moreover, \red{assume} $\inftynorm{x^{(i)}} \leq C$, for some constant $C > 0$ and all points in $S = \{ \ival[i]{x} \}_{i=1}^n \subset \R^d$. Then 
+	\graybox{
+		R_s(\mathcal H)
+			&\leq BC \sqrt{  \frac{2 \log(2d) }{n} } \\
+		R_n(\mathcal H)
+			&\leq BC \sqrt{  \frac{2 \log(2d) }{n} }
+	}
+\end{definition}
+
+\begin{definition}[-1em][Massart's Lemma]
+	Suppose $\mathcal Q \subset \R^n$ is finite and contained in the $\ell_2$-norm ball of radius $M\sqrt{n}$ for some constant $M > 0$. Then 
+	\begin{align}
+		\E[\sigma  \sim \text{Unif}\{\pm 1\}^{n}]{\sup_{q \in \mathcal Q}\inv{n} \langle \sigma, q \rangle }
+			&\leq M \sqrt{ \frac{2 \log |\mathcal Q| }{n} }
+	\end{align}
+	
+\end{definition}
+
+\Needspace{10\baselineskip}
+\begin{definition}[-1em][Two-Layer Neural Networks]
+	\blue{Weak Bound}. For some constants $\mblue{B_w} > 0$ and $\mblue{B_u} > 0$, let \marginnote{$$w \in \R^m$$ $$U \in \R^{m \times d}$$}
+	\begin{align}
+		\mathcal H = \{  f_{\theta}: x \mapsto \langle w , \phi(Ux) \rangle \mid \norm{w} \leq \mblue{B_w}, \norm{\vec[i]{u}} \leq \mblue{B_u}  \forall i \in \{1, 2, \ldots, m \}
+	\end{align}
+	and suppose $\E{ \norm{x}^2 } \leq \mpink{C}^2$. Then
+	\graybox{
+		R_n(\mathcal H) \leq 2 \mblue{B_w} \mblue{B_u} \mpink{C} \sqrt{ \frac{m}{n} }
+	}
+
+	\vspace*{1em}
+	\blue{Strong Bound}. Let $C(\theta) = \sum_{j=1}^m |w_j| \norm{u_j}$. Restrict $\mathcal H$ from above to satisfy $C(\theta) \leq B$ for some constant $\mblue{B} > 0$. \red{Assume} $\norm{x^{(i)}} \leq \mpink{C}$ for all $i \in \{1, \ldots, n\}$. Then 
+	\graybox{
+		R_S(\mathcal H) \leq 2\frac{\mblue B \mpink C}{\sqrt n}
+	}
+\end{definition}
+
+
+
+
+
+
+
+
+\lecture{Summaries}{Nonconvex Optimization}{October 30, 2021}
+
+
+\begin{definition}[-1em][Local Minimum of a Function]
+	We say that $x$ is a \green{local minimum} of a function $f$ if there exists an open neighborhood $N$ around $x$ such that in $N$, the function values are at least $f(x)$. 
+\end{definition}
+
+\begin{itemdefinition}[-1em]{Strict-Saddle Condition}{
+	For \textbf{positive} $\mred \alpha, \mgreen \beta, \mblue \gamma$, we say that $f: \R^d \to \R$ is $(\mred \alpha, \mgreen \beta, \mblue \gamma)$-strict-saddle if $\forall x \in \R^d$, at least one of the following is true:}
+	
+	\item $\norm{ \nabla f(x) } \geq \mred \alpha$ 
+	
+	\item $\lambda_{\text{min} }\lr{ \nabla^2 f\lr{x} } \leq - \mgreen \beta$
+	
+	\item $\min_{x^*}\norm{x - x^*} \leq \mblue \gamma$, where $x^*$ is a local minimum. 
+\end{itemdefinition}
+
+\begin{definition}[-1em][Strict-Saddle Convergence]
+	Suppose $f$ is a function that satisfies the following condition: 
+	
+	\begin{quote}
+	$(\exists \epsilon_0, \tau_0, c > 0)$ such that if $x \in \R^d$ satisfies $\norm{\nabla f(x)} \leq \epsilon < \epsilon_0$ and $\nabla^2 f(x) \succeq - \tau_0 I$, then $x$ is $\epsilon^c$-close to a \textbf{global minimum} of $f$. 
+	\end{quote}
+	
+	Then many optimizers can converge to a \textbf{global minimum }of $f$ up to $\delta$-error in Euclidean distance in time $\text{poly}\lr{\inv \delta, \inv \tau_0, d}$. 
+
+	\red{TODO} figure out if $A \succeq B$ means elemwise $\geq$ or if it means $(A - B)$ is psd. 
+\end{definition}
+
+
+\begin{example}[PCA / Matrix Factorization / Linearized NN]
+	Let $M \in \R^{d \times d}$ be symmetric and psd. We want to find the best rank-1 approximation of the matrix $M$. The \textbf{non-convex} objective is
+	\begin{align}
+		\min_{x \in \R^d} g(x)
+			&\triangleq \onehalf ||M - xx^T||_F^2 \label{eq:pca-g}
+	\end{align}
+
+	\begin{definition}[-1em][Theorem 8.7]
+		All local minima of $g$ are global minima (even though $g$ is non-convex). 
+	\end{definition}
+
+	\textbf{Proof}:
+	\begin{compactenum}
+		\item Show that all stationary points must be eigenvectors of $M$. 
+		\begin{compactenum}
+			\item $\nabla g(x) = - 2 (M - xx^T) x$ (from HW0\footnote{Approach is to expand $g(x + \delta)$ and exploit properties of Frobenius norm, like $||A||_F^2 = tr(A^T A)$.})
+			
+			\item \begin{align} 
+					\nabla g(x) = 0 \implies Mx = ||x||_2^2 x \label{eq:pca-eigvals} 
+				\end{align}
+			
+			\item Therefore, for all stationary points $x$, we have that $x$ is an eigenvector of $M$ with eigenvalue $||x||_2^2$. 
+		\end{compactenum}
+		
+		\item Show that all local minima must be eigenvectors [of $M$] of the largest eigenvalue. 
+		\begin{compactenum}
+			\item We now also require $\nabla^2 g(x) \succeq 0$. 
+			
+			\item To obtain the expression for $\langle v \nabla^2 g(x) v \rangle$, expand out $g(x + v)$ and collect terms that are quadratic in $v$, to obtain:
+			\begin{align}
+				\langle v, \nabla^2 g(x) v \rangle
+					&= 2 \langle x, v \rangle^2 + \norm{x}^2 \norm{v}^2 - v^T M v \label{eq:pca-hessian}
+			\end{align}
+		
+			\item Recall that we know from step 1 that $x$ is an eigenvector of $M$. Furthermore, since \ref{eq:pca-hessian} must hold for all $v \in \R^d$, then it must hold for the eigenvector $v_1$ with largest eigenvalue $\lambda_1$. In other words, for any local minimum $x$, the following must be true:
+			\begin{align}
+				2 \langle x, v_1 \rangle^2 + \norm{x}^2 \norm{v_1}^2 - v_1^T M v_1 \geq 0 \label{eq:pca-hessian-psd}
+			\end{align}
+			We then have two cases to consider:
+			\begin{compactenum}
+				\item $x$ has eigenvalue $\lambda_1$. Then, by the \green{Eckart-Young-Mirsky Theorem}, $x$ is a \textit{global} minimum. 
+				
+				\item $x$ has eigenvalue $\lambda < \lambda_1$.  Remember that $\lambda = ||x||_2^2$.(eq \ref{eq:pca-eigvals}). Then $\langle x, v_1 \rangle = 0$, and \ref{eq:pca-hessian-psd} says
+				\begin{align}
+					- \lambda_1 + \lambda \geq 0 \implies \lambda \geq \lambda_1
+				\end{align}
+			  which is a contradiction, since we know that $\lambda_1 > \lambda$. 
+			\end{compactenum}
+		
+			\item Therefore, if a stationary point $x$ also satisfies $\nabla^2 g(x) \succeq 0$, then $x$ is an eigenvector of $M$ with the largest eigenvalue. 
+		\end{compactenum}
+	
+		\item Since all local minima are eigenvectors of $M$ with the largest eigenvalue, by the Eckart-Young-Mirsky Theorem, \textbf{all local minima are global minima}. 
+	\end{compactenum}
+\end{example}
+
+\begin{example}[Matrix Completion]
+	We consider rank-1 matrix completion. Let $M = zz^T$ be a rank-1 symmetric and psd matrix for some $z \in \R^d$ with $\norm{z} = 1$.  Also assume that the ground truth vector $z$ satisfies the \green{incoherence condition}, $\inftynorm{z} \leq \frac{\mu}{\sqrt d}$ for some constant $\mu$. Given random entries of $M$, taken by zeroing out each entry with probability $p$, our goal is to recover the rest of the entries\footnote{Note that $d$ parameters are needed to fully identify/specify an arbitrary rank-1 matrix. The number of expected observed entries is $pd^2$, so we \red{assume} here that $p \gg \inv{d}$.} \\
+
+	Let $\Omega \in [d] \times [d]$ denote the set of indices of $M$ that we observe, and let $P_{\Omega}(M)$ denote the matrix $M$ with  all entries outside of $\Omega$ set to zero. Our objective function is\footnote{It's important to always keep in mind our running assumption that the structure of $M$ is such that $M = zz^T$ for some $z \in \R^d$.}
+	\begin{align}
+		\min_{x \in \R^d} f(x) \triangleq 
+			\onehalf || P_{\Omega}\lr{M - xx^T} ||_F^2 \label{eq:matrix-completion}
+	\end{align}
+
+	\begin{definition}[-1em][Theorem 8.14]
+		\red{Assume} $p = \frac{\text{poly}\lr{\mu , \log d}}{\epsilon^2 d}$ for sufficiently small constant $\epsilon$ and $z$ is incoherent. Then w.h.p. all local minima of $f$ (eq \ref{eq:matrix-completion}) are $O(\sqrt{\epsilon})$-close to $\pm z$ (the global minima of $f$). 
+	\end{definition}
+
+	\begin{definition}[-1em][Lemma 8.17]
+	\red{Assume} $p = \frac{\text{poly}\lr{\mu , \log d}}{\epsilon^2 d}$ for sufficiently small constant $\epsilon > 0$. For any two matrices $A = uu^T$ and $B = vv^T$,  for some $u$ and $v$ both satisfying $|| \cdot ||_2 \leq 1$ and $\inftynorm{\cdot} \leq \mu / \sqrt{d}$, we have 
+	\begin{align}
+		\left|  \inv{p} \langle P_{\Omega}(A), B \rangle - \langle A, B \rangle  \right| ~\leq~ \epsilon
+		\qquad (w.h.p)
+	\end{align}
+\end{definition}
+
+
+In all that follows,  $f$ denotes \ref{eq:matrix-completion}, and $g$ denotes \ref{eq:pca-g}. 
+
+\begin{definition}[-3em][Lemma 8.18]
+	\begin{align}
+			\nabla g(x) = 0 ~\implies~ \langle x, z \rangle^2 = \norm{x}^4
+\end{align}
+\end{definition}
+
+\begin{definition}[-1em][Lemma 8.19]
+	\red{Assume} $\inftynorm{x} \leq 2\mu / \sqrt{d}$. 
+	\begin{align}
+		\nabla f(x) = 0 ~\implies~ \langle x, z \rangle^2 \geq \norm{x}^4 - \epsilon \qquad (w.h.p.)
+	\end{align}
+\end{definition}
+
+\begin{definition}[-3em][Lemma 8.20]
+	\begin{align}
+		\nabla^2 g(x) \succeq 0 ~\implies~ \norm{x}^2 \geq \inv{3}
+	\end{align}
+\end{definition}
+
+\begin{definition}[-1em][Lemma 8.21]
+	\red{Assume} $\inftynorm{x} \leq \mu / \sqrt{d}$. 
+	\begin{align}
+		\nabla^2 f(x) \succeq 0 ~\implies~ \norm{x}^2 \geq \inv{3} - \frac{\epsilon}{3} \qquad (w.h.p.)
+	\end{align}
+\end{definition}
+
+\begin{definition}[-1em][Lemma 8.22]
+	All local minima of $g$ are global minima. 
+\end{definition}
+
+
+
+	
+\end{example}
+
+
+
+
+
+
+\lecture{Summaries}{Neural Tangent Kernel}{November 09, 2021}
+
+\bluesec{Motivation}. For a given initialization $\theta^0 \in \R^p$, denote by $B(\theta^0)$ the neighborhood around $\theta^0$ for which the loss function is convex and its \textit{global} minimum is attained. Notably, we are \red{assuming} that $\forall (x, y)$, there exists $\theta^* \in B(\theta^0)$ such that $y = f_{\theta^*}(x)$ exactly, where $f_{\theta}: \R^d \mapsto \R$ is our parametric model. We can approximate $f$ with a Taylor expansion around $\theta^0$:\marginnote{$\phi(x) \triangleq \nabla_{\theta} f_{\theta^0}(x)$}[5em]
+\begin{align}
+	f_{\theta}(x)
+		&= \underbrace{f_{\theta^0}(x)  + \langle \nabla_{\theta} f_{\theta^0}(x), \theta - \theta^0 \rangle  }_{\triangleq \mgreen{ g_{\theta}(x)}} + \text{ higher order terms } \\
+	\hat L(g_{\theta})
+		&= \inv{n} \insum \lr{ y^{(i)} - \phi(\ival[i]{x})^\top \Delta \theta }^2 = \inv{n} \norm{\vec y - \matr\Phi \cdot \Delta\theta}^2
+\end{align}
+
+WLOG, \red{assume} we choose our initial $\theta^0$ such that $f_{\theta^0}(x) = 0$ $\forall x$. In this case, and ignoring higher-order terms, 
+\begin{align}
+	f_{\theta}(x)
+		&\approx  \langle \nabla_{\theta} f_{\theta^0}(x), \theta^{*} - \theta^0 \rangle  \\
+	\underbrace{ \ell(f_{\theta}(x), y) }_{\text{not necessarily convex}}
+		&\approx \underbrace{ \ell(g_{\theta}(x), y) }_{\text{convex}}
+\end{align}
+assuming our loss function $\ell$ is convex\footnote{Recall that any convex function composed with a linear function is still convex.}. We see that $y$ can be approximated as a linear function of the difference between the global optimum $\theta^*$ and initialization $\theta^0$, with coefficients $\mgreen{\phi(x) \triangleq \nabla_{\theta} f_{\theta^0}(x)}$. The \green{neural tangent kernel} $K$ is given by 
+\graybox{
+	K(x, x') 
+		&= 	\langle \phi(x), \phi(x') \rangle 
+		= \langle \nabla_{\theta} f_{\theta^0}(x),  \nabla_{\theta}f_{\theta^0}(x') \rangle 
+}
+
+\Needspace{15\baselineskip}
+Henceforth, we will also \red{assume} that $y^{(i)} = O(1)$ and $\norm{\vec y} = O(\sqrt{n})$. 
+
+\begin{definition}[-1em][Lemma 8.25: It suffices to optimize in $B_{\theta^0}$]
+	\red{Assume} the following: 
+	\begin{compactitem}
+		\item $p \geq n$
+		\item $\text{rank}(\matr\Phi) = \mpurple n$ 
+		\item $\sigma_{\text{min}}(\matr\Phi) = \morange{\sigma} > 0$
+	\end{compactitem}
+
+	Then, letting $\Delta \hat\theta$ denote the minimum norm solution of $\matr \Phi \vec v = \vec y$\footnote{In other words, $\Delta\hat\theta$ is the smallest vector $\vec v$ satisfying $\matr\Phi \vec v = \vec y$.}, we have 
+	\graybox{
+		\norm{\Delta\hat\theta} \leq O\lr{ \frac{\sqrt{\mpurple n}}{\morange{\sigma}} }
+	}
+
+	\textbf{Remark 8.26}. Note that this essentially characterizes how large the ball $B_{\theta^0}$ must be in order to contain a global minimum, where
+	\begin{align}
+		B_{\theta^0} = \{ \theta = \theta^0 + \Delta\theta : \norm{\Delta\theta} \leq   O\lr{ \frac{\sqrt{\mpurple n}}{\morange{\sigma}} }  \}
+	\end{align}
+
+	\begin{example}[Proof]
+		Note that $\Delta\hat\theta = \matr\Phi^{+} \vec y $, and $\norm[op]{\matr\Phi^+} = \inv{\sigma_{min}(\matr\Phi)} = \inv{\sigma}$. Then
+		\begin{align}
+			\norm{\Delta\hat\theta}
+				&= \norm{\matr\Phi^{+} \vec y} \\
+				&\leq \norm[op]{\matr\Phi^{+}} \norm{\vec y} \quad \mtblue{\tiny By def of op norm} \\
+				&\leq O\lr{ \frac{\sqrt{n}}{\sigma} } \quad \mtblue{\tiny $\norm{\vec y} \leq O(\sqrt n)$}
+		\end{align}
+	\end{example}
+
+\end{definition}
+
+
+\begin{definition}[-1em][Lemma 8.28: $\forall \theta \in B(\theta^0)$, $f_{\theta} \approx g_{\theta}$ and $\hat L(f_{\theta}) \approx \hat L(g_{\theta})$]
+	\red{Assume} $\nabla_{\theta} f_{\theta}(x)$ is $\mpink \beta$-Lipschitz in $\theta$, i.e. $\forall x, \theta, \theta'$:
+	\begin{align}
+		\norm{  \nabla_{\theta} f_{\theta}(x) - \nabla_{\theta} f_{\theta'}(x)  } \leq\mpink \beta \cdot \norm{\theta - \theta'}
+	\end{align}
+
+	NB: the above is equivalent to the statement $\norm[op]{\nabla^2_{\theta} f_{\theta}} \leq \mpink\beta$ if $f_{\theta}$ is twice-differentiable.
+
+	Then $\forall \theta$
+	\graybox{
+		(\forall \theta) \quad	|f_{\theta}(x) - g_{\theta}(x) | &  \leq O\lr{ \mpink \beta \norm{\Delta\theta}^2 } \\
+		(\forall \theta \in B_{\theta^0})		|f_{\theta}(x) - g_{\theta}(x) | &\leq O\lr{ \frac{\mpink\beta\mpurple n}{\morange{\sigma}^2} }
+	}
+	where $\Delta\theta = \theta - \theta^0$. 
+\end{definition}
+
+
+\bluesec{The NTK Regime}. The \green{NTK regime} refers to the situation where $\mpink\beta /\morange{\sigma}^2 \to 0$. The following are two such examples:
+\begin{compactenum}
+	\item \textbf{Reparameterize with a scalar}. Let $f_{\theta} = \alpha \bar{f}_{\theta}$ for arbitrary neural net $\bar{f}$ with fixed width and depth. Then
+	\begin{align}
+		\frac{\beta}{\sigma^2} = \frac{\bar\beta}{\bar\sigma^2} \inv{\alpha} ~\to~ 0 \qquad\text{as }   \alpha \to \infty
+	\end{align}
+
+	\item \textbf{Overparametrization} (with specific initialization). Consider a two-layer network with $m$ neurons:\marginnote{
+		$$|\sigma(x) - \sigma(x')| \leq \norm{x - x'}$$
+		$$a_i \sim \{\pm 1\}$$
+		$$W \in \R^{m \times d}$$
+		$$w_i^0 \sim \Gauss{0, I_d}$$
+		$$\norm{x} = \Theta(1)$$
+		$$ \theta \equiv \text{vec}(W) \in \R^{dm}$$
+	}[2em]
+	\begin{align}
+		\hat y = \inv{\sqrt m} \imsum a_i \sigma(w_i^\top x)
+	\end{align}
+	where the $a_i \sim \{\pm 1\}$ are constants (not optimized). The following is a condensed derivation for the behavior of $\beta/\sigma^2$ in the infinite width limit ($m \to \infty$):
+	\begin{compactenum}
+		\item Key initial observations:
+		\begin{align}
+			\sigma(w_i^{0^\top} x) &= O(1) \\
+			\left| \imsum a_i \sigma(w_i^{0^\top} x) \right|
+				&= \Theta(\sqrt{m}) \\
+			f_{\theta^0}(x) &= \Theta(1)
+		\end{align}
+		
+		\item Show that overall \textit{scale} of the gradients doesn't depend on $m$ in the limit $m \to \infty$. 
+		\begin{align}
+			\norm{\nabla_{\theta} f_{\theta}(x)}^2 
+				&= \inv{m} \imsum \norm{\sigma'(\vec[i]{w}^T x)}^2 \\
+			\lim_{m \to \infty} \norm{\nabla_{\theta} f_{\theta}(x)}^2 
+				&= \E[w \sim \Gauss{0, I_d}]{\sigma'\lr{w^\top x}^2} \cdot \norm{x}^2 \\
+				&= O(1)
+		\end{align}
+	
+		\item Note that\footnote{Yes, we are overloading $\sigma$ here. It should be clear from context whether we're referring to the activation function $\sigma$ or the smallest singular value $\sigma_{\min}(\Phi)$.} $\sigma_{\min}(\Phi) = \sqrt{\sigma_{\min}(\Phi \Phi^\top)}$. The NTK in the infinite width limit:
+		\begin{align}
+			\lr{\Phi \Phi^\top}_{i, j}
+				&= \innerprod{ \ntknabla{\ival[i]{x}} }{ \ntknabla{\ival[j]{x}} } \\
+			K^{\infty} \triangleq \lim_{m \to \infty} 	\lr{\Phi \Phi^\top}_{i, j}
+				&=  \E[w \sim \Gauss{0, I_d}]{  \sigma'\lr{w^\top \ival[i]{x}} \sigma'\lr{w^\top \ival[j]{x}} } \innerprod{\ival[i]{x}}{\ival[j]{x}}
+		\end{align}
+	
+		\item It can be shown that $K^{\infty}$ is full rank, and that
+		\begin{align}
+			\sigma_{\min}\lr{ \Phi \Phi^\top } > \onehalf \sigma_{\min}(K^{\infty}) > 0
+		\end{align}
+		From this and the definition of $K^{\infty}$, then, $\sigma$ is constant in the infinite width limit. 
+		
+		\item Next we need to find $\beta$, the Lipschitzness of the gradients. 
+		\begin{align}
+			\norm{\nabla_{\theta}f_{\theta}(x)  - \nabla_{\theta}f_{\theta'}(x) }^2	
+				&= O\lr{\inv m \norm{\theta - \theta'}^2} \\
+			\implies \beta
+				&= O(\inv{\sqrt m})
+		\end{align}
+	
+		\item We now arrive at our final result
+		\begin{align}
+			\lim_{m \to \infty} \frac{\mpink \beta}{\morange \sigma^2}	
+				\approx \lim_{m \to \infty}  \inv{\sqrt{m}} \inv{\sigma_{\min}(K^{\infty})^2} 
+				= 0
+		\end{align}
+		Which says that the gradient becomes more smooth (smaller $\beta$) as we increase the number of neurons. It also says that our linear approximation $g_{\theta}(x) \to f_{\theta}(x)$ in the infinite width limit. 
+	\end{compactenum}
+\end{compactenum}
+
+
+\bluesec{Optimizing $\hat L(g_{\theta})$ vs. $\hat L(f_{\theta})$}. Here we show that optimizing $\hat L(f_{\theta})$ amounts to optimizing $\hat L(g_{\theta})$ inside the ball $B(\theta^0)$. First, denote by $g_{\theta}^t(x)$ the Taylor expansion of $f_{\theta}$ around $\theta^t$ (the value of $\theta$ at timestep $t$)\footnote{In this notation, so far we've been working with $g^0_{\theta}(x)$.}\footnote{Note that we are using really sloppy notation:
+	\begin{align}
+	\nabla_{\theta} f_{\theta^t}(x) 
+		&\equiv \nabla_{\theta} f_{\theta}(x) \bigg|_{\theta = \theta^t} \\
+	\nabla \hat L (f_{\theta^t}) 
+		&\equiv \nabla_{\theta} \hat L(f_{\theta}) \bigg|_{\theta=\theta^t}
+	\end{align}
+}
+
+\begin{align}
+	g_{\theta}^t(x)
+		&\triangleq f_{\theta^t}(x) + \innerprod{\nabla_{\theta} f_{\theta^t}(x)}{ \theta - \theta^t} \\
+	\nabla \hat L(g_{\theta}^t) \bigg|_{\theta=\theta^t} 
+		&= \nabla \hat L (f_{\theta}) \bigg|_{\theta=\theta^t}
+\end{align}
+
+\red{TODO}
+
+
+
+
+
+
+
+
+
+\lecture{Summaries}{Implicit/Algorithmic Regularization Effect}{Nov 12, 2021}
+
+
+\bluesec{Overparametrized Linear Regression} (d > n). \red{Assume} $X \in \R^{n \times d}$ is full rank. 
+
+\begin{align}
+	\hat L(\beta) 
+		&= \onehalf \norm{y - X \beta}^2
+\end{align}
+
+\begin{definition}[-1em][Lemma 9.1]
+	$\beta$ is a global minimizer of $\hat L$ iff $\beta = X^{+}y + \zeta$ for some $\zeta$ such that $\zeta \perp x_1, \ldots, x_n$. \\
+	
+	\textbf{Corollary 9.2}. The minimum norm solution is $\beta^* = X^{+} y$. 
+\end{definition}
+
+\begin{definition}[-1em][Theorem 9.3]
+	Suppose GD on $\hat L(\beta)$ with $\beta^0 = 0$ converges to $\hat \beta$ s.t. $\hat L(\hat \beta) = 0$. Then $\hat \beta = \beta^*$. 
+\end{definition}
+
+And thus we see an ``implicit regularization'' effect of gradient descent on overparametrized linear regression, in that it converges to the minimum-norm solution $\beta^*$. 
+
+\bluesec{Algorithmic Regularization in Non-Linear Models}. Now, instead of $X\beta$, let $f_{\beta} := \innerprod{\beta \odot \beta}{x}$, where $\odot$ is the Hadamard (aka elementwise) product, and\marginnote{$$\ival[i]{x} \overset{iid}{\sim} \Gauss{0, I_d}$$}
+\begin{align}
+	\hat L(\beta) &:= \inv{4n} \insum \lr{\ival[i]{y} - f_{\beta}(\ival[i]{x})}^2
+\end{align}
+where the ground truth $\ival[i]{y} = f_{\beta^*}(\ival[i]{x})$ is $r$-sparse ($\norm[0]{\beta^*} = r$). For simplicity, \red{assume} $\beta_i^* = \ind{i \in S}$ for some $S \subset [d]$ such that $|S| = r$ \footnote{aka exactly $r$ elements equal to 1, all others equal to 0.} , and that $n \geq \widetilde\Omega(r^2)$. 
+
+
+
+
+
+
+
+
+
+
+
+
+\lecture{Summaries}{Important Inequalities and Theorems}{October 30, 2021}
+
+Here I list the key theorems/facts/etc that we repeatedly use throughout the course. 
+
+\begin{definition}[-1em][Miscellaneous Norm Inequalities]
+	\begin{align}
+		\norm{x}
+			&\leq \norm[1]{x} \leq \sqrt{n} \norm{x} \\
+		\inftynorm{x} 
+			&\leq \norm{x} \leq \sqrt{n}\inftynorm{x} \\
+		\inftynorm{x} 
+			&\leq \norm[1]{x} \leq n \inftynorm{x} \\
+	\end{align}
+\end{definition}
+
+\begin{definition}[-1em][Convex Function]
+	A function $f : \R^n \to \R$ that has convex $\text{dom}(f) \subseteq \R^n$ is called a \green{convex function} iff
+	\graybox{
+		f(\alpha x + (1 - \alpha) y ) 
+			&\leq \alpha f(x) + (1   - \alpha) f(y)
+	}
+
+	If $f$ is differentiable on $\R^n$, then the following statements are equivalent:
+	\begin{compactitem}
+		\item $f$ is a convex function 
+		
+		\item $f(y) \geq f(x) + \innerprod{\nabla f(x)}{y - x}$ $(\forall x, y \in \R^n)$ 
+		
+		\item $\innerprod{\nabla f(x) - \nabla f(y)}{x - y} \geq 0$ $(\forall x, y \in \R^n)$
+	\end{compactitem}
+
+	
+\end{definition}
+
+\begin{definition}[-1em][Cauchy-Schwarz Inequality]
+	\graybox{
+		|\langle \vec u, \vec v \rangle |^2 \leq \langle \vec u, \vec u \rangle \cdot \langle \vec v, \vec v \rangle
+	}
+\end{definition}
+
+\begin{definition}[-1em][Jensen's Inequality]
+	For any convex function $\phi$,
+	\graybox{
+		\phi\lr{ \E{X} } \leq \E{\phi(X)}
+	}
+\end{definition}
+
+\begin{definition}[-1em][Holder's Inequality]
+	For integers $p, q$ in the \textit{open} interval $(1, \infty)$ with $\inv{p} + \inv{q} = 1$:
+	\graybox{
+		|\langle x, y \rangle |
+			&\leq \lr{ \insum |x_i|^p   }^{\inv{p}}  \lr{ \jnsum |y_j|^q }^{\inv{q}} \\
+		\E{|XY|}
+			&\leq \lr{ \E{|X|^p} }^{\inv p} \lr{  \E{|Y|}^q }^{\inv{q}}
+	}
+\end{definition}
+
+
+\Needspace{15\baselineskip}
+\begin{definition}[-1em][Spectral Decomposition]
+	If $A$ is a symmetric matrix that is orthogonally diagonalized by $\matr P = \begin{bmatrix} \vec[1]{u} & \ldots & \vec[n]{u} \end{bmatrix}$, where the $\vec[i]{u}$ are unit eigenvectors, and let $\matr D = \text{diag}\lr{\vec \lambda}$. Then 
+	\begin{align}
+		\matr A = \matr P \matr D \matr{P}^T = \sum_i \lambda_i \vec[i]{u} \vec[i]{u}^T
+	\end{align}
+\end{definition}
+
+\begin{definition}[-1em][Polar Decomposition]
+	Suppose $T \in \mathcal L(V)$. Then there exists an isometry $S \in \mathcal L(V)$ such that $T = S \sqrt{T^* T}$. 
+\end{definition}
+
+\begin{definition}[-1em][Singular Value Decomposition]
+	Suppose $T \in \mathcal L(V)$ has singular values $s_1, \ldots, s_n$. Then there exists orthonormal bases $e_1, \ldots e_n$ and $f_1, \ldots, f_n$ of $V$ such that 
+	\begin{align}
+		Tv = s_1 \langle v, e_1 \rangle f_1 + \cdots + s_n \langle v, e_n \rangle f_n
+	\end{align}
+\end{definition}
+
+
+\bluesec{Theorems}.
+
+\begin{definition}[-1em][Spectral Theorem]
+	Suppose $T \in \mathcal L(V)$. Then the following are equivalent:
+	\begin{compactitem}
+		\item T is self-adjoint
+		\item $V$ has an orthonormal basis consisting of eigenvectors of $T$
+		\item $T$ has a diagonal matrix wrt some orthonormal basis of $V$
+	\end{compactitem}
+\end{definition}
+
+
+\bluesec{Basic Definitions and Terminology}. 
+
+\begin{definition}[-1em][Adjoint]
+	Suppose $T \in \mathcal L(V, W)$. The \green{adjoint} of $T$ is the function $T^* : W \to V$ such that 
+	\begin{align}
+		\langle Tv, w \rangle = \langle v, T^* w \rangle 
+	\end{align}
+\end{definition}
+
+\begin{definition}[-1em][Isometry]
+	An operator $S \in \mathcal L(V)$ is called an \green{isometry} if $\norm{Sv} = \norm{v}$ $\forall v \in V$. 
+\end{definition}
+
+\begin{definition}[-1em][Singular Values]
+	Suppose $T \in \mathcal L(V)$. The \green{singular values} of $T$ are the eigenvalues of $\sqrt{T^* T}$, with each eigenvalue $\lambda$ repeated dim $E(\lambda, \sqrt{T^* T})$ times. 
+	
+	Recall that $E(\lambda, T) = \text{null}(T - \lambda I)$ denotes the eigenspace of $T$ corresponding to $\lambda$. 
+\end{definition}
+
+\Needspace{15\baselineskip}
+\begin{definition}[-1em][Characterization of Positive Semi-Definite Operators]
+	Let $T \in \mathcal L(V)$. Then the following are equivalent:
+	\begin{compactitem}
+		\item T is psd
+		\item T is self-adjoint and all $\lambda \geq 0$
+		\item T has a [unique] psd square root (some $R$ st $R^2 = T$)
+		\item T has a self-adjoint square root
+		\item $\exists R \in \mathcal L(V)$ st $T = R^*R$. 
+	\end{compactitem}
+\end{definition}
+
+
+\begin{definition}[-1em][Operator Norm]
+	Let $T \in \mathcal L(V)$ be a linear operator on a normed vector space $V$ with some norm $|| \cdot ||$. The \green{operator norm} of $T$, denoted $\norm[op]{T}$, is
+	\begin{align}
+		\norm[op]{T}
+		&\triangleq \sup_{||v|| = 1} ||Av||
+	\end{align}
+	
+	Note that, if $\hat \sigma, \sigma$, denote the smallest and largest singular values of $T$, respectively, then
+	\begin{align}
+		\hat \sigma ||v || \leq \norm[op]{T} \leq \sigma || v|| \qquad \forall v \in V
+	\end{align}
+\end{definition}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% ==================================================================================
+% Papers
+% ==================================================================================
+\mysection{Papers}\label{Papers}
+
+
+
+
+
+
+\lecture{Papers}{Deep Learning without Poor Local Minima}{October 30, 2021}
+
+\citepaper{Kenji Kawaguchi}{Deep Learning without Poor Local Minima}{MIT}{Dec 2016}
+
+\begin{example}[Linear Regression Review]
+\begin{align}
+	\vec{\hat y} &= X\vec w \\
+	L(\vec w) &= \onehalf || X\vec w - \vec y ||_2^2 \\
+	\nabla L(\vec w)
+		&= \insum (\vec{w}^T \ivec[i]{x} - y_i) \ivec[i]{x} = X^T (X\vec w - \vec y) \\
+	\nabla L(\vec w)
+		&= 0 \\
+		&\implies \vec{w}^* = (X^T X)^{-1} X^T \vec y
+\end{align}
+Note that we rely on $X^T X$ being invertible. One way to ensure this is to ensure that the$p$ columns of $X$ are linearly independent (i.e. $X$ has full column rank). If so, then $X^T X$ is a diagonal matrix with strictly positive elements (check this) and thus is positive definite. Since any p.d. matrix is invertible\footnote{Nearly trivial to prove: assume the matrix $A$ is \textit{not} invertible. Then, by definition $\exists x \neq 0$ s.t. $A x = 0$.  This means that $x$ is an eigenvector with eigenvalue $0$. This is a contradiction, since $A$ is positive definite. Therefore, $A$ must be invertible.}, $X^T X$ must be invertible when $X$ is full column rank. 
+\end{example}
+
+\bluesec{Model and Notation} (2.1). 
+\begin{compactitem}
+	\item $H$: number of hidden layers. 
+	
+	\item $(X, Y) \in (\R^{d_x \times n}, \R^{d_y \times n})$: training dataset of $n$ examples. 
+	
+	\item $\Sigma = Y X^T (X X^T)^{-1} XY^T$. 
+	
+	\item $p = \min \lr{d_H, \ldots, d_1}$ is the smallest width of a hidden layer. 
+	
+	\item $\hat Y = \prod_{i=1}^{H+1} W_i X$ is the output prediction of a deep MLP, with $\hat Y \in \R^{d_y \times n}$. 
+	
+	\item $\mathcal L(W) = \onehalf || \hat Y  - Y ||_F^2$. 
+	
+	
+\end{compactitem}
+
+
+
+
+
+\lecture{Papers}{Neural Tangent Kernel}{November 23, 2021}
+
+\citepaper{Jacot et al.}{Neural Tangent Kernel: Convergence and Generalization in Neural Networks}{Polytechnique}{Feb 2020}
+
+\vspace{-1em}
+\bluesec{Neural Networks} (2). \red{Assume} all parameters are initialized as iid Gaussians $\Gauss{0, 1}$.\marginnote{$$W^{(\ell)} \in \R^{n_\ell \times n_{\ell+ 1}}$$ $$b^{(\ell)} \in \R^{n_{\ell + 1}}$$}
+	\begin{compactitem}
+		\item \green{Function space} $\mathcal F = \{f: \R^{n_0} \to R^{n_L}\}$ 
+		
+		\item \green{ANN realization function} $F^{(L)}: \R^p \to \mathcal F$, where $P = \sum_{\ell = 0}^{L - 1} (n_{\ell} + 1) n_{\ell + 1}$. 
+		
+		\item \green{Input space seminorm}\footnote{A \textit{seminorm} is literally just a norm that doesn't require the usual implication of $||x|| = 0 \implies x = 0$.}\footnote{Wait wtf how could $\norm[p^{in}]{f} = 0$ for any function other than $f(x) \triangleq \vec 0$ $\forall \vec x$?? O wait technically it could true for the identity function over degenerate $p^{in}(x) = \delta(0)$, but that's dumb.}
+		\begin{align}
+			\innerprod{f}{g}_{p^{in}} 
+				&\triangleq \E[x \sim p^{in}]{f(x)^T g(x)}
+		\end{align}
+	
+		\item \green{Empirical distribution}
+		\begin{align}
+			p^{in} 	:= \inv{N} \sum_{i=1}^{N} \delta(\ival[i]{x})
+		\end{align}
+	
+		\item \green{Network function}
+		\begin{align}
+			f_{\theta}(x) 
+				&:= \tilde\alpha^{(L)}(x; \theta) \\
+			\tilde\alpha^{(\ell)}
+				&= \inv{\sqrt{n_{\ell-1}}} W^{(\ell-1)} \alpha^{(\ell-1)}(x; \theta) + \beta b^{(\ell-1)} \\
+				\alpha^{(\ell)}(x; \theta) 
+				&= \sigma\lr{ \tilde \alpha^{(\ell)}(x; \theta) }
+		\end{align}
+	
+		\item \green{Functional cost} $C: \mathcal F \to \R$
+		
+		\item \green{Multi-dimensional kernel} function $K: \R^{n_0} \times \R^{n_0} \to \R^{n_L \times n_L}$\footnote{NB: this is NOT the familiar gram matrix (or anything analogous to it), it is more like a multi-dimensional analogue of what \textit{each element} of the Gram matrix $G_{i,j} \triangleq k(x^{(i)}, x^{(j)})$ represented.} defines bilinear form 
+		\begin{align}
+			\innerprod{f}{g}_K
+				&\triangleq \E[x, x' \sim p^{in}]{f(x)^T K(x, x') g(x')}
+		\end{align}
+		We say $K$ is \textit{positive definite} wrt $\norm[p^{in}]{\cdot}$ if 
+		$$
+			\norm[p^{in}]{f} > 0 \implies \norm[k]{f} > 0
+		$$
+		
+		
+		\item \textbf{Dual of $\mathcal F$} wrt $p^{in}$ is denoted $\mathcal F^*$:
+		\begin{align}
+			\mathcal F^* 	
+				&= \{\mu : \mathcal F \to \R \} \\
+			\text{where} \quad 
+			\mu(f) 
+					&= \innerprod{d}{f}_{p^{in}} \text{ for some } d \in \mathcal F
+		\end{align}
+	\end{compactitem}
+
+
+\bluesec{Condensed Setup/Notation Summary}. 
+\graybox{
+	\mtgreen{[function space]} \quad &\mathcal F 
+	= \{f: \R^{n_0} \to R^{n_L}\} \\
+	\mtgreen{[empirical dist.]} \quad &p^{in} (x)
+	:= \inv{N} \sum_{i=1}^{N} \delta(x - \ival[i]{x}) \\
+	\mtgreen{[network function]} \quad &f_{\theta}(x) 
+	:= \tilde\alpha^{(L)}(x; \theta) \\
+	&\tilde\alpha^{(\ell)}
+	= \inv{\sqrt{n_{\ell-1}}} W^{(\ell-1)} \alpha^{(\ell-1)}(x; \theta) + \beta b^{(\ell-1)} \\
+	&\alpha^{(\ell)}(x; \theta) 
+	= \sigma\lr{ \tilde \alpha^{(\ell)}(x; \theta) } \\
+	\mtgreen{[input seminorm]} \quad & \innerprod{f}{g}_{p^{in}} 
+	\triangleq \E[x \sim p^{in}]{f(x)^T g(x)} \\
+	\mtgreen{[kernel bilinear form]} \quad &\innerprod{f}{g}_K
+	\triangleq \E[x, x' \sim p^{in}]{f(x)^T K(x, x') g(x')} \\
+	\mtgreen{[dual space]} \quad &\mathcal F^* 	
+	= \{\mu: f \to \innerprod{d}{f}_{p^{in}} \mid \forall f \in \mathcal F \} \\
+}
+
+
+\bluesec{Kernel Gradient} (3). Define the map $\Phi_K : \mathcal F^* \to \mathcal F$ as mapping some function $\mu(\cdot) \in \mathcal F^*$ to another function denoted $f_{\mu}(\cdot) \in \mathcal F$\footnote{It will be useful to recall the \green{Riesz Representation Theorem}: \textit{Suppose $V$ is finite-dimensional and $\varphi$ is a linear functional on $V$. Then there exists a \textit{unique} vector $u \in V$ such that  $\varphi(v) = \innerprod{v}{u}$ for every $v \in V$.}}
+\graybox{
+	\Phi_k(\mu)
+		&= f_{\mu} \\
+	\text{s.t.}\quad 
+		f_{\mu,i}(x)
+			&= \mu \lr{  K_{i, \cdot}\lr{x, \cdot} } \\
+			&= \innerprod{d}{K_{i, \cdot}\lr{x, \cdot}}_{p^{in}}
+}
+where we've used the fact that the $i$th row of $K(x, \cdot)$ is a vector in $\R^{n_{L}}$ (i.e. $K_{i, \cdot}(x, \cdot) \in \mathcal F$). Recall that our function cost $C: \mathcal F \to \R$, combined with the empirical definition for $p^{in}$, only depends on the values of any $f \in \mathcal F$ at the $n$ training data points. I'm not sure how to phrase this, but basically the derivative of $C$ is somehow itself a function in $\mathcal F^*$\footnote{My confusion is that, although I have no issue with interpretating the derivative as a function evaluated at each of the $n$ data points, I don't understand how to interpret that returned function, when evaluated, as a scalar value in $\R$.}.  Accordingly, the derivative of $C$ evaluated at some specific $f = f_0$ will  in practice be a vector of $n$ elements, with element $i$ representing the change in $C$ corresponding to a change in $f_0(\ival[i]{x})$. We can interpret that vector (for some reason), as itself a function in $\mathcal F^*$ such that\marginnote{$\pderiv{C(f)}{f} \bigg|_{f \eq f_0} \in \mathcal F^*$}[2em]
+\begin{align}
+	\pderiv{C(f)}{f} \bigg|_{f \eq f_0} 
+		&\triangleq \innerprod{d\big|_{f_0}}{\cdot}_{p^{in}}
+\end{align}
+
+where $d\big|_{f_0} \in \mathcal F$ is the corresponding dual element. The authors denote the above derivative as $\partial^{in}_{f} C \big|_{f_0}$ but I think that's disgusting notation. \\
+
+The \green{kernel gradient}, denoted $\nabla_K C\big|_{f_0} \in \mathcal F$ is defined as\marginnote{$\nabla_K C\big|_{f_0} \in \mathcal F$ }[2em]
+\graybox{
+	\nabla_K C\big|_{f_0}
+		&\triangleq \Phi_K\lr{ \pderiv{C(f)}{f} \bigg|_{f \eq f_0}  } \\
+	\nabla_K C\big|_{f_0}(x)
+		&= \inv{N} \sum_{i=1}^{N} K(x, \ival[i]{x}) d\big|_{f_0}(\ival[i]{x}) \label{eq:kgd-0}
+}
+
+\Needspace{10\baselineskip}
+With a confuse abuse of notation, let $f(t)$ denote a time-dependent function that, for any given time $t$, return a function in $\mathcal F$. We say such a function follows the \green{kernel gradient descent with respect to $K$} if it satisfies the differential equation:
+\graybox{
+	\pderiv{f(t)}{t} 
+		&= - \nabla_K C\big|_{f(t)} \\
+	\pderiv{C(f)}{t}\bigg|_{f = f(t)}
+		&= - \innerprod{d\big|_{f(t)}}{  \nabla_K C\big|_{f(t)}  }_{p^{in}} \label{eq:kgd-1} \\
+		&= - \norm[K]{d\big|_{f(t)}}^2 \label{eq:kgd-2}
+}
+where \ref{eq:kgd-1} is clearly a consequence of some chain-rule-ish thing that I'm having trouble formalizing, and \ref{eq:kgd-2} is by plugging in \ref{eq:kgd-0}\footnote{Note that \ref{eq:kgd-2} makes me want to vomit because it is so misleading: $\norm[K]{\cdot}^2$ is not guaranteed to be positive (!!) (just plug in the definitions to see).} If we assume the kernel $K$ is pd wrt $\norm[p^{in}]{\cdot}$, then \ref{eq:kgd-2} is always negative, aka the cost is strictly decreasing (until it hits a critical point and thus converges). 
+
+\red{TODO:} ok but wtf is the interpretation of $d\big|_{f(t)}$ here?
+
+\bluesec{Random Functions Approximation} (3.1). We can approximate a kernel $K$ by sampling $P$ random functions iid from any distribution on $\mathcal F$, denoted $P_{\mathcal F}$, that satisfies
+\begin{align}
+	\E[f^{(p)} \sim P_{\mathcal F}]{f_k^{(p)}(x) f_{k'}^{(p)}(x')} = K_{k, k'}(x, x')
+\end{align}
+i.e. any distribution whose covariance equals the kernel. We can then define a parameterized linear function $F^{lin}: \R^P \to \mathcal F$ as
+\begin{align}
+	F^{lin}(\theta)
+		&\triangleq f_{\theta}^{lin} \\
+	\text{where} \quad f_{\theta}^{lin}(x)
+		&\triangleq \inv{\sqrt{P}} \sum_{p=1}^{P} \theta_p f^{(p)}(x) \\
+	\pderiv{F^{lin}(\theta)}{\theta_p}
+		&= \inv{\sqrt{P}} \sum_{p'=1}^{P} \pderiv{}{\theta_p} \left[ \theta_{p'} f^{(p')} \right] \\
+		&= \inv{\sqrt{P}} f^{(p)} 
+\end{align}
+
+\begin{myquote}
+OH, ok so the entire point of this sub-section, btw, is to show a simple case where the realization function $F^{L} := F^{lin}$ is \textit{linear} wrt the parameters $\theta$. It's analogous to, instead of having one architecture with trainable weights, you have $p$ \textit{fixed} architectures with random weights, and all you do is train their weighted combination $\sum_p \theta_p f^{(p)}$. In real life, however, the realization function is \textit{not} linear in the parameters. 
+
+Another analogy is freezing all weights except the last layer, where the last layer is a linear layer with no activation.
+\end{myquote}
+
+Now consider the time-evolution of element $\theta_p = \theta_p(t)$ during gradient descent: 
+\begin{align}
+		\pderiv{\theta_p(t)}{t}
+	&= - \pderiv{}{\theta_p} C(F^{lin}(\theta(t))) \\
+	&= - \pderiv{C(f)}{f}\bigg|_{f^{lin}_{\theta}(t)} \pderiv{F^{lin}(\theta)}{\theta_p} \\
+	&= - \inv{\sqrt{P}} \pderiv{C(f)}{f}\bigg|_{f^{lin}_{\theta}(t)}  f^{(p)}  \\
+	&= - \inv{\sqrt P} \innerprod{  d\big|_{f_{\theta(t)}^{lin}}  }{ f^{(p)} }_{p^{in}} \\
+	\pderiv{f}{t} 
+		&= \sum_{p=1}^{P} \pderiv{f}{\theta_p} \pderiv{\theta_p}{t} \\
+		&= - \inv{P} \sum_{p=1}^{P}  \innerprod{  d\big|_{f_{\theta(t)}^{lin}}  }{ f^{(p)} }_{p^{in}} f^{(p)} \\
+		&= - \nabla_{\tilde K}{C} \\
+	\text{where} \quad 
+		\tilde K
+			&\triangleq \inv{P} \sum_{p=1}^{P} f^{(p)} \otimes f^{(p)}
+\end{align}
+where $\tilde K$ is the \green{tangent kernel}. Since the sampled function $f^{(p)}$ are random variables, $\tilde K$ is a random $n_L$-dimensional kernel with values
+\begin{align}
+	\tilde K_{i, i'}(x, x')
+		&= \inv{P} \sum_{p=1}^{P} f_i^{(p)}(x) f^{(p)}_{i'}(x')
+\end{align}
+
+In the limit $P \to \infty$, we have $\widetilde K \to K$. 
+
+
+
+
+
+
+
+
+\lecture{Papers}{NTK Eigenvalues Accurately Predict Generalization}{November 24, 2021}
+
+\citepaper{Simon et al.}{Neural Tangent Kernel Eigenvalues Accurately Predict Generalization}{Redwood Center for Theoretical Neuroscience}{Oct 2021}
+
+\bluesec{Review of the NTK}. Consider $\hat f_{\theta}: \mathcal X \to \R$. One step of gradient descent on training point (x, y) with small learning rate $\eta$\footnote{Never really appreciated how elegant/simple the gradient for MSE loss is: 
+	\begin{myquote}[0.5em]
+		If the prediction $\hat f_{\theta}(x)$ is larger (smaller) than $y$, that means we need to change $\theta$ s.t. $\hat f$ will decrease (increase). Therefore, move in the opposite (same) direction as $\nabla_{\theta} \hat f_{\theta}(x)$. 
+	\end{myquote}}
+\begin{align}
+	\ell_{\theta}(x, y)
+		&\triangleq (\hat f_{\theta}(x) - y)^2 \\
+	\theta
+		&\rightarrow \theta + \delta \theta \\
+	\delta \theta 
+		&= - \eta \nabla_{\theta} \ell_{\theta}(x, y) \\
+		&= -2 \eta (\hat f_{\theta}(x) - y) \nabla_{\theta} \hat f_{\theta}(x)
+\end{align}
+
+We are interested in how much that single update changed the predictions of our network on some test input $x'$:
+\begin{align}
+	\hat f_{\theta + \delta \theta}(x')
+		&= \underbrace{\hat f_{\theta}(x')}_{\text{\tiny original prediction}} 
+			+ \underbrace{ \innerprod{\nabla_{\theta} \hat f_{\theta}(x')}{\delta \theta}}_{\text{\tiny linearized change in pred}} + \mathcal O(\delta \theta^2) \\
+		&= \hat f_{\theta}(x') 
+			- \eta (\hat f_{\theta}(x) - y) \innerprod{\nabla_{\theta} \hat f_{\theta}(x')  }{ \nabla_{\theta} \hat f_{\theta}(x) } + \mathcal O(\delta \theta^2) \\
+		&= \hat f_{\theta}(x) - \eta  (\hat f_{\theta}(x) - y) K(x, x') + \mathcal O(\delta \theta^2) 
+\end{align}
+
+\begin{tiny}
+My interpretation:
+\begin{compactenum}
+	\item The parameter update moved $\theta$ in the direction of steepest descent in the loss landscape \textit{for the given training input $x$}. 
+	
+	\item The prediction of the network on some unseen test $x'$ can be expanded as its prediction before the update plus a term depending on the inn (ok how tf to word this TODO)
+\end{compactenum}
+
+Some weird implications:
+\begin{compactitem}
+	\item If $\innerprod{\nabla_{\theta} \hat f_{\theta}(x')  }{ \nabla_{\theta} \hat f_{\theta}(x) } = 0$, then the \textit{test prediction is unchanged/unaffected} by the weight update. Consider that $\nabla_{\theta} \hat f_{\theta}(x)$ is a vector in the same space as $\theta$. If, for example, $\theta \in \R^p$, then there exists a set of $p-1$ orthonormal vectors $v_i$ that are orthogonal to this direction. In fact, these $p -1$ vectors span a $p-1$ dimensional subspace of $\R^p$ for which, if we had simply set $\delta \theta$ to any vector in that subspace, the prediction on the training point $x$ wouldn't have changed at all. It kind of blows my mind that I hadn't fully realized this until now, that there are a \textit{huge} number of changes to the parameters $\theta$ we can make that won't alter the predictions of the network on a given input $x$. 
+	
+	\item If $\innerprod{\nabla_{\theta} \hat f_{\theta}(x')  }{ \nabla_{\theta} \hat f_{\theta}(x) } = \norm{\nabla_{\theta} \hat f_{\theta}(x')} \norm{\nabla_{\theta} \hat f_{\theta}(x) }$ (i.e. perfectly parallel), that means the test prediction will be changed by the same exact amount as the training prediction was changed as a result of the weight update. A worst-case scenario of catastrophic forgetting would basically be if the ground truth for $x'$ is $-y$, since that means we just updated our weights in the worst possible direction for improving the test prediction on $x'$. Note the even bigger implication is that a ``perfect'' task/distribution for this network is when all inputs $\{\ival[i]{x} \}$ that share the same target $y$ have identical gradients $\nabla_{\theta} \hat f_{\theta}(\ival[i]{x})$, \textit{and} for which any other set of inputs $\{ \ival[j]{x} \}$ that have \textit{different} target values $y$ have orthogonal gradients $\nabla_{\theta} \hat f_{\theta}(\ival[j]{x})$ to the others. 
+\end{compactitem}
+
+\end{tiny}
+
+\bluesec{Figures of Merit of $\hat f$}
+
+First, the inner product we'll be using is defined as 
+\begin{align}
+	\innerprod{f}{g} 
+		&\triangleq \inv{M} \sum_{x \in \mc X} g(x) h(x)
+\end{align}
+\graybox{
+	\mtgreen{[MSE]} \quad 
+		&\mc E^{\mc D}(f) \triangleq \innerprod{f - \hat f}{f - \hat f} 
+		\quad \text{and} \quad
+		\mathcal E(f) \triangleq \E[\mathcal D]{\mathcal E^{\mc D}(f) }  \\
+	\mtgreen{[Orthogonality]} \quad
+		&\red{TODO: wut is this??} \\
+	\mtgreen{[Learnability]} \quad 
+		&\mc L^{\mc D}(f) \triangleq \frac{ \innerprod{f}{\hat f} }{ \innerprod{f}{f}  } 
+		\quad \text{and} \quad 
+		\mc L(f) \triangleq \E[\mc D]{\mc L^{(D)}(f)}
+}
+
+
+
+\bluesec{The Kernel Eigensystem}. NB: authors assume hereafter that $m = 1$ (scalar-output functions). The authors are basically treating the entire input space $\mathcal X$ like we usually do for just the training data. Let $M = |\mathcal X|$ denote the number of possible inputs $x$ to the network.
+
+\Needspace{10\baselineskip}
+\bluesec{Function-Space Perspective}. 
+
+
+By definition, any kernel function $K$ is \textit{symmetric} and \textit{positive-semidefinite}: Recall that the definition of a kernel function $K(x, x')$ is that it must be expressible as $\innerprod{\phi(x)}{\phi(x')}$ for some feature function $\phi: \mc X \to V$ where $V \subseteq \mc X$.
+\begin{scriptsize}
+\begin{compactenum}
+	\item Clearly, this is symmetric wrt the arguments $x,x'$. 
+	\item To show it is psd, notice that from the definition we see we can write $K = \Phi \Phi^\top$ for the matrix $\Phi$ defined as $\Phi_i \equiv \phi(\ival[i]{x})$. Therefore, for any function $f: \mc X \to\R$:
+	\begin{align}
+		\bra{f} K \ket{f}
+		&= \bra{f} \Phi \Phi^\top \ket{f} \\
+		&= \norm{\Phi^\top \ket{f}}^2 
+		\geq 0
+	\end{align}
+\end{compactenum} 
+\end{scriptsize}
+
+Recall that any linear Hermitian operator $H$ has a set of orthonormal eigenfunctions that form a basis for the Hilbert space that the operator acts upon\footnote{Furthermore, $H$ admits a \textbf{spectral decomposition} in this eigenbasis
+\begin{align}
+	H &= \sum_i \lambda_i \ket{\phi_i}\bra{\phi_i} \\
+	\implies \forall \psi \quad 
+	\bra{\psi} H \ket{\psi}
+	&= \sum_i \lambda_i \braket{\psi \mid \phi_i}\braket{\phi_i \mid \psi} = \sum_i \lambda_i \braket{\phi_i \mid \psi}^2
+\end{align}
+which implies that, if $\norm{\psi} = 1$, we have $\bra{\psi} H \ket{\psi} \geq \min_i \lambda_i$. 
+\begin{align}
+	\bra{\phi_j} K \ket{\phi_i}
+	&= \bra{\phi_j} \lr{ \sum_{k} \lambda_k \ket{\phi_k}\bra{\phi_k} } \ket{\phi_i} 
+	= \lambda_i \ket{\phi_i} \qquad \mblue{[\braket{\phi_k \mid \phi_i} = \delta_{k,i}]}
+\end{align}
+}. 
+\begin{align}
+	\innerprod{K(x, \cdot)}{\phi_i}
+		&= \inv{M} \sum_{x' \in \mc X} K(x, x') \phi_i(x') 
+		= \lambda_i \phi_i(x)
+\end{align}
+which is an equivalent way of saying ``$K$ is an operator on functions of $\vec x \in \mc X$ with eigenfunctions $\{\phi_i \}$ s.t. $K\ket{\phi_i} = \lambda_i \ket{\phi_i}$. Next, note that we can express both $f$ and $\hat f$ in the eigenbasis via 
+\begin{align}
+	\ket{f}
+		&= \sum_{i = 1}^{M} v_i \ket{\phi_i} \\
+	\ket{\hat f}
+		&= \sum_{i = 1}^M \hat v_i \ket{\phi_i}
+\end{align}
+It is straightforward to verify/check that $\innerprod{f}{\hat f} = \vec{v}^\top \vec{\hat v}$. Letting $\matr\Phi(\mc D) := \phi_i(\ivec[j]{x})$ denote the $M \times n$ matrix of eigenfunctions evaluated at the $n$ training points. Then we can write/define $K(\mc D, \mc D) = \matr{\Phi}^\top(\mc D) \matr\Lambda \matr{\Phi}(\mc D)$. Plugging this in directly:
+\begin{align}
+	\hat f(x)
+		&= K(x, \mc D) K(\mc D, \mc D)^{-1} f(\mc D) \\
+		&= \begin{bmatrix} \phi_1(x) & \cdots & \phi_M(x) \end{bmatrix}
+		\matr \Lambda \matr\Phi 
+		\lr{\matr{\Phi}^\top(\mc D) \matr\Lambda \matr{\Phi}(\mc D)}^{-1} \matr{\Phi(\mc D)}^\top \vec v \\
+	\innerprod{\phi_i}{f}
+		&\triangleq \inv{M} \sum_{x \in \mc X} \phi_i(x) f(x) \\
+		&= \inv{M} \sum_{x \in \mc X} \sum_{i' = 1}^{M}  \phi_i(x) \phi_{i'}(x) 
+			\lr{ \matr \Lambda \matr\Phi 
+		\lr{\matr{\Phi}^\top(\mc D) \matr\Lambda \matr{\Phi}(\mc D)}^{-1} \matr{\Phi(\mc D)}^\top \vec v }_{i'} \\
+	&= \inv{M} \sum_{x \in \mc X} \sum_{i' = 1}^{M}  \phi_i(x) \phi_{i'}(x)  \lambda_{i'}
+	\lr{ \matr\Phi 
+		\lr{\matr{\Phi}^\top(\mc D) \matr \Lambda \matr{\Phi}(\mc D)}^{-1} \matr{\Phi(\mc D)}^\top \vec v }_{i'} \\
+	&= \sum_{i'}  \lambda_{i'}
+	\lr{ \matr\Phi 
+		\lr{\matr{\Phi}^\top(\mc D) \matr \Lambda \matr{\Phi}(\mc D)}^{-1} \matr{\Phi(\mc D)}^\top \vec v }_{i'} \underbrace{  \inv{M}\sum_{x \in \mc X} \phi_i(x) \phi_{i'}(x)   }_{\delta_{i,i'}} \\
+	&=  \lambda_{i}
+	\lr{ \matr\Phi 
+		\lr{\matr{\Phi}^\top(\mc D) \matr \Lambda  \matr{\Phi}(\mc D)}^{-1} \matr{\Phi(\mc D)}^\top \vec v }_{i} \\
+	&= \lambda_i \underbrace{ \phi_i(\mc D)^\top }_{1 \times n} \underbrace{	\lr{\matr{\Phi}^\top(\mc D) \matr \Lambda  \matr{\Phi}(\mc D)}^{-1} \matr{\Phi(\mc D)}^\top \vec v }_{n \times 1}
+\end{align}
+and therefore
+\graybox{
+	\vec{\hat v}
+		&=  \underbrace{ \matr \Lambda \matr\Phi(\mc D)   \lr{ \matr{\Phi}^\top(\mc D) \matr \Lambda \matr\Phi(\mc D) }^{-1} \matr{\Phi}^\top (\mc D) }_{\triangleq \matr{T}^{(\mc D)}} \vec v 
+}
+where $\matr{T}^{(\mc D)}$ is the \green{learning transfer matrix}. 
+
+\bluesec{Exact Results} (2.4). 
+
+\begin{itemdefinition}{Lemma 1}{}
+	\item[(a)] $\mc L^{\mc D)(\phi_i)} = \matr[ii]{T}^{\mc D}$ and $\mc L(\phi_i) = \matr[ii]{T}$. 
+	\item uh
+	\item[(e)] Let $\mc D_{+} = \mc D \cup x$, where $x \in \mc X$, $x \notin \mc D$ is a new data point. Then $\mc{L}^{\mc D_+} (f) \geq \mc L^{\mc D}(f)$
+\end{itemdefinition}
+
+\begin{example}[Proof Sketch: Property (e) of Lemma 1]
+	\begin{compactenum}
+		\item Rewrite $\matr{T}^{\mc D}$ with $\matr{\Lambda} \rightarrow \matr{\Lambda}^{1/2} \matr{\Lambda}^{1/2}$ and observe it is a bunch of products of the $m \times n$ matrix $\matr A \triangleq \matr\Lambda^{1/2} \matr\Phi$:
+		$$
+		\matr{T}^{\mc D} 
+			= \matr{\Lambda}^{\onehalf} \matr A \lr{\matr A^\top \matr A}^{-1} \matr A^\top \matr{\Lambda}^{\onehalf}
+			= \matr{\Lambda}^{\onehalf} (\matr A \matr A^\top) (\matr A \matr A^\top)^{+}  \matr{\Lambda}^{\onehalf}
+		$$
+		Note that the above implies that the $n \times n$ matrix $\matr A^\top \matr A$ is invertible (a consequence of the fact that $n \leq M$ and $\matr A$ has full column rank), but not necessarily $\matr A \matr A^\top$, hence our use of the pseudoinverse. 
+		
+		\item Notice that the effect of appending one more data point is appending one more column to $\matr \Phi$\footnote{Somehow we know that this additional column will be orthonormal to the others, but I don't see how that is guaranteed. Obvi there exists a column whose values would satisfy it, but I don't see how the column of $\phi_i$ evaluated on the new point $x$ is automatically orthonormal wrt the other columns.}, which we will denote as the $M$-dimensional vector $\xi$. 
+		
+		\item The Sherman-Morrison formula tells us how we can evaluate an inverse of the form $(\matr B + u u^\top)^{-1}$ if $\matr B$ is invertible. Here, we'll set $\matr B := \matr A \matr A^\top + \delta \matr[M]{I}$ and $u := \matr{\Lambda}^{\onehalf} \xi$. Combining this with the limit definition of the pseudoinverse gives us 
+		$$
+		\matr{T}^{\mc D_+}
+			= \matr{T}^{\mc D}
+				+ \lim_{\delta \to 0^+} \delta \frac{ 
+					\minv{B} \xi \xi^\top \minv{B}
+				}{
+			1 + \xi^\top \minv{B} \xi}
+		$$ 	\textellipsis although I'm not entirely sure how the exact derivation works\textellipsis 
+		
+		\item Since 
+		\begin{align}
+			\mc L^{(\mc D_+)}(f) 
+				&\propto \vec v^\top \matr{T}^{(D_+)} \vec v \\
+				&= \mc{L}^{(\mc D)} + \lim_{\delta \to 0^+} \delta \vec v^\top (\cdots) \vec v
+		\end{align}
+		and the matrices inside the $(\cdots)$ are psd, we have the desired result. 
+	\end{compactenum}
+
+
+\end{example}
+
+\bluesec{Deriving a Closed-Form Expression for $\matr T$} (2.5). To motivate the following derivations, recall the resolution of the identity using Dirac notation:
+\begin{align}
+	\matr[M]{I} = \sum_{i = 1}^{M} \ket{\phi_i}\bra{\phi_i} = \matr{\Phi}^\top \matr{\Phi}
+\end{align}
+where it's important to emphasize that, for now, we should interpret the above solely from the perspective of some abstract Hilbert space with some orthonormal basis of eigenfunctions $\phi_i$, and to view $\matr \Phi$ as an associated linear operator. The point is that $\matr \Phi$ is [clearly] a \textit{unitary operator}. Now, if we restrict to the $n$ training points in some dataset $\mc D$, we should observe that things like the above become an \textit{approximation}, e.g. 
+\begin{align}
+	\braket{\phi_i \mid \phi_j} 
+		&\triangleq \inv{M} \sum_{x \in \mc X} \phi_i(x) \phi_j(x) = \delta_{i,j} \\
+		&\approx \inv{n} \sum_{x \in \mc D} \phi_i(x) \phi_j(x) \\
+		&= \phi_i^\top(\mc D) \phi_j(\mc D)
+\end{align}
+
+This motivates re-writing $\matr T \triangleq \E[\mc D]{\matr{T}^{(\mc D)}}$ as 
+\begin{align}
+	\matr T 
+		&= \lim_{n \to \infty} \E[\substack{\matr\Phi \sim \R^{M \times n} \\ \matr{\Phi}^\top \matr{\Phi} = \matr[n]{I}  }]{ \matr\Lambda \matr\Phi \lr{  \matr{\Phi}^\top \matr\Lambda \matr\Phi  }^{-1} \matr{\Phi}^\top   }
+\end{align}
+and thus we can \textit{approximate} $\matr T$ by computing the above expectation for some reasonably large value of $n$. 
+
+
+
+\clearpage 
+
+
+OH JESUS I'M DUMB. $M$ is the dimension of the feature space. We usually call this $P$. But this is a generalization of that from "P features" to "P basis feature functions". 
+
+
+\textbf{Vector-Space Perspective}: \textit{the following is how I interpreted it by converting function stuff into vectors. Have since learned it is probably best to think purely in functional terms, but I think the following perspective is still helpful.} We can think of $K$ as a massive $M \times M$ matrix with values $K(x, x') = \innerprod{\nabla_{\theta} \hat f_{\theta}(x)  }{ \nabla_{\theta} \hat f_{\theta}(x')}$. Since any kernel $K$ is symmetric and psd by definition, this means there exists a set of orthonormal eigenvectors $\phi_i$ such that\footnote{The authors introduce a normalization constant of $\inv{M}$ that I'm omitting for now.}
+\begin{align}
+	K\phi_i = \lambda_i \phi_i 
+\end{align}
+where, again, we are interpreting functions $\phi_i$ as $M$-dimensional vectors with elements $\phi_i(x)$ (assuming some agreed upon ordering over $x \in \mathcal X$). In other words, for some specific $x \in \mathcal X$, this expands/corresponds to:
+\begin{align}
+	\sum_{x' \in \mathcal X} K(x, x') \phi_i(x') = \lambda_i \phi_i(x)
+\end{align}
+\red{TODO}: how do the above equations change when our network outputs an $m$-dimensional vector (instead of a scalar, as assumed above). 
+
+It follows that $K$ has an eigendecomposition 
+\begin{align}
+	K 
+		= \Phi \Lambda \Phi^T 
+		&= \sum_{i = 1}^M \lambda_i \phi_i \phi_i^\top \\
+	\implies K(x_1, x_2) 
+		&= \sum_{i = 1}^M \lambda_i \phi_i(x_1) \phi_i(x_2)
+\end{align}
+where $\Phi$ is an $M \times M$ matrix whose $i$th column is $\phi_i$. If instead we restrict to the training data, denoted $K(\mathcal D, \mathcal D)_{i,j} \triangleq K(x_i, x_j)$ for $x_i, x_j \in \mathcal D$, and $|\mathcal D| = n$, then $\Phi^\top(\mathcal D)_{i,j} = \phi_i(x_j)$. \\
+
+Recall from regular OLS linear regression, in the case where we can assume $X \in \R^{n \times p}$ is full row rank, then $(XX^\top)^{-1}$ exists and
+\begin{align}
+	\hat f &\triangleq X w \\
+	\mtblue{[preds on train set]} \quad 
+		\hat f^* &= XX^\top (XX^\top)^{-1} f(\mathcal D) \\
+	\mtblue{[pred on test point]} \quad 
+		\hat f^*(x) &= x^\top X^\top (XX^\top)^{-1} f(\mathcal D) 
+\end{align}
+If we generalize the simple kernel here $K = XX^\top$ to any symmetric positive-definite $K$, we get \green{kernel regression}:
+\graybox{
+	\hat f(x)
+		&= K(x, \mathcal D) K(\mathcal D, \mathcal D)^{-1} f(\mathcal D)
+}
+
+Since we can also view $f$ and $\hat f$ as themselves being $M$-dimensional vectors\footnote{Since apparently we've still forgotten that $f$ and $\hat f$ should be outputting $m$-dimensional vectors (not scalar)}, we can express $f$ and $\hat f$ in the eigenbasis as
+\begin{align}
+	f(x) 
+		&= \sum_{i=1}^M v_i \phi_i(x) \\
+	\hat f(x)
+		&= \sum_{i=1}^{M} \hat v_i \phi_i(x)
+\end{align}
+
+\myspace 
+\subsub{Relevant Maths}
+
+
+\begin{example}[Review: Vectors in Function Spaces]
+	An operator is a mapping between functions in its \textbf{domain} and functions in its \textbf{range}. Assume we are only interested in \textbf{linear operators} on \textbf{Hilbert spaces}\footnote{A\green{Hilbert space} is a vector space (closed under addition and scalar multiplication) that has a scalar product $\langle f \mid g \rangle$ that exists for all pairs of its members $f$ and $g$.}. Let $f$ and $g$ denote functions, and let $k$ denote a constant. If $A$ and $B$ are linear operators, then
+	\begin{align}
+		(A + B)f
+		&= Af + Bf,
+		\quad 
+		A(f + g) = Af + Ag, 
+		\quad 
+		Ak = kA
+	\end{align}
+	Furthermore, we assume that any linear operator applied to a member $\varphi_\mu$ of some orthonormal basis $\{\varphi_i \}$ can itself be expanded in that basis,
+	\begin{align}
+		A \varphi_\mu = \sum_{\nu} a_{\nu\mu} \varphi_\nu 
+	\end{align}
+	which is true because we are assuming that the domain and range of our linear operators are in the same Hilbert space. Using dirac notation gives us an extremely sexy way of looking at application of a linear operator $A$ to a function $\psi = \sum_\mu c_\mu \varphi_\mu$:
+	\begin{align}
+		A  \ket\psi 
+		&= \sum_\mu c_{\mu} A \ket{\varphi_\mu} = \sum_\mu c_{\mu} \sum_\nu a_{\nu\mu} \ket{\varphi_{\nu}}
+		= \sum_{\nu} \lr{\sum_\mu a_{\nu\mu} c_\mu} \ket{\varphi_\nu } \\
+		&= \sum_{\nu,\mu} \ket{\varphi_\nu} 
+		\underbrace{\bra{\varphi_\nu}A \ket{\varphi_\mu}}_{a_{\nu\mu}}
+		\underbrace{\braket{\varphi_\mu |  \psi}}_{c_\mu} \\
+		\implies 
+		A &= \sum_{\nu,\mu} \ket{\varphi_\nu} \bra{\varphi_\nu}A \ket{\varphi_\mu} \bra{\varphi_\mu}
+	\end{align}
+\end{example}
+
+The \textit{rank} of a general $n \times m$ matrix $\matr X$ is the dimension spanned by its columns (aka the column space). Hence, the rank of $\matr X$ is the smallest $r$ for which we can express
+\begin{align}
+	\underbrace{\matr X}_{n \times m}
+		&= \underbrace{\matr R}_{n \times r} \underbrace{\matr S}_{r \times m} \\
+		&= \underbrace{ \begin{bmatrix}
+			\vec[1]{r} & \vec[2]{r} & \cdots & \vec[r]{r} 
+		\end{bmatrix} }_{\text{\scriptsize linearly independent}} \matr S \\
+		&= \begin{bmatrix}
+			\sum_{i=1}^{r} S_{i,1} \ket{\vec[i]{r}}
+			& \cdots 
+			& \sum_{i=1}^{r} S_{i,m} \ket{\vec[i]{r}}
+		\end{bmatrix}
+\end{align}
+and thus we can interpret the $m$'th column of $\matr X$ as $\sum_{i}^{r} \ket{\vec[i]{r}}\bra{\vec[i]{r}} \matr S \ket{\vec[m]{e}}$. In other words, the columns of $\matr S$ express the columns of $\matr X$ in the basis defined by the linearly independent columns of $\matr R$. We say that $\matr X$ is \green{full rank} if its rank is equal to $\min(n, m)$. \\
+
+If any $n \times n$ matrix $\matr A$ is non-singular (i.e. invertible), then its $n$ columns are linearly independent. If there exists $\vec x \neq 0$ and $\lambda \neq 0$ (since $\matr A$ is non-singular) such that $\matr A \vec x = \lambda \vec x$, then the \green{Rayleigh quotient}
+\graybox{
+	\frac{\bra{\vec x } \matr A \ket{\vec x}}{\braket{\vec x \mid \vec x}} = \lambda 
+} evaluates that eigenvalue. We can extend this to obtain the following:
+
+\begin{definition}[-1em][Courant-Fisher Theorem]
+	If $\matr A \in \R^{n \times n}$ is symmetric, then for $k \in [1..n]$,,
+	\begin{align}
+		\lambda_k(\matr A)
+			&= \min_{\substack{ T \\ \text{dim}(T) = n - k + 1}} \max_{\substack{\vec v \in T \\ \vec v \neq 0}} 
+				\frac{\bra{\vec v } \matr A \ket{\vec v}}{\braket{\vec v \mid \vec v}} 
+			= \max_{\substack{ T \\ \text{dim}(T) = k}} \min_{\substack{\vec v \in T \\ \vec v \neq 0}} 
+				\frac{\bra{\vec v } \matr A \ket{\vec v}}{\braket{\vec v \mid \vec v}} 
+	\end{align}
+	with the extrema achieved by the corresponding eigenvector. 
+\end{definition}
+
+\bluesec{Symmetric matrices}. If $\matr A \in \R^{n \times n}$ is symmetric, and $\matr A \vec x = \lambda \vec x$ and $\matr A \vec z = \mu \vec z$ with $\mu \neq \lambda$, then 
+\begin{align}
+	\lambda \innerprod{\vec x}{\vec z}
+		&= \braket{\vec x \matr A \mid \vec z} = \bra{\vec x} \matr{A}^\top \ket{\vec z} = \bra{\vec x} \matr A \ket{\vec z} = \mu \innerprod{\vec x}{\vec z} ~ \implies ~ \innerprod{\vec x}{\vec z} = 0
+\end{align}
+since $\mu \neq \lambda$. Therefore, eigenvectors of symmetric matrices with different eigenvalues are orthogonal. Since there can be at most $n$ orthogonal eigenvectors for an $n \times n$ matrix, we have that any symmetric matrix $A$ has at most $n$ distinct eigenvalues. Let $\matr V$ denote the $n \times n$ matrix whose columns are the orthonormal eigenvectors of $A$. Note that $\matr{V}^\top \matr V = \matr V \matr{V}^\top = \matr[n]{I}$, and that 
+\begin{align}
+	\matr A \matr V 
+		 &= \begin{bmatrix}
+		 	\matr A \vec[1]{v} & \cdots \matr A \vec[n]{v} 
+		 \end{bmatrix} 
+	 	= \begin{bmatrix}
+	 		\lambda_1 \vec[1]{v} & \cdots \lambda_n \vec[n]{v}
+	 	\end{bmatrix} 
+ 	= \matr V \matr \Lambda 
+ 	~ \implies ~ \matr A = \matr V \matr \Lambda \matr V^\top
+\end{align}
+Notice that the final implication is only valid since we know $\minv{V} = \matr V^\top$ exists. If the symmetric matrix $\matr A$ has $k$ [distinct] nonzero eigenvalues, then we can use the simpler 
+\begin{align}
+	\matr A = \underbrace{ \matr[k]{V}}_{n \times k} 
+		\underbrace{ \matr[k]{\Lambda} }_{k \times k} 
+		\underbrace{ \matr[k]{V}^\top }_{k \times n}
+\end{align}
+to show this, note that obviously $\matr A = \sum_{i=1}^k \lambda_i \vec[i]{v} \vec[i]{v}^\top$. The result immediately follows. Since the $k$ eigenvectors are orthonormal (as a result of $\matr A$ being symmetric and the $k$ eigenvalues being distinct), we also have that $\text{rank}(\matr A) = k$. 
+
+\begin{definition}[-1em][Characterization of Kernels]
+	A function
+	$$
+		\kappa: \mc X \times \mc X \to \R
+	$$
+	which is either continuous or has a finite domain, can be decomposed 
+	\graybox{
+		\kappa(\vec x, \vec z) = \innerprod{\vec\phi(\vec x)}{ \vec\phi(\vec z)} \label{eq:kappa-decomposed}
+	}
+	for feature map $\phi$ into a Hilbert space $F$ \textit{if and only if} it satisfies the \green{finitely positive semi-definite property}: it is a symmetric function for which the matrices formed by restriction to any finite subset of the space $\mc X$ are positive semi-definite. 
+\end{definition}
+
+\begin{example}[Compact proof of reverse implication]
+	Assume $\kappa$ satisfies the finitely psd property. We need to show that this implies $\kappa$ can be decomposed via \ref{eq:kappa-decomposed}. Let $\mc F$ denote a vector space over functions of the form 
+	\begin{align}
+		f(\vec x) := \sum_{i=1}^{\ell} \alpha_i \kappa(\ivec[i]{x}, \vec x)
+	\end{align}
+	for some $\ell \in \N$, $\ivec[i]{x} \in \mc X$, $\alpha_i \in \R$\footnote{\tiny Note that this means each function in this space is associated with some $\ell$ number of vectors in $\mathcal X$.}. Let $f, g \in \mc F$, with $f$ denoted as above, and $g(\vec z) := \sum_j \beta_j \kappa(\ivec[j]{z}, \vec z)$. Define the scalar product of this Hilbert space as 
+	\begin{align}
+		\braket{f \mid g}
+		&\triangleq \sum_{i,j} \alpha_i \beta_j \kappa(\ivec[i]{x}, \ivec[j]{z}) \\
+		&= \sum_i \alpha_i \lr{ \sum_j \beta_j \kappa(\ivec[i]{x}, \ivec[j]{z}) } = \sum_i \alpha_i g(\ivec[i]{x})  \\
+		&= \sum_j \beta_j \lr{ \sum_i \alpha_i    \kappa(\ivec[i]{x}, \ivec[j]{z}) } = \sum_j \beta_j f(\ivec[j]{z})
+	\end{align}
+	
+	Note that if $g(\vec x) = \kappa(\vec z, \vec x)$, then \( \innerprod{f}{g}
+	= \sum_{i} \alpha_i \kappa(\vec[i]{x}, \vec z) = f(\vec z) \) which is known as the \green{reproducing property} of the kernel. Next, define $\vec\phi : \mc X \to F_{\kappa}$, where $F_{\kappa} \subseteq \mc F$ is just the restriction that $\ell = 1$, $\alpha_1 = 1$, as
+	\begin{align}
+		\vec\phi(\vec x) &\triangleq \kappa(\vec x, \cdot)
+	\end{align}
+	where it's worth emphasizing again that $\vec\phi$ returns a \textit{function} itself. Then we have our desired result:
+	\begin{align}
+		\kappa(\vec x, \vec z)
+		&= \innerprod{\kappa(\vec x, \cdot)}{\kappa(\vec z, \cdot)}
+		= \innerprod{\vec\phi(\vec x)}{\vec\phi(\vec z)}
+	\end{align}
+\end{example}
+
+
+\begin{comment}
+Recall that the definition of a kernel function $K(x, x')$ is that it must be expressible as $\innerprod{\phi(x)}{\phi(x')}$ for some feature function $\phi: \mc X \to V$ where $V \subseteq \mc X$. Clearly, this is symmetric wrt the arguments $x,x'$. Note that the domain and range of $K$ are both functions $f: \mc X \to \R$ that can be expressed in some orthonormal basis $\{\phi_i \}_{i=1}^M$. Also, since $K$ is symmetric
+	\begin{align}
+		K \ket{\psi} 
+			&= \sum_{j=1}^{M} K \ket{\phi_j}\braket{\phi_j \mid \psi} \\
+			&=   \sum_{j = 1}^{M}  \sum_{i=1}^{M} K_{i,j} \ket{\phi_i}\braket{\phi_j \mid \psi} \\
+			&=   \sum_{j = 1}^{M}  \sum_{i=1}^{M}  \ket{\phi_i}\bra{\phi_i}K\ket{\phi_j}   \braket{\phi_j \mid \psi} \\
+		\implies 
+		\bra{\psi} K \ket{\psi}
+			&= \sum_{j = 1}^{M}  \sum_{i=1}^{M}  \braket{\psi \mid \phi_i}\bra{\phi_i}K\ket{\phi_j}   \braket{\phi_j \mid \psi} \\
+	\end{align}
+\end{comment}
+
+
+
+\subsub{Extended Notes for canatar2021}
+
+A \green{reproducing kernel Hilbert space} (RKHS) $\mc H$ living on $\mc X \subset \R^D$ is a subset of \textit{square integrable functions}\footnote{$\int |f(x)|^2 \mathrm{d}x < \infty$}$L_2(\mc X, p)$ for measure p equipped with an inner product $\innerprod{\cdot}{\cdot}_{\mc H}$ and a kernel $K$ satisfying the \green{reproducing property}:
+\begin{align}
+	f(x) &= 
+	\innerprod{f(\cdot)}{K(\cdot, x)}_{\mc H}
+	\qquad 	(\forall x \in \mc X) (\forall f \in \mc H) 
+\end{align}
+Define the \green{integral operator} $T_K : L_2(\mc X, p) \to L_2(\mc X, p)$, which is a linear map from functions to functions:
+\begin{align}
+	T_K[f](x')
+	&\triangleq \int p(x) K(x, x') f(x) \mathrm{d}x 
+\end{align}
+
+\begin{align}
+	\mtgreen{[Mercer Decomposition]}\qquad
+	K(x, x') 
+	&= \sum_{\ell = 0}^{\infty} \lambda_{\ell} \phi_{\ell}(x) \phi_{\ell}(x') \\
+	\mtgreen{[Eigenfunction Property]}\qquad
+	T_K[\mpurple{\phi_\ell}](\mgreen{x'})
+	&= \int p(x) K(x,\mgreen{x'})\mpurple{\phi_\ell}(x) \mathrm{d} x \\
+	&= \int p(x) \lr{ \sum_{\ell' = 0}^{\infty} \lambda_{\ell'} \phi_{\ell'}(x) \phi_{\ell'}(\mgreen{x'}) }\mpurple{\phi_\ell}(x) \mathrm{d} x \\ 
+	&=  \sum_{\ell' = 0}^{\infty} \lambda_{\ell'} \phi_{\ell'}(\mgreen{x'})  \int p(x) \phi_{\ell'}(x) \mpurple{\phi_\ell}(x) \mathrm{d} x \\ 
+	&= \sum_{\ell' = 0}^{\infty} \lambda_{\ell'} \phi_{\ell'}(\mgreen{x'}) \delta{\ell, \ell'} \\
+	&= \lambda_{\ell}  \mpurple{\phi_{\ell}}(\mgreen{x'})
+\end{align}
+
+A function $f$ is said to be a member of the RKHS $\mc H$ if and only if $\norm[\mc H]{f}^2 < \infty$, where
+\begin{align}
+	\norm[\mc H]{f}^2 = \innerprod{f}{f}_{\mc H} = \sum_{\ell, \ell'} a_{\ell} a_{\ell'} \innerprod{\phi_{\ell}}{\phi_{\ell'}}_{\mc H}
+	= \sum_{\ell = 0}^{\infty} \inv{\lambda_{\ell}} a_{\ell}^2
+\end{align}
+where the dimension of the RKHS equals the number of nonzero eigenvalues $\lambda_{\ell}$. 
+
+
+
+
+
+
+
+\end{document}
+
+
+
+
+
+

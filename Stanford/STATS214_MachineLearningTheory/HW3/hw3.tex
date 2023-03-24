@@ -1,0 +1,791 @@
+\documentclass[11pt]{article}
+\usepackage{fullpage,amsmath,amssymb,graphicx}
+
+\usepackage{bm}
+\usepackage{cancel}
+\usepackage{comment}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage[top=1in, bottom=1in, left=0.8in, right=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{lmodern} % Nice fonts?
+\usepackage{mathtools} 
+\usepackage{needspace}
+\usepackage{paralist}
+\usepackage[parfill]{parskip} % no indents on new paragraphs.
+\usepackage{pifont}
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+
+\usepackage{enumitem}
+
+\begin{comment}
+\usepackage{fullpage,enumitem,amsmath,amssymb,graphicx}
+
+% Some macros for your convenience
+\newcommand\bbR{\ensuremath{\mathbb{R}}} % Real numbers
+\newcommand\bbZ{\ensuremath{\mathbb{Z}}} % Integers
+\newcommand\bbE{\ensuremath{\mathbb{E}}} % Expectation
+\DeclareMathOperator*{\tr}{tr} % Trace
+\DeclareMathOperator*{\diag}{diag} % Diagonal matrix
+\DeclareMathOperator*{\sign}{sign} % Sign
+\DeclareMathOperator*{\var}{Var} % Variance
+\DeclareMathOperator*{\cov}{Cov} % Covariance
+\newcommand{\1}{\mathbb{I}} % Indicator
+%\newcommand{\newproblem}[1]{\newpage \section*{Problem #1}}
+\end{comment}
+
+% Muh packagez :)
+\usepackage{../../../Packages/MathCommands}
+\usepackage{../../../Packages/BrandonColors}
+\usepackage{../../../Packages/BrandonBoxes}
+\usepackage{../../../Packages/NoteTaker}
+
+\newcommand{\bx}{{\boldsymbol{x}}}
+\newcommand{\by}{{\boldsymbol{y}}}
+\newcommand{\bz}{{\boldsymbol{z}}}
+\newcommand{\bmu}{{\boldsymbol{\mu}}}
+\newcommand{\bb}{{\boldsymbol{b}}}
+\newcommand{\abs}[1]{\left| #1\right|}
+
+\newcommand{\points}[1]{{\textbf{[#1 points]}}}
+\newcommand{\ruleskip}{\bigskip\hrule\bigskip}
+\newcommand{\nodify}[1]{{\sc #1}} 
+\newcommand{\Size}[2]{{\rm SIZE}_{#1}(#2)}
+\newcommand{\KL}[0]{D_{\mathrm{KL}}}
+\newcommand{\csisep}[4]{\emph{CSI-sep}_{#1}({#2};{#3} \mid {#4})}
+
+
+\renewcommand{\arraystretch}{1.5}
+
+% \innerprod{x}{y} == <x, y>
+\RenewDocumentCommand{\innerprod}{ m m }{ 
+	\left\langle #1, #2 \right\rangle
+}
+
+
+\begin{document}
+	
+	\begin{center}
+		{\Large STATS 214 Autumn 2021 Homework 3}
+		
+		\begin{tabular}{rl}
+			SUNet ID: & 06009508 \\
+			Name: & Brandon McKinzie \\
+			Collaborators: & N/A
+		\end{tabular}
+	\end{center}
+	
+	\p By turning in this assignment, I agree by the Stanford honor code and declare
+	that all of this is my own work.
+	
+	\rule{\linewidth}{0.4pt}
+	
+	
+
+\textbf{N.B.} Throughout my work for problem 1, I will make use of the following:
+\begin{align}
+	\nabla \hat L(w)
+		&=\inv{n} \insum  \lr{\sigma(w^\top \ival[i]{x}) - \ival[i]{y}}  \sigma'(w^\top \ival[i]{x}) \ival[i]{x} \label{eq:1-gradlhat} \\
+	\nabla^2 \hat L(w) 
+		&= \inv{n} \insum \lr{\sigma''(w^\top \ival[i]{x}) \lr{\sigma(w^\top \ival[i]{x}) - \ival[i]{y}}  + \sigma'(w^\top \ival[i]{x})^2} \ival[i]{x} x^{(i)^\top} \label{eq:1-hessianlhat} \\
+	\nabla L(w)
+		&=\E[x,y]{ \lr{\sigma(w^\top x) - y}  \sigma'(w^\top x) x } \label{eq:1-gradl} \\
+	\nabla^2 L(w) 
+		&= \E[x,y]{\lr{\sigma''(w^\top x) \lr{\sigma(w^\top x) - y}  + \sigma'(w^\top x)^2} x x^\top} \label{eq:1-hessianl}
+\end{align} 
+
+\hrule 
+
+
+\section*{Problem 1(a) Non-Convexity of the Expected Loss}
+
+\question{Construct an example where the expected loss $L(w)$ is not a convex function of $w$, where
+	\begin{align}
+		L(w) = \E[x,y]{\onehalf \lr{ y - \sigma(w^Tx)}^2}
+	\end{align}
+
+}
+
+Let $d = 1$, and let $\sigma$ be the sigmoid function:
+\begin{align}
+	\sigma(x) 	
+		&= \inv{1 + e^{-x}} \\
+	\sigma'(x)
+		&= \sigma(x) (1 - \sigma(x)) \\
+	\sigma''(x)
+		&= \sigma(x) (1 - \sigma(x)) (1 - 2\sigma(x))
+\end{align}
+Note that this satisfies the constraints provided by the problem for $\sigma$. We need to find some combination of $\{ P, \epsilon, w_* \}$ such that the second derivative is negative for at least some $w$, where
+\begin{align}
+	\pderiv{}{w} L(w)
+		&= \E[x,y]{\lr{ \sigma(wx) - y} \sigma'(wx) x}	\\
+	\ppderiv{}{w} L(w)
+		&= \E[x,y]{\lr{ \sigma''(wx) \lr{\sigma(wx) - y} + \sigma'(wx)^2   } x^2 }
+\end{align}
+
+Assume $P$ is degenerate about some point $x_0$, i.e. $P(x = x_0) = 1$. Furthermore, assume $\epsilon_i = 0$ $\forall i$, i.e. assume $\epsilon \sim \delta$, where $\delta$ denotes the dirac delta distribution. In this case, we just need to find some values for $\{x_0, w_*, w\}$ for which
+\begin{align}
+	\lr{ \sigma''(wx_0) \lr{\sigma(wx_0) - \sigma(w_* x_0)} + \sigma'(wx_0)^2   } x_0^2  
+		&< 0 \\
+	\implies \sigma''(wx_0) \lr{\sigma(wx_0) - \sigma(w_* x_0)} + \sigma'(wx_0)^2   
+		&< 0
+\end{align}
+
+Assume that $\sigma''(wx_0) \neq 0$, then we need 
+\begin{align}
+	\sigma(w_* x_0) 
+		&> \sigma(w x_0) + \frac{ \sigma'(wx_0)^2}{ \sigma''(wx_0)}
+\end{align}
+
+Recall that the provided constraints ensure that $-BR \leq wx_0 \leq BR$, where $BR \leq 1$. In fact, consider the case where $w_* = R$ and $x_0 = B$, i.e. $w_* x_0 = BR$. Since $\sigma$ is strictly increasing, this guarantees that $\sigma(w_* x_0) \geq \sigma(w x_0)$ $\forall w$. Consider the case where $w x_0 = 1$. We can easily verify that 
+\begin{align}
+	\sigma(BR \geq 1) 	
+		> \sigma(1)+ \frac{ \sigma'(1)^2}{ \sigma''(1)}
+\end{align}
+
+by plotting the LHS and RHS separately as a function of their input $wx$:
+
+\myfig[0.6\textwidth]{1a.png}
+
+Therefore, we have shown that for $w_* = R$, $x_0 = B$, $w = \inv{B}$, $\epsilon \sim \delta(x)$, $d=1$, that the second derivative of $L(w)$ is negative. Thus, $L(w)$ is not a convex function. 
+
+
+
+
+
+\clearpage
+\section*{Problem 1(b) All Stationary Points of the Expected Loss are Global Minima}
+
+\question{Show that $w_*$ is a global minimum of $L$.}
+
+Note that 
+\begin{align}
+	L(w_*) 
+		&= \E[x,y]{\onehalf \lr{ \sigma(w_*^\top x) + \epsilon - \sigma(w_*^\top x) }^2 } \\
+		&= \E[\epsilon]{\onehalf \epsilon^2}
+\end{align}
+Next, for all $w \neq w_*$,
+\begin{align}
+	L(w) 
+		&= \E[x,y]{\onehalf \lr{ \sigma(w_*^\top x) + \epsilon - \sigma(w^\top x) }^2 } \\
+		&= \onehalf \E[x,y]{\lr{\sigma(w_*^\top x) - \sigma(w^\top x)}^2 + \epsilon^2 + 2\epsilon\lr{\sigma(w_*^\top x) - \sigma(w^\top x)}} \\
+		&= \onehalf \E[x,y]{\lr{\sigma(w_*^\top x) - \sigma(w^\top x)}^2 + \epsilon^2 } \label{eq:1b-1} \\
+		&\geq L(w_*)
+\end{align}
+where \ref{eq:1b-1} is because $\E{\epsilon} = 0$ and $\epsilon \perp x$. Therefore, $w_*$ is a global minimum of $L(w)$. \\
+
+\hrule
+
+\question{In addition, show that 
+	\begin{align}
+		\innerprod{\nabla L(w)}{w - w_*} \geq \gamma^2 \lambda \cdot \norm{w - w_*}^2
+	\end{align}
+}
+
+
+We can show this by evaluating the gradient (\ref{eq:1-gradl}) and exploiting the assumptions/constraints provided for the problem, and by utilizing the mean value theorem. First, now that we can slightly simplify \ref{eq:1-gradl} as follows:
+
+\begin{align}
+	\nabla L(w)
+		&= \E[x,y]{ \lr{\sigma(w^\top x) - y}  \sigma'(w^\top x) x } \\
+		&= \E[x,y]{ \lr{\sigma(w^\top x) - \sigma(w^\top_* x)}  \sigma'(w^\top x) x } 
+			\quad \mblue{[ \E{\epsilon} = 0, \epsilon \perp x ]} \\
+	\implies 
+	\innerprod{\nabla L(w)}{w - w_*}
+		&= \E{ \lr{\sigma(w^\top x) - \sigma(w^\top_* x)}  \sigma'(w^\top x) \innerprod{w - w_*}{x} } 
+\end{align}
+
+By the mean value theorem, we know that $\exists t \in [w^\top x, w_*^\top x]$ such that $\sigma'(t) = \frac{ \sigma(w^\top x) - \sigma(w^\top_* x) }{ w^\top x - w^\top_* x }$. Therefore 
+
+\begin{align}
+	\innerprod{\nabla L(w)}{w - w_*}
+	&= \E{ \sigma'(t)  \sigma'(w^\top x) (w^\top x - w^\top_* x)^2  } 
+\end{align}
+
+
+
+Since both $t$ and $w^\top x$ are $\in [-BR, BR]$, we know that $\sigma'(t) \sigma'(w^\top x) \geq \gamma^2$. Furthermore, since 
+\begin{align}
+	\E{ \lr{w^\top x - w^\top_* x}^2 }
+		&= \E{ (w - w_*)^T x x^T (w - w_*)  } 
+		\geq (w - w_*)^\top \lambda I_d (w - w_*) \\
+		&= \lambda \norm{w - w_*}^2
+\end{align}
+
+we can plug this back in to obtain the desired result:
+
+\begin{align}
+\innerprod{\nabla L(w)}{w - w_*}
+	&= \E{ \sigma'(t)  \sigma'(w^\top x) (w^\top x - w^\top_* x)^2  } \\
+	&\geq \gamma^2 \E{ \lr{w^\top x - w^\top_* x}^2 } \\
+	&\geq \gamma^2  \lambda \norm{w - w_*}^2
+\end{align}
+
+for all $w$ such that $\norm{w} \leq R$. 
+
+
+
+
+\clearpage 
+\section*{Problem 1(c) Upper Bounds on the Hessians}
+
+\question{Show that 
+	\begin{align}
+		\norm[op]{\nabla^2 L(w)} \leq 2B^2 \quad \text{and} \quad
+		\norm[op]{\nabla^2 \hat L(w)} \leq 3 B^2
+	\end{align}
+}
+
+Proceed by using the provided hint about $\norm[op]{\cdot}$, then exploiting some of the problem assumptions, to obtain the desired results. 
+
+\begin{align}
+	\norm[op]{\nabla^2 L(w)}
+		&= \sup_{\norm{v} \leq 1} v^\top \E[x,y]{\lr{\sigma''(w^\top x) \lr{\sigma(w^\top x) - y}  + \sigma'(w^\top x)^2} x x^\top} v \\
+		&= \sup_{\norm{v} \leq 1} \E[x,y]{\lr{\sigma''(w^\top x) \lr{\sigma(w^\top x) - y}  + \sigma'(w^\top x)^2} \innerprod{x}{v}^2} \\
+		\mtblue{[Cauchy-Schwarz]} \quad
+			&\leq \sup_{\norm{v} \leq 1} \E[x,y]{\lr{\sigma''(w^\top x) \lr{\sigma(w^\top x) - y}  + \sigma'(w^\top x)^2} \norm{x}^2 \norm{v}^2} \\
+		\mblue{[\norm{x} \leq B, \norm{v} \leq 1]} \quad
+			&\leq  B^2 \E[x,y]{\sigma''(w^\top x) \lr{\sigma(w^\top x) - y}  + \sigma'(w^\top x)^2 } \\
+		\mblue{\sup_t \left\{ |\sigma'(t)|, |\sigma''(t) |\right\} \leq 1 }\quad
+			&\leq  B^2 \E[x,y]{ \lr{\sigma(w^\top x) - y}  + 1 } \\
+		\mblue{[\E{\epsilon} = 0]} \quad
+			&= B^2 \E[x]{ \sigma(w^\top x) - \sigma(w_*^\top x)  + 1 }  \label{eq:1c-1} \\
+		\mblue{[\sigma(t) \in [0, 1]]} \quad
+			&\leq 2 B^2
+\end{align}
+
+The proof for $\norm[op]{\nabla^2 \hat L(w)} \leq 3 B^2$ is the same sequence of logic\footnote{By ``logic'' I'm referring to the justifications in blue on the LHS of each step.} up until before \ref{eq:1c-1}, since for $\hat L$ we aren't taking an expectation (the data has already been sampled), meaning we have
+\begin{align}
+	\norm[op]{\nabla^2 \hat L(w)}	
+		&\leq B^2  \inv{n} \insum 1 + \sigma(w^\top \ival[i]{x}) - \ival[i]{y} \\
+		&= B^2  \inv{n} \insum 1 + \sigma(w^\top \ival[i]{x}) - \sigma(w_*^\top \ival[i]{x}) - \ival[i]{\epsilon} \\
+		&\leq B^2 \inv{n} \insum 3 \label{eq:1c-2} \\
+		&= 3B^2
+\end{align}
+where \ref{eq:1c-2} follows from $|\ival[i]{\epsilon}| \leq 1$, and $\sigma(t) \in [0, 1]$. 
+
+
+\clearpage 
+\section*{Problem 1(d) Norm Bound via Covering}
+
+\question{Show that  $(\forall x \in \R^d)$ $\norm{x} \leq 2 \sup_{v \in N} \innerprod{x}{v}$}
+
+First, note that for $x = 0$, this is trivially true. Next $\forall x \neq 0$,
+\begin{align}
+	\norm{x}^2 
+		&= \innerprod{x}{x} \\
+		&= \norm{x} \innerprod{x}{\frac{x}{\norm{x}}} 
+			\quad \mtblue{[homogeneity]} \\
+		&\leq \norm{x} \sup_{\norm{v} = 1} \innerprod{x}{v}
+\end{align}
+where the last step follows from the orthogonal decomposition of any vector $v = c x + w$, where $\innerprod{x}{w} = 0$, i.e. 
+\begin{align}
+	\sup_{\norm{v} = 1} \innerprod{x}{v} 
+		&= \sup_{\norm{v} = 1} \innerprod{x}{  \underbrace{\frac{\innerprod{v}{x}}{\norm{x}^2} x}_{cx} 
+				+ \underbrace{ \lr{v -  \frac{\innerprod{v}{x}}{\norm{x}^2} x} }_{w} } \label{eq:1d-1}
+\end{align}
+and thus is maximized when $v$ is a scalar multiple of $x$. Recapping, we now have 
+\begin{align}
+	\norm{x}
+		&\leq \sup_{\norm{v} = 1} \innerprod{x}{v} \\
+		&\leq \sup_{\norm{v} \leq 1} \innerprod{x}{v} 
+\end{align}
+where the last step follows from the reasons just described (\ref{eq:1d-1}). Since, by definition, $\exists v \in N(B(1), \onehalf)$ within $\epsilon \eq \onehalf$ from the optimal solution, we have the final result that 
+\begin{align}
+	\norm{x}	
+		&\leq 2 \sup_{v \in N(B(1), \onehalf)} \innerprod{x}{v}
+\end{align}
+
+
+\clearpage 
+
+\newcommand{\gl}{\nabla L(w)} 
+\newcommand{\glh}{\nabla \hat L(w)}
+\renewcommand{\N}{N\lr{ \mathcal B(1), \onehalf}}
+\section*{Problem 1(e) Point-Wise Concentration of Gradients}
+\question{For any $w \in \R^d$ and $t > 0$, show that 
+	\begin{align}
+		\Prob{\norm{\glh - \gl } \geq t} 
+			\leq \exp\lr{- \frac{nt^2}{32B^2} + d \log 5  }
+	\end{align}
+}
+
+We begin by using the result from part (d), and by noting that for any $f(X)$, $g(X) \leq f(X)$ for all values of a random variable $X$, that $\Prob{g(X) \geq t} \leq \Prob{f(X) \geq t}$.
+\begin{align}
+		\Prob{\norm{\glh - \gl } \geq t}  
+			&\leq  \Prob{ 2 \sup_{v \in \N } \innerprod{\glh - \gl}{v} \geq t}
+\end{align}
+
+For compactness, let $f(v) \triangleq \innerprod{\glh - \gl}{v}$. Recall that we can interpret probabilities involving $\sup$ as
+\begin{align}
+	\Prob{ 2 \sup_{v \in N(B(1), \onehalf)} f(v) \geq t }
+		&= \Prob{\exists v \in \N \text{ s.t. } f(v) \geq \frac{t}{2} } \\
+		&\leq \sum_{v \in \N} \Prob{f(v) \geq \frac{t}{2}} \label{eq:1e-1}
+\end{align}
+which gives us a familiar union-bound form. Furthermore, notice that we can interpret $f(v)$ as an empirical mean subtracted by their expectation:
+\begin{align}
+	f(v)
+		&\triangleq \innerprod{\glh - \gl}{v} \\
+		&= \inv{n} \insum \innerprod{\ival[i]{z}}{v} - \innerprod{\E[x,y]{\glh}}{v} \\
+		&=  \inv{n} \insum \innerprod{\ival[i]{z}}{v} - \E[x,y]{ \inv{n} \insum \innerprod{\ival[i]{z}}{v} }\\
+	\text{where}\quad 
+	\ival[i]{z}
+		&\triangleq  \lr{\sigma(w^\top \ival[i]{x}) - \ival[i]{y}}  \sigma'(w^\top \ival[i]{x}) \ival[i]{x} 
+\end{align}
+If we can show the $\innerprod{\ival[i]{z}}{v}$ are bounded i.i.d. random variables, we can then use Hoeffding's inequality to obtain the desired result. 
+\begin{align}
+	\innerprod{\ival[i]{z}}{v}
+		&=  \lr{\sigma(w^\top \ival[i]{x}) - \ival[i]{y}}  \sigma'(w^\top \ival[i]{x}) \innerprod{ \ival[i]{x} }{v} \\
+		&\leq B \lr{\sigma(w^\top \ival[i]{x}) - \ival[i]{y}}  \sigma'(w^\top \ival[i]{x}) 
+			\quad \mblue{[\norm{x} \leq B, \norm{v} \leq 1]}  \\
+		&\leq 2B \quad \mblue{|\sigma'(t)| \leq 1, \sigma(t) \in [0, 1], |\ival[i]{\epsilon}| \leq 1}
+\end{align}
+and a similar argument using the other side of the absolute values shows that $\innerprod{\ival[i]{z}}{v} \geq -2B$, so we have our bounded random variable $-2B \leq \innerprod{\ival[i]{z}}{v} \leq 2B$. \\
+
+\Needspace{5\baselineskip}
+Resuming from \ref{eq:1e-1} and plugging directly into Hoeffding's inequality yields:
+\begin{align}
+	\Prob{ 2 \sup_{v \in \N } f(v) \geq t }
+		&\leq \sum_{v \in \N} \Prob{
+			\inv{n} \insum \innerprod{\ival[i]{z}}{v} - \E[x,y]{ \inv{n} \insum \innerprod{\ival[i]{z}}{v}} \geq \frac{t}{2}} \\
+		&\leq \sum_{v \in \N} \exp\lr{  - \frac{2 n^2 (t/2)^2}{ \insum (2B - (-2B))^2 }    } \\
+		&= \sum_{v \in \N} \exp\lr{  - \frac{ n^2 t^2}{ 2 \insum 16B^2 }    } \\
+		&= \sum_{v \in \N} \exp\lr{  - \frac{ n t^2}{ 32B^2 }    } \\
+		&\leq 5^d  \exp\lr{  - \frac{ n t^2}{ 32B^2 }    } = \exp\lr{  - \frac{ n t^2}{ 32B^2 }    + d\log 5}
+\end{align}
+where the last line follows from $|\N| \leq 5^d$. 
+
+
+
+\clearpage
+\section*{Problem 1(f) Union Bounds}
+\renewcommand{\N}{N\lr{ \mathcal B(R), \epsilon}}
+
+\question{Show that for any $0 < \epsilon < R$, we can take $\N$ to be an $\epsilon$-covering of $\mathcal B(R)$ and get
+	\begin{align}
+		\Prob{\sup_{w \in \N} \norm{\glh - \gl} \geq t }
+			&\leq  \exp\lr{  - \frac{ n t^2}{ 32B^2 }    + d\log \frac{15R}{\epsilon}}
+	\end{align}
+}
+
+Similar to part (e), we can rewrite the probability in terms of a union bound:
+\begin{align}
+	\Prob{\sup_{w \in \N} \norm{\glh - \gl} \geq t } 
+		&= \Prob{\exists w \in \N \text{ s.t. }  \norm{\glh - \gl} \geq t } \\
+		&\leq \sum_{w \in \N} \Prob{  \norm{\glh - \gl}  \geq t} \\
+		&\leq |\N| \exp\lr{  - \frac{ n t^2}{ 32B^2 }    + d\log 5}
+\end{align}
+where the last line follows from the result derived for part (e). From homework 2 we know that 
+\begin{align}
+	|\N| &\leq \lr{1 + \frac{2R}{\epsilon}}^d \\
+		&\leq \lr{ \frac{3R}{\epsilon} }^d \quad \mblue{[0 < \epsilon < R]}
+\end{align}
+Plugging this back in yields the desired result:
+\begin{align}
+	\Prob{\sup_{w \in \N} \norm{\glh - \gl} \geq t } 
+		&\leq  \lr{ \frac{3R}{\epsilon} }^d \exp\lr{  - \frac{ n t^2}{ 32B^2 }    + d\log 5} \\
+		&=  \exp\lr{  - \frac{ n t^2}{ 32B^2 }    + d\log \frac{15R}{\epsilon}}
+\end{align}
+
+
+\clearpage 
+\section*{Problem 1(g) Uniform Convergence of Gradients}
+
+\subsection*{First Part} 
+
+\question{Assume $BR \geq 1$. Show that w.p. at least $1 - \delta$
+	\begin{align}
+		\sup_{w \in \mathcal B(R)} \norm{\glh - \gl} \leq C_1 \cdot B \sqrt{
+			\dfrac{d \lr{C_2 + \log(nBR)} + \log\inv{\delta}}{n}
+		}
+	\end{align}
+}
+
+My proof will proceed largely the same way as the proof for Theorem 4.8 in the scribe notes. 
+\begin{enumerate}
+	\item Denote the event $E \triangleq \{ \sup_{w \in \N} \norm{\glh - \gl} \leq \delta \} $
+	
+	\item From part (f) we know that 
+	\begin{align}
+		\Prob{E} &\geq 1 -  \exp\lr{  - \frac{ n \delta^2}{ 32B^2 }    + d\log \frac{15R}{\epsilon}} \\
+		&\geq 1 - \exp\lr{  - \frac{ n \delta^2}{ 32B^2 }    + Cd + d \log (nBR) } \label{eq:1g-pe}
+	\end{align}
+	if we set $\epsilon := \inv{B} \sqrt{d/n}$. 
+	
+	\item By definition of an $\epsilon$-cover, $\forall w \in \mathcal B(R)$, $\exists w_0 \in \N$ such that $\norm{w - w_0} \leq \epsilon$. Combining this with the result from part (c), we have
+	\begin{align}
+		\norm{\nabla L(w) - \nabla L(w_0)} 
+			&\leq 2 B^2 \norm{w - w_0} \leq 2 B^2 \epsilon = 2B\sqrt{d/n} \\
+		\norm{\nabla \hat L(w) - \nabla \hat L(w_0)}
+			&\leq 3 B^2 \norm{w - w_0} \leq 3 B^2 \epsilon = 3B \sqrt{d/n}
+	\end{align}
+
+	\item We can then get a bound on $\norm{\glh - \gl}$ by using telescoping sums. Conditional on the event $E$, 
+	\begin{align}
+		\norm{\glh - \gl} 
+			&\leq \norm{\nabla \hat L(w) - \nabla \hat L(w_0)}
+				+ \norm{\nabla \hat L(w_0) - \nabla L(w_0)}
+				+ \norm{\nabla L(w_0) - \nabla L(w)} \\
+			& \leq 3B^2 \epsilon + \delta + 2 B^2 \epsilon \\
+			&= 5 B^2 \epsilon + \delta \\
+			&= 5 B \sqrt{d/n} + \delta  
+	\end{align}
+	for all $w \in \mathcal B(R)$, where $5B^2 \epsilon$ represents the error from our brute-force discretization. In other words, we currently have that, with probability at least eq \ref{eq:1g-pe}, 
+	\begin{align}
+		\norm{\glh - \gl} \leq 5 B \sqrt{d/n} + \delta  
+	\end{align}
+
+\end{enumerate}
+
+To obtain the desired result, we can set 
+\begin{align}
+	\delta' 
+		&= \exp\lr{  - \frac{ n \delta^2}{ 32B^2 }    + Cd + d \log (nBR) } \\
+	\implies \delta 
+		&= \sqrt{32}B \sqrt{
+			\dfrac{d \lr{C_2 + \log(nBR)} + \log\inv{\delta'}}{n}
+		}
+\end{align}
+
+which yields with probability at least $1 - \delta'$ that
+\begin{align}
+	\norm{\glh - \gl} \leq 5 B \sqrt{d/n} +  \sqrt{32}B \sqrt{
+		\dfrac{d \lr{C_2 + \log(nBR)} + \log\inv{\delta'}}{n}
+	}  
+\end{align}
+
+Noting that the sum on the RHS has the form 
+
+\begin{align}
+	&C_1' B \sqrt{d/n} + C_2' B \sqrt{d/n} \sqrt{
+		\lr{C_2 + \log(nBR)} + \log\inv{\delta'}
+	}  \\
+	&= (C_1' + C_2') B \sqrt{d/n} \sqrt{
+		\lr{C_2 + \log(nBR)} + \log\inv{\delta'}
+	}  
+\end{align}
+which is the desired result with $C_1 := C_1' + C_2'$. 
+
+
+
+
+\clearpage
+\subsection*{Second Part}
+\question{Conditioned on the event above, show that $\forall w \in \mathcal B(R)$, we have 
+	\begin{align}
+		\innerprod{\glh - \gl}{w - w_*}	
+			&\leq C_1 \cdot B \sqrt{
+				\dfrac{d \lr{C_2 + \log(nBR)} + \log\inv{\delta}}{n}
+			} \cdot \norm{w - w_*}
+	\end{align}
+}
+
+This is just a direct application of the Cauchy-Schwarz inequality and the previous result:
+\begin{align}
+	\innerprod{\glh - \gl}{w - w_*}	
+		&\leq \norm{\glh - \gl} \norm{w - w_*}  \\
+		&\leq \lr{ \sup_{w \in \mathcal B(R)} \norm{\glh - \gl} }  \norm{w - w_*}  \\
+		&\leq C_1 \cdot B \sqrt{
+			\dfrac{d \lr{C_2 + \log(nBR)} + \log\inv{\delta}}{n}
+		} \cdot \norm{w - w_*}
+\end{align}
+
+
+
+\clearpage
+\section*{Problem 1(h) The Training Loss Has No Bad Local Minima}
+\question{Show that w.p. at least $1 - \delta$, $\forall \norm{w} \leq R$, if $\glh = 0$, then 
+	\begin{align}
+		\norm{w - w_*} \leq \frac{C_1 B}{\gamma^2 \lambda} \sqrt{
+			\dfrac{d \lr{C_2 + \log(nBR)} + \log\inv{\delta}}{n}
+		}
+	\end{align}
+}
+
+Recall the result from part (g):
+\begin{align}
+	\innerprod{\glh - \gl}{w - w_*}	
+		&\leq \norm{\glh - \gl} \norm{w - w_*} \\
+		&= \norm{\gl} \norm{w - w_*} \\ 
+		&\leq C_1 \cdot B \sqrt{
+		\dfrac{d \lr{C_2 + \log(nBR)} + \log\inv{\delta}}{n}
+	} \cdot \norm{w - w_*}
+\end{align}
+
+From part (b) we also know that 
+\begin{align}
+	\innerprod{\gl}{w - w_*} &\geq \gamma^2 \lambda \norm{w - w_*}^2
+\end{align}
+
+Combining these two, while exploiting that $\glh = 0$,  yields
+\begin{align}
+	 \gamma^2 \lambda \norm{w - w_*}^2 
+	 	&\leq \innerprod{\gl}{w - w_*} \\
+	 	&= \innerprod{\glh - \gl}{w - w_*} \\
+	 	&\leq  C_1 \cdot B \sqrt{
+	 		\dfrac{d \lr{C_2 + \log(nBR)} + \log\inv{\delta}}{n}
+	 	} \cdot \norm{w - w_*} 
+\end{align}
+which implies the desired result:
+\begin{align}
+	 \gamma^2 \lambda \norm{w - w_*}
+	 	&\leq C_1 \cdot B \sqrt{
+	 		\dfrac{d \lr{C_2 + \log(nBR)} + \log\inv{\delta}}{n}
+	 	} \\
+ 	\implies \norm{w - w_*} 
+ 		&\leq \frac{C_1 B}{\gamma^2 \lambda} \sqrt{
+ 		\dfrac{d \lr{C_2 + \log(nBR)} + \log\inv{\delta}}{n}
+ 	} 
+\end{align}
+
+
+
+
+
+
+\clearpage
+\section*{Problem 2 Part I Generalization Bounds of the $\ell_1$-SVM}
+
+\question{For $x, y \sim P$, let $x \sim \text{Unif}\{ -1, +1 \}^d$, and 
+	\begin{align}
+		y = \begin{cases}
+			1 & \text{if } x^T e_1 = 1 \\
+			-1 & \text{if } x^T e_1 = -1
+		\end{cases}
+	\end{align}
+
+}
+
+
+\myspace
+\subsection*{Part (a)}
+\question{Show that $\gamma_{\ell_1} \geq 1$.}
+
+First, note that $y_i x_i^T e_1 = 1$ $\forall i$. In fact, since we can express $\alpha$ the standard basis as a linear combination of the standard basis vector $e_i$, we have
+\begin{align}
+	\alpha 
+		&= \sum_{i=1}^{d} \alpha_i e_i \\
+	y_i x_i^T \alpha 
+		&= \alpha_1 + y \sum_{i=2}^{d} \alpha_i x_i^T e_i
+\end{align}
+In other words, we could just set $\alpha_i = 0$ for all $2 \leq i \leq d$, and maximize $\alpha_1$ (i.e. set it to 1). This would achieve $\gamma_{\ell_1} = 1$. Since the optimization problem is to maximize $\alpha$, this means that $\alpha_{\ell_1} \geq 1$. 
+
+
+
+\myspace 
+\subsection*{Part (b)}
+\question{Let $\mathcal H^1 \triangleq \{ x \mapsto x^T \alpha : \norm[1]{\alpha} \leq 1 \}$. Show that $R_n(\mathcal H^1) \leq C \sqrt{\log(2d) / n}$.}
+
+We can simply apply Theorem 5.7 from the notes. Here, $B = 1$ since $||\alpha||_1 \leq 1$, and $C = 1$\footnote{Here I am referencing the ``C'' from Theorem 5.7, not this homework problem.} since $\inftynorm{x} \leq 1$. A direct application of the theorem then yields 
+\begin{align}
+	R_S(\mathcal H^1)
+		& \leq \sqrt{2} \sqrt{\frac{\log(2d)}{n}} \\
+	\text{Therefore}\qquad 
+	R_n(\mathcal H^1)
+		&\triangleq \E{R_S(\mathcal H^1)} \\
+		&\leq C  \sqrt{\frac{\log(2d)}{n}} 
+\end{align}
+for some universal constant $C > 0$ (for this derivation, at least, it was $\sqrt{2}$). 
+
+
+
+
+
+
+
+\clearpage
+\section*{Problem 2 Part II Generalization Bounds of the $\ell_2$-SVM}
+
+
+\myspace 
+\subsection*{Part (c)}
+
+\question{Show that $\gamma_{\ell_2} \geq 1$.}
+
+This can be shown with the exact same technique as part (a). Namely, It is still true that $\forall i$,
+\begin{align}
+	y_i x_i^T \alpha 
+		&= \alpha_1 + y \sum_{i=2}^{d} \alpha_i x_i^T e_i
+\end{align}
+and since setting $\alpha_1 = 1$ and $\alpha_{i \neq 1} = 0$ still satisfies $\norm{\alpha} \leq 1$, the same argument from part (a) applies:
+
+\begin{myquote}[1em]
+	This would achieve $\gamma_{\ell_2} = 1$. Since the optimization problem is to maximize $\alpha$, this means that $\alpha_{\ell_2} \geq 1$. 
+\end{myquote}
+
+
+
+\myspace 
+\subsection*{Part (d)}
+\question{Let $\mathcal H^2 \triangleq \{ x \mapsto x^T \alpha : \norm{\alpha} \leq 1 \}$. Show that $R_n(\mathcal H^2) \leq C \sqrt{d / n}$.}
+
+In much the same way as part (b), we can apply a Theorem from the notes and make minor adjustments based on the specifics of this problem. Using the notation from Theorem 5.5, here we have $B = 1$ since $\norm{\alpha} \leq 1$, and $C = \sqrt{d}$ since $\E[x \sim \{-1, +1\}^{d}]{\norm{x}^2} = d$. Applying the theorem directly yields
+
+\begin{align}
+	R_n(\mathcal H) \leq C \sqrt{\frac{d}{n}}
+\end{align}
+for some universal constant $C > 0$ (for this derivation, at least, it was $1$). 
+
+
+
+\clearpage
+\section*{Problem 2 Part III: Margin Bounds Above Cannot Be Improved}
+
+
+\myspace 
+\subsection*{Part (e)}
+\question{Show that $\gamma_{\ell_2} \leq \max_{\norm{\alpha} \leq 1} \inv{n} \insum y_i x_i^T \alpha$.}
+
+For any given fixed value of $\alpha$, define $i_{min} \triangleq \argmin_{i \in [n]} y_i x_i^T \alpha$. Then
+\begin{align}
+	\inv n \insum y_i x_i^T \alpha 
+		&= \inv{n} y_{i_{min}} x_{i_{min}}^T \alpha + \inv{n} \sum_{\substack{i \in [n] \\ i \neq i_{min}}} y_i x_i^T \alpha
+\end{align}
+
+If we choose $\alpha := \alpha_{\ell_2}$, this becomes 
+\begin{align}
+	\inv n \insum y_i x_i^T \alpha_{\ell_2}
+	&= \inv{n} \gamma_{\ell_2} + \inv{n} \sum_{\substack{i \in [n] \\ i \neq i_{min}}} y_i x_i^T \alpha_{\ell_2} \label{eq:2e}
+\end{align}
+
+By definition of $\gamma_{\ell_2}$, every term in the summation on the RHS of \ref{eq:2e} is greater than or equal to $\gamma_{\ell_2}$. Therefore, when $\alpha := \alpha_{\ell_2}$, we have 
+\begin{align}
+	\inv n \insum y_i x_i^T \alpha_{\ell_2}
+	&\geq \inv{n} \gamma_{\ell_2} + \inv{n} \sum_{\substack{i \in [n] \\ i \neq i_{min}}} \gamma_{\ell_2} \\
+	&= \gamma_{\ell_2}
+\end{align}
+
+Lastly, since  
+\begin{align}
+\max_{\norm{\alpha} \leq 1} \inv{n} \insum y_i x_i^T \alpha
+	&\geq \inv n \insum y_i x_i^T \alpha_{\ell_2} 
+	\geq \gamma_{\ell_2}
+\end{align}
+we have the desired result.
+
+\myspace
+\Needspace{15\baselineskip}
+\subsection*{Part (f)}
+\question{Prove that $\gamma_{\ell_2} \leq \inv{n} \norm{\insum y_i x_i} $.}
+
+Using the bound we obtained from part (e), if we can show the following, then we'll have achieved the desire result:
+\begin{align}
+ \max_{\norm{\alpha} \leq 1} \insum y_i x_i^T\alpha 
+ 	&\leq \norm{\insum y_i x_i}
+\end{align}
+
+My approach will be to upper bound the LHS by an intermediate quantity, and show that the RHS must be greater than or equal to this intermediate quantity. \\
+
+First, let's show that the LHS can be no larger than $n$, and that this bound is maximally tight, in that setting $\alpha := e_1$ achieves it. Recall that
+\begin{align}
+	\insum y_i x_i^T\alpha = \insum \lr{ \alpha_1 + \sum_{j = 2}^{d} y_i (x_i)_j \alpha_j }
+\end{align}
+Since we are finding the $\alpha$ that maximizes this quantity, constrained such that $\norm{\alpha} \leq 1$, and since each coefficient $ y_i (x_i)_j $ is at most 1, an optimal choice for $\alpha$ is $e_1$. In other words, we have 
+\begin{align}
+	\max_{\norm{\alpha} \leq 1} \insum y_i x_i^T \alpha \leq n \label{eq:2f-lhs}
+\end{align}
+
+Similarly, since we know that the first coefficient  $ y_i (x_i)_1 = 1 $ $(\forall i)$ from the problem definition, it must be the case that
+\begin{align}
+	\lr{ \insum y_i x_i}_1 = \insum y_i (x_i)_1 = n
+\end{align}
+Therefore
+\begin{align}
+	\norm{ \insum y_i x_i }
+		&= \sqrt{ n^2 + \sum_{j=2}^d \lr{ \insum y_i (x_i)_j }^2 } \\
+		&\geq n \label{eq:2f-rhs}
+\end{align}
+
+Combining part (e) with \ref{eq:2f-lhs} and \ref{eq:2f-rhs} yields the desired result:
+\begin{align}
+	\gamma_{\ell_2} \leq \max_{\norm{\alpha} \leq 1} \inv n \insum y_i x_i^T \alpha \leq 1 \leq \inv n \norm{ \insum y_i x_i }
+\end{align}
+
+
+
+
+
+
+\myspace 
+\subsection*{Part (g)}
+\question{Fix $j \in \{2, \ldots, d\}$ and $ 0 < \delta < 1$. Show that w.p. at least $1 - \delta$
+	\begin{align}
+		\lr{  \insum y_i x_i^T e_j  }^2 \leq C n \log \frac{2}{\delta}
+	\end{align}
+}
+
+We can treat each $x_i$ and $y_i$ as bounded random variables in $[-1, 1]$. Therefore, we can denote each summation term $z_{i,j} \triangleq y_i x_i^T e_j$  (for $2 \leq j \leq d$) as a bounded random variable also in $[-1, 1]$. Also, since $y_i \perp (x_{i})_{j \neq 1}$, we have that $\E{z_{i,j}} = 0$:
+\begin{align}
+	\E{z_{i,j}} = \E[x,y]{y x^T e_{j \neq 1}} = \E{y} \E{x^T e_{j \neq 1}} = 0
+\end{align}
+
+Then, from previous homeworks, we know that $z_{i,j}$ is sub-Gaussian with parameter $\sigma^2 = (1 - (-1))^2 / 4 = 1$.  Similarly, since  $z_{i,j} \perp z_{i',j}$ for $i \neq i' \in [n]$, the sum $\insum z_{i,j}$ is also sub-Gaussian with parameter $\sigma^2 = \insum 1 = n$. Therefore 
+ \begin{align}
+ 	\Prob{ \lr{  \insum y_i x_i^T e_j  }^2 \leq \epsilon } 
+ 		&= \Prob{  \lr{ \insum z_{i,j} }^2 \leq \epsilon  } \\
+ 		&=  \Prob{  \left| \insum z_{i,j}  \right|  \leq \sqrt{\epsilon}  } \\
+ 		&= \Prob{  \left| \insum z_{i,j} - \E{\sum_{i' = 1}^{n} z_{i',j}} \right|  \leq \sqrt{\epsilon}  } \\
+ 		&\geq 1 - 2 \exp \lr{ - \frac{ \epsilon}{2n}  }
+ \end{align}
+
+
+It is straightforward to verify that if $\epsilon := Cn \log \frac{2}{\delta}$, that 
+\begin{align}
+	\exp\lr{ \frac{\epsilon}{Cn} } = \frac{2}{\delta} 
+	\implies 
+	\delta = 2\exp \lr{\frac{-\epsilon}{Cn}}
+\end{align}
+
+which gives us the desired result with $C = 2$. 
+
+
+
+
+
+\clearpage 
+\subsection*{Part (h)}
+\question{Show that w.p. at least $\onehalf$, 
+	\begin{align}
+		\gamma_{\ell_2}  \leq \inv{n} \norm{\insum y_i x_i} \leq C \sqrt{\frac{n + d \log2d}{n}}
+	\end{align}
+}
+
+We already proved the first part of the inequality with probability 1 in part (f). For the second part, begin by expanding
+\begin{align}
+	\Prob{\inv n \norm{\insum y_i x_i} \leq C \sqrt{\frac{n + d \log2d}{n}} } 
+		&= \Prob{ \norm{\insum y_i x_i}^2 \leq n^2 C^2 \frac{n + d\log2d}{n} } \\
+		&= \Prob{\norm{\insum y_i x_i}^2 \leq n C^2 (n + d \log2d) }
+\end{align}
+
+Next, we can decompose the LHS as follows to utilize our result from part (g):
+\begin{align}
+	\norm{\insum y_i x_i}^2
+		&= \lr{ \insum y_i x_i }^2_1 + \sum_{j = 2}^{d} \lr{ \insum y_i x_i }^2_j \\
+		&= n^2 +  \sum_{j = 2}^{d} \lr{ \insum y_i x_i }^2_j \label{eq:2h-1} \\
+		&= n^2 + \sum_{j = 2}^{d} \underbrace{ \lr{ \insum y_i x_i^\top e_j }^2 }_{\triangleq g_j} \label{eq:2h-2}
+\end{align}
+where \ref{eq:2h-1} follows from the definition for $y_i$ as a function of $(x_i)_1 \equiv x_i^\top e_1$.Therefore, noting the definition of $g_j$ in \ref{eq:2h-2},  in order to obtain the desired result, we just need to show that
+\begin{align}
+	\Prob{ n^2 + \sum_{j = 2}^{d} g_j  \leq n^2 C^2 + n C^2 d \log 2d } \geq \onehalf 
+\end{align}
+
+From part (g), we know that 
+\begin{align}
+	\Prob{g_j \leq C'n \log\frac{2}{\delta} } \geq 1 - \delta 
+\end{align}
+where I'm distinguishing $C'$ as the constant associated with part (g). If we set $\delta := \inv{2d}$, note that $1 - \delta \geq \onehalf$. Therefore, with probability at least $\onehalf$, we have that 
+\begin{align}
+		&g_j \leq C'n \log 4d \\
+		\implies
+			& \sum_{j = 2}^{d} g_j \leq (d -1) C' n \log 4d \\
+		\implies 
+			&n^2  +  \sum_{j = 2}^{d} g_j \leq n^2 + (d -1) C' n \log 4d 
+			\leq n^2 + n C' d \log 2d 
+\end{align}
+
+which is the desired result. 
+
+
+\end{document}

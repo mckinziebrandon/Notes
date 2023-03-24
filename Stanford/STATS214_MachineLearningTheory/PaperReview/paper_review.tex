@@ -1,0 +1,1086 @@
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+% P  R  E  A  M  B  L  E
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\documentclass{article}
+\usepackage{amsbsy, amsmath, amssymb, authblk}
+
+%\usepackage{array} 
+%\usepackage{algorithm2e}
+\usepackage[title]{appendix}
+\usepackage{algorithmic}
+
+\usepackage[english]{babel}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+
+\usepackage{booktabs, bm}
+\usepackage{braket}
+\usepackage[small,labelfont=bf,up,singlelinecheck=false]{caption}
+\usepackage{cancel}
+\usepackage{comment}
+%\usepackage{fancyhdr}
+%\usepackage[default]{lato}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+%\usepackage[utf8]{inputenc}
+%	\inputencoding{latin1}
+%	\inputencoding{utf8}
+%\usepackage{lettrine}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage[utf8]{inputenc}
+\inputencoding{latin1}
+\inputencoding{utf8}
+%\usepackage[sc]{mathpazo}
+\usepackage{lmodern} % Nice fonts?
+\usepackage{mathrsfs}
+\usepackage{mathtools} 
+%\usepackage{marvosym} % silly bullet-point symbols (misc symbols)
+%\usepackage{microtype}
+%\usepackage{minitoc}         % left in case it is needed elsewhere
+%\setcounter{secttocdepth}{5} % idem
+%\usepackage{etoc} % for toc before each section.
+%\usepackage{multicol}
+\usepackage{needspace}
+\usepackage{paralist}
+\usepackage{pifont}
+%\usepackage{polynom} 			% typesetting polynomial long division
+%\usepackage{setspace}
+%	\onehalfspacing 
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{ulem} 				% for strikeout \sout command.
+%\usepackage{verbatim}
+
+% Muh packagez :)
+\usepackage{../../../Packages/MathCommands}
+\usepackage{../../../Packages/BrandonColors}
+\usepackage{../../../Packages/BrandonBoxes}
+\usepackage{../../../Packages/NoteTaker}
+
+%\usepackage{program}
+% DL BOOK CONVENTIONS
+\renewcommand\vec[2][]{\bm{#2}_{#1}}
+
+\usepackage{marginnote}
+\renewcommand*{\marginfont}{\scriptsize}
+
+\usepackage{listings}
+\newcommand\mc{\mathcal}
+%\setlength{\parskip}{1pt}
+%\setlength{\columnseprule}{0.1pt}
+%\setlength{\columnsep}{0.6cm}
+%\setlength\tabcolsep{0.1cm}
+\renewcommand{\arraystretch}{1.2}
+
+% author, title, affiliation, date.
+\DeclareDocumentCommand{\citepaper}{ m m m m }{
+	\vspace{-1em}
+	{\footnotesize #1, ``#2'' \textit{#3}, (#4).}
+}
+
+\newcommand\task{\mathscr{T}}
+
+\newcommand{\ntknabla}[1]{\nabla_{\theta} f_{\theta^0}\left( #1 \right)}
+
+% \innerprod{x}{y} == <x, y>
+\RenewDocumentCommand{\innerprod}{ m m }{ 
+	\left\langle #1, #2 \right\rangle
+}
+
+\fancyhead{}
+\fancyhead[C]{STATS214 $\bullet$ Final Paper Review $\bullet$ December 2021}
+\titleformat{\section}[block]{\large\scshape\bfseries}{\thesection.}{1em}{}
+\titleformat*{\subsection}{\normalsize\scshape\bfseries}
+\makeatletter
+\newcommand*{\rom}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\makeatother
+
+\usepackage{natbib}
+
+\begin{document}
+\title{\vspace{-14mm}\fontsize{24pt}{10pt}\selectfont\textbf{Final Paper Review}}
+\author{Brandon McKinzie \\ SUNet ID: 06009508}
+\date{}  
+\maketitle
+
+\thispagestyle{fancy}
+
+\begin{abstract}
+	A review of \cite{lee2019} and \cite{simon2021}. 
+\end{abstract}
+
+\newcommand\f[1][t]{f(\mc X, \theta_{#1})}
+\newcommand\g[1][t]{\f[#1] - \mc Y}
+\newcommand\J[1][t]{\nabla_{\theta} \f[#1]}
+
+% ===============================================================
+% PROBLEM STATEMENT
+% ===============================================================
+\section{Problem Statement}
+
+Recent research in deep learning has aimed to formalize why heavily overparameterized deep neural networks seem to learn functions that generalize well to unseen data. Both \cite{lee2019} and \cite{simon2021} provide characterizations for training dynamics and generalization of deep neural networks that help explain such observed phenomena for overparameterized networks. Specifically, if we could derive a bound on the discrepancy between the deep networks used in practice vs linearized versions that are more amenable to analysis, we may be able to formalize the generalization properties of such overparameterized networks. This is the approach taken by \cite{lee2019}.  
+
+
+In \cite{simon2021}, the authors build upon recent work related to the Neural Tangent Kernel (NTK) and analyze the eigensystem of the NTK within the framework of kernel regression. Specifically, for a given network architecture, a target function $f$, and a training set of $n$ random examples, can we efficiently predict the generalization performance of a network's learned function $\hat f$? More than just explaining why certain neural network architectures generalize well, understanding this would allow one to characterize which function classes a given architecture is well-suited to learn. 
+
+
+% ===============================================================
+% MAIN RESULT 
+% ===============================================================
+\section{Main Result}
+
+Note that for each subsequent section, I provide a corresponding portion of the appendix containing the full derivations with more commentary. 
+
+% --------------------- MAIN RESULT OF LEE  ---------------------
+\subsection{Main Result of \cite{lee2019}}
+
+Here, we'll focus on theorem 2.1 of \cite{lee2019}, restated below as Theorem \ref{thm:lee-2.1}, which says that with MSE loss, and when trained with a learning rate $\eta$ below some critical learning rate $\eta_{\text{critical}}$, in the infinite-width limit the outputs of a neural network converge to its linearized counterpart. We will let $f_t(\mc X) \in \R^{k|\mc X|}$ denote the (vectorized) network's $k$ outputs  at gradient descent step $t$ over all points $x \in \R^{n_0}$ in the training set $\mc X$, and let $f^{lin}_t$ denote the outputs of its linearized counterpart, defined as 
+\begin{align}
+	f^{lin}_t(x) \triangleq f_0(x) + \nabla_{\theta}f_0(x) \big|_{\theta=\theta_0} (\theta_t - \theta_0) 
+\end{align}
+We assume that $f$ is a feedforward network parameterized by $\theta$. 
+
+\renewcommand{\d}{\mgray{\delta_0}}
+\renewcommand{\r}{\mred{R_0}}
+\newcommand{\n}{\mblue{n_0}}
+\renewcommand{\k}{\mpurple{K}}
+\renewcommand{\c}{\morange{C}}
+
+\Needspace{8\baselineskip}
+\begin{theorem}\label{thm:lee-2.1}
+	Let $n_1 = \cdots = n_L = n$, where $n_i$ denotes the width of layer $i$, and assume $\lambda_{\text{min}}(\Theta) > 0$, where $\Theta$ is the neural tangent kernel (NTK) (see \ref{eq:S42}). Applying gradient descent with learning rate $\eta < \eta_{\text{critical}}$ (or gradient flow) results in the following: $\forall x \in \R^{n_0}$ such that $\norm{x} \leq 1$, with probability arbitrarily close to 1 over random initialization,
+	\begin{align}
+		\sup_{t \geq 0} \norm{f_t(x) - f^{lin}_t(x)} 
+			&= \mc O\lr{ \inv{\sqrt{n}} } \label{eq:lee-2.1-1}  \\
+		\sup_{t \geq 0} \inv{\sqrt{n}} \norm{\theta_t - \theta_0} 
+			&= \mc O\lr{ \inv{\sqrt{n}} } \label{eq:lee-2.1-2}  \\
+		\sup_{t \geq 0} \norm[F]{\hat\Theta_t - \hat\Theta_0}
+			&=  \mc O\lr{ \inv{\sqrt{n}} } \label{eq:lee-2.1-3}
+	\end{align}
+	as $n \to \infty$.
+\end{theorem}
+
+\Needspace{5\baselineskip}
+Informally, this theorem can be summarized as three statements:
+\begin{compactenum}
+	\item As $n \to \infty$, the outputs of a network $f_t$ at any step $t$ in gradient descent on an arbitrary point $x$  converge to the outputs of its linearized counterpart $f^{lin}_t(x)$. 
+	
+	\item As $n \to \infty$, the parameters of the network at step $t$ converge to the parameters at initialization. 
+	
+	\item As $n \to \infty$, the empirical NTK at step $t$ converges to the empirical NTK at initialization\footnote{Since the tangent kernel of a finite-width network depends on the specific random draw of the parameters $\theta$, the authors refer to it as the \textit{empirical} tangent kernel to distinguish it from the \textit{analytic} NTK $\Theta$.}.
+\end{compactenum}
+
+The derivation hinges on first proving \ref{eq:lee-2.1-2}. Although it's difficult to think in the realm of the infinite, we can roughly interpret \ref{eq:lee-2.1-2} as being a consequence of the fact that sums of the form $\sum_i^{n} \theta_i h^{(\ell)}_i$ can vary dramatically for even infinitesimal changes in $\theta$ when the summation is over infinitely many terms.
+
+
+Given statement (2) above (corresponding to equation \ref{eq:lee-2.1-2}), the other two statements are perhaps less surprising; if the weights don't diverge significantly from their initial values over the course of training, one would intuitively think that the gradients of the network would remain fairly close to the gradients at initialization (equation \ref{eq:lee-2.1-3}). Similarly, it makes sense that if the gradients aren't fluctuating much compared to their values at initialization, then the higher order derivatives of $f_t$ (on average over the course of training) should be similarly small, meaning that $f_t$ is well approximated by $f^{lin}_t$ in such cases, too (equation \ref{eq:lee-2.1-1}).
+
+
+% --------------------- MAIN RESULT OF SIMON  ---------------------
+\subsection{Main Result of \cite{simon2021}}
+
+If we accept that infinite-width networks are linearized networks, it is natural to wonder what types of functions such networks learn. In \cite{simon2021}, the authors analyze the learned function of a infinite-width network trained via gradient descent to zero training MSE loss:
+\begin{align}
+	\hat f(x)
+	&= \Theta(x, \mc D) \Theta(\mc D, \mc D)^{-1} f(\mc D) \label{eq:simon-1}
+\end{align}
+where $f$ denotes the underlying target function we want to learn and $\mc D$ denotes a training set of $n$ elements, and we assume a discretized input space with total cardinality $M$. The paper hinges on a quantity they define as the \green{learnability} of arbitrary target function $f$. 
+\begin{align}
+	\mathcal L^{(\mc D)}(f)
+		&\triangleq \frac{\innerprod{f}{\hat f}}{\innerprod{f}{f}} 
+	\qquad 
+	\mc L(f) 
+		\triangleq \E[\mc D]{\mc L^{(\mc D)}(f)}
+\end{align}
+where $\mc L^{(\mc D)}$ is referred to as the dataset-dependent learnability, or $\mc D$-\textit{learnability}. Aside from having many nice properties, such as $\mc L(f) \in [0, 1]$, with
+\begin{align}
+	n = 0 &\implies \mc{L}(f) = 0 \\
+	n = M &\implies \mc{L}(f) = 1
+\end{align}
+the learnability is also an intuitive framework for understanding the limiting behavior of networks trained to learn a given target function $f$. The result that I'll focus on shows that, using a certain decomposition of $\mc L$ in the eigenbasis of the NTK,  
+\begin{align}
+	\forall i \in \{1, \cdots, M\} \qquad 
+	&\deriv{}{\lambda_i} \mc L^{(\mc D)}(\phi_i) \geq 0 \\
+	\forall i, j \neq i \in \{1, \cdots, M\}  \qquad 
+		&\deriv{}{\lambda_i} \mc L^{(\mc D)}(\phi_{j}) \leq 0
+\end{align}
+which states that the eigenmodes are in a zero-sum competition with each other to be learned for a given dataset $\mc D$. Increasing the eigenvalue $\lambda_i$ for a given eigenfunction $\phi_i$ \textit{improves} the learnability for that eigenfunction\footnote{Previous works have shown that neural networks exhibit a spectral bias to eigenmodes with larger eigenvalues \cite{canatar2021}. In \cite{simon2021}, the authors further show that these eigenmodes are in a zero-sum competition with one another for the ability to be learned at a given training set size.}, but \textit{harms} the learnability of all other eigenfunctions. As we'll see, this interpretation hinges on the main theorem from the paper, which the authors call the \textit{``No-free-lunch'' theorem for kernel regression}:
+
+\Needspace{5\baselineskip}
+\begin{theorem}[``No-free-lunch'' theorem for kernel regression]\label{thm:lunch}
+	For any complete basis of orthogonal functions $\{\phi_i \}$
+	\begin{align}
+		\sum_{i} \mathcal L(\phi_i) = \sum_{i} \mathcal L^{(\mathcal D_n)}(\phi_i) = n
+	\end{align}
+\end{theorem}
+
+The authors are quick to emphasize that this is a much stronger theorem than previous results, which required averaging over \textit{all} target functions $f$ rather than an arbitrary set of basis functions $\{\phi_i \}$. This constraint, that the sum total learnability over the eigenbasis is always exactly $n$, is responsible for the zero-sum competition amongst eigenmodes. 
+
+\section{Proof Sketch of Theorem \ref{thm:lee-2.1}} % (on potentially simplified cases)
+
+% ------------------- BEGIN: COMPACT PROOF SKETCH  ------------------- 
+Here I provide a highly condensed proof sketch of \ref{thm:lee-2.1} (from \cite{lee2019}). In section \ref{sec:proof-lee} of the appendix, I provide a complete proof derivation that's reorganized for clarity and includes intermediate steps/interpretations not provided by the authors' derivation. The proof consists of two main steps:
+\begin{enumerate}
+	\item Prove the global convergence of overparameterized neural networks and stability of the NTK under gradient descent. 
+	
+	\item Couple the stability of the NTK with Gr\"{o}nwall's type arguments to upper bound $\sup_{t \geq 0} \norm{f_t(x) - f_t^{lin}(x)}$. 
+\end{enumerate}
+
+In the infinite-width limit, the outputs of a neural network can be expressed as a Gaussian Process \cite{neal1996}. Accordingly, the outputs $\f[0]$ on the training points $\mc X$ at initialization is itself jointly Gaussian. The authors use this to derive a bound of the form\footnote{See \ref{eq:S53} in the appendix for a more complete statement of \ref{eq:lol}},
+\begin{align}
+	\norm{\g[0]} < \r \qquad (\text{w.p.} ~ 1 - \d) \label{eq:lol}
+\end{align}
+where $\r$ is a constant\footnote{That may depend on $\d, |\mc X|, \mc K$, but that doesn't depend on the network width $n$.}. This, in conjunction with the local Lipschitzness of the Jacobian (Lemma \ref{lemma:lee-1}), allows us to perform a proof by induction on $t$ to obtain bounds on $\norm{\theta_{t+1} - \theta_t}$ for arbitrary $t$. A simple application of the triangle inequality can extend this to a bound on $\norm{\theta_t - \theta_0}$, yielding equation \ref{eq:lee-2.1-2}.
+
+Next, we aim to prove \ref{eq:lee-2.1-3} which gives us the stability of the NTK. As an intermediate step, we'll need to obtain an upper bound for $\norm{\g}$, which can again be done with inductive arguments on $t$, using the Gaussian Process result for obtaining the base case bound $\norm{\g[0]}$. The main step here involves a telescoping sum and invocation of the mean value theorem. Using the shorthand $g(\theta_{t+1}) \equiv \g[t+1]$,
+\begin{align}
+	\norm{g(\theta_{t+1})} 	
+		&= \norm{g(\theta_{t+1}) - g(\theta_t) + g(\theta_t)} \\
+		&= \norm{J(\tilde\theta_t) (\theta_{t+1} - \theta_t) + g(\theta_t)} 
+		\qquad \mtgray{[MVT]} \\
+		&\leq \norm[op]{1 - \eta J(\tilde\theta_t) J(\theta_t)^\top} \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t \r 
+		\qquad \mtgray{[\ref{eq:S49-1}]}
+\end{align}
+If we can bound the operator norm of the last equation, we obtain the desired result. This is accomplished by exploiting the definition of $\Theta$ as converging to $\hat\Theta_0$ in the infinite-width limit, decomposing the norm above into telescoping sums of $\Theta$ and $\hat\Theta_0$, and again using the local Lipschitzness of the gradients. It is then straightforward to apply the same logic to bound $\norm[F]{\hat\Theta_t - \hat\Theta_0}$. The last and arguably most important part of the proof is deriving an upper bound on $\norm{f^{lin}_t(x) - f_t(x)}$ for all $t$. Let $h(t) \triangleq \exp(\eta_0 \hat\Theta_0t) \lr{\hat\Theta_t - \hat\Theta_0}$.
+\begin{align}
+	&\deriv{}{t} \lr{\exp(\eta_0\hat\Theta_0 t) \lr{ g^{lin}(t) - g(t) }  }
+		= \eta_0 h(t) g(t) \label{eq:yo} \\
+	&g^{lin}(t) - g(t)
+		= - \int_0^t \eta_0 h(s - t) \lr{ g^{lin}(s) - g(s) } \mathrm{d}s
+			+  \int_0^t \eta_0 h(s - t)   g(s)  \mathrm{d}s
+\end{align}
+Taking the norm of this, and denoting $\lambda_0 \equiv \lambda_{\text{min}}(\hat\Theta_0)$,
+\begin{align}
+	e^{\eta_0 \lambda_0 t} \norm{g^{lin}(t) - g(t)}
+		&\leq \alpha(t) + \int_{0}^t \beta(s) u(s) \mathrm{d}s 
+		\leq \alpha(t) \exp\lr{ \int_0^t \beta(s) \mathrm{d}s }
+\end{align}
+for non-decreasing $\alpha(t)$. By leveraging the stability of the NTK derived earlier, we can obtain
+\begin{align}
+	\sup_t \norm{g^{lin}(t) - g(t) } 
+		&\lesssim \sup_t \sigma_t \r \lesssim \r^2 \inv{\sqrt n}
+\end{align}
+where $\sigma_t \triangleq \sup_{0 \leq s \leq t} \norm[op]{\hat\Theta_s - \hat\Theta_0}$. Recall that $g(t) \equiv \g$, i.e. so far we've only derived bounds for quantities over the \textit{training} data $\mc X$. Our ultimate goal is obtaining such points for arbitrary inputs (re: test points) $x$. Luckily, due to the local Lipschitzness of the gradients (lemma \ref{lemma:lee-1}), we can state
+\begin{align}
+	  \sup_t \norm{\hat\Theta_0(x, \mc X) - \hat\Theta_t(x, \mc X)} 
+	  	&\lesssim \r \inv{\sqrt n} \\
+	  \implies \norm{g^{lin}(t, x) - g(t, x)}
+	  	&\lesssim \r \inv{\sqrt n}
+\end{align}
+which completes the proof for \ref{eq:lee-2.1-1} and thus the proof for theorem \ref{thm:lee-2.1} (for the gradient flow case). 
+
+Note that the paper does not provide the second part of the proof for the discrete gradient descent case. Below I sketch a proof for bounding the discrepancy in this case, and I'm able to get a bound of the same desired form ($\lesssim \r^2 \inv{\sqrt n}$). First, recall the basic formulas for $f^{lin}$ and the change in outputs at step $t+1$ compared to step $t$:
+\begin{align}
+	f^{lin}(\theta_t)
+	&\triangleq f(\theta_t) + J(\theta_0) (\theta_t - \theta_0) \\
+	\implies f^{lin}(\theta_{t+1}) 
+	- f^{lin}(\theta_t)
+	&= J(\theta_0) (\theta_{t+1} - \theta_t) \\
+	\norm{f_{t+1} - f_t}
+	&\leq \norm{J(\theta_t)(\theta_{t+1} - \theta_t)} \label{eq:leap-of-faith1}
+\end{align}
+where \ref{eq:leap-of-faith1} uses the triangle inequality to discard higher order terms. 
+\begin{align}
+	\norm{g^{lin}(t+1) - g(t+1) -  (g^{lin}(t) - g(t))}	
+	&= \norm{ (J(\theta_0) - J(\theta_t))(\theta_{t+1} - \theta_t) } \\
+	&\leq \norm[op]{J(\theta_0) - J(\theta_t)} \norm{\theta_{t+1} - \theta_t} \\
+	&\leq \k \sqrt{n} \norm{\theta_t - \theta_0} \norm{\theta_{t+1} - \theta_t} 
+	\qquad \mtgray{[\ref{lemma:lee-1}]} \\
+	&\leq \k \sqrt{n}  \norm{\theta_t - \theta_0}  
+	\frac{\k \eta_0}{\sqrt{n}} \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t \r \\
+	&\leq  \eta_0 \k^2 \r  \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t  \frac{    3 \k \r   }{\lambda_{\text{min}}} \inv{\sqrt n} \\
+	&= 3 \frac{ \eta_0 \k^3 \r^2  }{ \lambda_{\text{min}}  } \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t  \inv{\sqrt n}
+\end{align}
+which gives us an $\mc O(\inv{\sqrt n})$ bound on the \textit{change} in discrepancy between gradient descent steps. We can combine this with the individual bounds derived previously on $\norm{g^{lin}_t}$ and $\norm{g_t}$, again using the triangle inequality and lemma \ref{lemma:lee-1}, to obtain the desired result.
+
+
+
+
+
+
+\begin{comment}
+The proof itself is quite lengthy, and the authors only provide the full proof for the gradient flow case. One contribution I'll make in my proof sketch is translating it to the discrete-step gradient descent case, of which the authors only provide the proof for the first of the two aforementioned steps. 
+
+\begin{compactenum}
+	
+	\item For sufficiently large $n$, $f(\theta_0)$ converges to a Gaussian. Therefore, we can bound $\norm{f(\theta_0) - \mc Y} \leq \r$ for some $\r$ independent of $n$. 
+	
+	\item Prove theorem \ref{thm:lee-g.1} which, for sufficiently large $n$, gives us the global convergence of $f_t$ and the stability of the $NTK$ under gradient descent. 
+	\begin{compactenum}
+		\item Assuming that \ref{eq:S49-1} holds for a given value of $t$, prove \ref{eq:S49-2} by induction.
+		
+		\item \textbf{Prove \ref{eq:S49-1} using the mean value theorem} and \ref{eq:S45}. 
+		
+		\item \textbf{Prove \ref{eq:S50}} by applying \ref{eq:S49-2} and \ref{eq:S47-1},\ref{eq:S47-2}. 
+	\end{compactenum}
+	
+	\item Derive bounds on the discrepancy between the network and its linearized version $\norm{g^{lin}(t) - g(t)}$ over the \textit{training set} $\mc X$. 
+	\begin{compactitem}
+		\item Get a bound that depends on $\norm[F]{\hat\Theta_0 - \hat\Theta_t}$, so that we can leverage the result from \ref{thm:lee-g.1}, and show that it goes to $0$ as $n \to \infty$. 
+	\end{compactitem}
+	
+	\item Extend bounds to apply for an arbitrary \textit{test} point $x \notin \mc X$. 
+	\begin{compactenum}
+		\item Derive an inequality of the form 
+		\begin{align}
+			\norm{g^{lin}(t, x) - g(t, x)} \leq \text{func}( \norm{\hat\Theta_0(x, \mc X) - \hat\Theta_t(x \mc X)})
+		\end{align}
+		
+		\item Use lemma \ref{lemma:lee-1} to obtain a bound on $\sup_t \norm{\hat\Theta_0(x, \mc X) - \hat\Theta_t(x \mc X)}$ that goes to 0 as $n \to \infty$.
+		
+		\item Show that this implies $\norm{g^{lin}(t, x) - g(t, x)} $ also goes to 0 as $n \to \infty$. 
+	\end{compactenum}
+\end{compactenum}
+% ------------------- END: COMPACT PROOF SKETCH  ------------------- 
+\end{comment}
+
+
+\section{Proof Sketch for \cite{simon2021}}
+
+Here I'll provide a proof sketch for the result that the eigenmodes are in a zero-sum competition with each other in terms of learnability\footnote{As before, I also include a much more complete derivation/discussion in the appendix (section \ref{sec:simon}).}. Formally, this means proving the property (g) of Lemma 1 from \cite{simon2021}:
+\begin{lemma}\label{lemma:simon}
+	For any $i, j \in \{1, \ldots, M\}, i \neq j,  \deriv{}{\lambda_i}\mc L^{(\mc D)  }(\phi_j)  \leq 0$
+\end{lemma}
+Although the direct proof for this is short and simple, it requires sketching out the preliminary results derived earlier in the paper. Therefore, my proof sketch will essentially be showing how we arrive at this result when starting from the ``beginning,'' which I'll define as equation \ref{eq:simon-1}. First, we need to express \ref{eq:simon-1} using the notation of learnability. To do this, we convert to the eigenbasis of the NTK $\Theta$. Let $\{\phi_i\}_{i=1}^{M}$ denote the $M$ orthonormal eigenfunctions that satisfy 
+\begin{align}
+	\inv{M} \sum_{x' \in \mc X} \Theta(x, x') \phi_i(x') 
+		&= \lambda_i \phi_i(x) 
+	\qquad 
+	\innerprod{\phi_i}{\phi_j} = \delta_{i,j}
+\end{align}
+which follows from the Mercer decomposition of $\Theta$, which I provide a brief review for in section \ref{sec:rkhs} of the appendix. We can decompose the target function $f$ and learned function $\hat f$ into this eigenbasis as
+\begin{align}
+	f(x) = \sum_{i = 1}^{M} v_i \phi_i(x) 
+	\qquad 
+	\hat f(x) = \sum_{i=1}^M\hat v_i \phi_i(x)
+\end{align}
+Henceforth, we'll use the vector notation $\vec v$ and $\vec{\hat v}$ in $\R^{M}$ for $f$ and $\hat f$, respectively. Noting that $\Theta$ is diagonalized in this basis by definition, we can rewrite \ref{eq:simon-1} in this vector space as 
+\begin{align}
+	\vec{\hat v}
+		&\triangleq
+		\underbrace{ \matr\Lambda \matr\Phi (\mc D)
+		\lr{  \matr{\Phi}^\top(\mc D)  \matr\Lambda \matr\Phi (\mc D)  }^{-1}  \matr{\Phi}^\top (\mc D)
+	}_{\triangleq \matr{T}^{(\mc D)}}
+		\vec v
+\end{align}
+where $\matr[ij]{\Phi}(\mc D) = \phi_i(\ival[j]{x})$ and $\matr{T}^{(\mc D)} \in \R^{M \times M}$ is referred to as the \textit{learning transfer matrix}. Note that $\matr{T}^{(\mc D)}$ is independent of the target function $f$ and thus fully captures the model's learning behavior on a training set $\mc D$. The key quantity in the paper, called the $\mc D$-\textit{learnability} and denoted by $\mc L^{(\mc D)}$ can be rewritten in this vector notation as
+\begin{align}
+	\mc L^{(\mc D)}(f)
+	&\triangleq \frac{\innerprod{f}{\hat f}}{\innerprod{f}{f}}
+	= \frac{\vec v^\top \vec{\hat v}}{|\vec v|^2} 
+	= \frac{\vec v^\top \matr{T}^{\mc D} \vec{v}}{|\vec v|^2} \label{eq:learnability}
+\end{align}
+Recall that our goal is to prove lemma \ref{lemma:simon}. From equation \ref{eq:learnability}, we see that 
+\begin{align}
+	\mc L^{(\mc D)}(\phi_i)	
+		&\triangleq \frac{  \innerprod{\phi_i}{\hat\phi_i} }{  \innerprod{\phi_i}{\phi_i} } \\
+		&= \vec[i]{e}^\top \matr{T}^{(\mc D)} \vec[i]{e}  \\
+		&= \vec[ii]{T}  \\
+	\implies 
+		\deriv{}{\lambda_i} \mc L^{(\mc D)}(\phi_j) 
+			&= \deriv{}{\lambda_i}  \matr[jj]{T}^{(\mc D)}
+\end{align}
+Therefore, since
+\begin{align}
+	\deriv{}{\lambda_i} \matr[jj]{T}^{(\mc D)}
+		&=  \lr{\delta_{ij} - \lambda_j \phi_j^\top \Theta^{-1} \phi_i } \phi_i^\top \Theta^{-1}\phi_j \\
+	(i \neq j) \implies
+		\deriv{}{\lambda_i} \matr[jj]{T}^{(\mc D)}
+			&=   - \lambda_j (\phi_j^\top \Theta^{-1} \phi_i )^2
+\end{align}
+and since $\lambda_j > 0$ (from the assumption that $\Theta$ is positive definite), we have the desired result (lemma \ref{lemma:simon}). It's worth taking a moment to recognize that, due to theorem \ref{thm:lunch}, which can be equivalently stated as $\text{Tr}(\matr{T}^{(\mc D)}) = n$, an increase in the eigenvalue $\lambda_i$ of $\phi_i$ simultaneously ``causes'' a decrease in the learnability of \textit{all other eigenfunctions} $\phi_j$.
+
+
+
+\begin{comment}
+% ====================================================
+% Examples and CounterExamples
+% ====================================================
+\clearpage
+\section{Examples}
+
+\question{
+Results are often presented in an abstract way, which can sometimes obfuscate core intuitions.  Your job is to fix this.  Come up with one or two instantiations of the main theorem or algorithm, and trace through what the consequences are.  Do they make sense? \\
+
+Go through each of the assumptions and try to come up with a reason why this assumption is needed.  Can you come up with a counterexample that renders the theorem false?  (This isn’t always possible, so don’t worry if you can’t do it.) \\
+
+For example, if the paper can solve all convex optimization problems, just do linear least-squares regression, or even simpler, least squares where the features are drawn from an isotropic Gaussian.  If the theorem requires convexity, come up with a non-convex function for which the conclusion of the theorem doesn’t hold.
+}
+\end{comment}
+
+
+
+
+\begin{comment}
+\question{
+Many proofs are very difficult to understand. One way is a top-down approach---first understand the lemmas and how the lemmas give the theorem, and then understand the proofs of the lemmas. Another way is to simplify the proof in a special setting. E.g., the paper may show an algorithm for all hypothesis classes with Rademacher complexity d, and for the sake of understanding, you can read the proofs by pretending the size of the hypothesis class is d (which is a stronger assumption) if that helps to simplify certain parts and give you more intuitions. \\ 
+
+What you can do for the review is to give a simplified proof sketch (even for a special case) that can demonstrate the essence of the proof.  A small fraction of the theoretical papers actually give a proof sketch section for the readers’ ease of understanding (e.g., Section 3 of this paper). If there is no such section in the paper you reviewed, then it would be fantastic for you to write a 1-2 page proof sketch. If there is already such a section, it’s a bit harder because you shouldn’t just repeat the proof sketch section (because then we don’t know if you truly understand or you are just somewhat repeating.) However, it may be still great to instantiate the proof sketch for special cases or discuss the techniques or intuitions of the proof in the paper in your words, as long as you don’t just duplicate the same proof sketch.  \\
+
+Your proof sketch can be high-level and can omit many low-level parts or treat many things as blackboxes. It might be good to include a few lines of real proofs about some essential part, instead of just combining lemmas straightforwardly into a theorem. (On the other hand, sometimes listing the lemmas could be already a good proof sketch --- depending on how the lemmas are structured.)  \\
+
+The main goal of parts c and d is to demonstrate that you have a sufficiently in-depth understanding of the paper. Anything that achieves the same effect is acceptable as an alternative to parts c and d. E.g., if you found a mistake in the paper, or if you have an alternative proof or could extend or simplify the proofs of the paper, these are all things that can go into the review. 
+}
+\end{comment}
+
+\section{Limitations}
+
+Perhaps the most obvious limitations of both \cite{lee2019} and \cite{simon2021} is (1) working in the infinite-width limit, and (2) focusing on MSE loss\footnote{To be fair, \cite{lee2019} also includes some analysis of cross entropy in the appendix.}. With that said, \cite{simon2021} shows excellent agreement of the theory with finite width networks even for widths as small as 20. Beyond that, both papers include a large number of assumptions in the derivations of their proofs, and it can be challenging deciphering which assumptions are reasonable and broadly applicable vs assumptions that aren't well approximated in common real-world scenarios. 
+
+For example, let's interpret a few of the key assumptions mentioned by theorem \ref{thm:lee-2.1}. The theorem is restricted to inputs satisfying $\norm{x} = 1$. Upon closer inspection, this is only required insofar as allowing us to make statements regarding Lipschitzness of the gradients over the training set $\mc X$. Since the authors consider ReLU activation and linear readout layer, we couldn't bound much if $\norm{x}$ wasn't itself bounded. Basically, as long as $\norm{x} \leq C$ for some universal constant $C$, the theorem still holds, but it would be more cumbersome to include additional constants throughout the proof. Furthermore, normalizing the inputs to a network is commonly done in practice, and hence is a reasonable assumption. 
+
+
+Next, as noted by the authors, the restriction to $\{ x \in \R^{n_0} : \norm{x} = 1\}$ actually implies that $\lambda_{\text{min}}(\Theta) > 0$\footnote{Under the global assumptions of the paper that we are working with  feedforward networks with activations $\phi(x)$ that grow non-polynomially in large $x$.}, where $\Theta$ is the analytic NTK defined by 
+\begin{align}
+	\Theta =  \text{plim}_{n \to \infty} \inv{n} \J[0] \J[0]^\top
+\end{align}
+To understand this, I considered the following decomposition of $\J[0]\J[0]^\top$ applied to one of the standard basis vectors $\{ e_i \}_{i=1}^{k|\mc X|}$
+\begin{align}
+	\J[0]\J[0]^\top e_i 	
+	&= \sum_{p=1}^{|\theta|} \pderiv{\f[0]}{\theta_p} \pderiv{\f[0]}{\theta_p}^\top e_i \\
+	&=  \sum_{p=1}^{|\theta|} \pderiv{\f[0]}{\theta_p}\lr{ \pderiv{\f[0]}{\theta_p} }_i
+\end{align}
+Since we can express $e_i$ in the eigenbasis of $\Theta$, the constraint that $\lambda_{\text{min}} > 0$ implies that for every output $k$ on every training point $x \in \mc X$, denoted $f_0(x)_k$, there exists at least one parameter $\theta_p$ in the network for which $\pderiv{f_0(x)_k}{\theta_p} > 0$. At first glance, this might actually seem quite restrictive. However, we are working in the infinite-width limit, $|\theta|  \gg k |\mc X|$, and thus requiring that the columns of $\J[0] \in \R^{k|\mc X| \times |\theta|}$ span $\R^{k|\mc X|}$ is quite reasonable.  
+
+
+
+\section{Future directions} % (optional)
+
+\begin{comment}
+Based on the limitations in the previous section, what are fruitful directions for future research?
+These might include exploiting more of the structure of the problem to tighten the results.  Or it might be taking these ideas and applying them to a different setting.
+This is your opportunity to practice formulating a research question, which might be good for the final project.
+\end{comment}
+
+As noted elsewhere in the literature, one of the remaining puzzles that arises when comparing infinite-width predictions from theory with finite networks in practice is the seemingly contradictory observations that (1) we observe improving performance in finite-width networks as we increase their width, but (2) finite-width networks often outperform direct applications of their infinite-width counterparts. After all, if increasing the width of the network leads to improved generalization, and if we have analytic forms in the infinite-width limit, why isn't everyone strictly working with such networks in practice? For one, \cite{lee2019} observed that the agreement between $f$ and $f^{lin}$ was much less stable when training with cross entropy loss compared to MSE. Understanding the underlying causes for discrepancies between theory and experiment in these settings is a promising direction for future research.
+
+It's also worth mentioning that \cite{simon2021} assumed a discrete input space of $|\mc X|$ unique points. In experiments on continuous input spaces, all but the top few eigenmodes had learnabilities much closer to 0 than 1, even when the number of data points was as high as $2^8$ for the input space of the 7-sphere (Figure 2(c) of \cite{simon2021}).This paints a slightly different perspective for both the limitations and future directions for studying the infinite width limit: the approximation is excellent when the target function is composed of the top eigenmodes of the NTK. Perhaps it is the case that, for architectures/tasks that aren't well suited for the infinite-width approximation, the target functions are poorly aligned with the top eigenmodes (i.e. give more weight to lower-eigenvalue modes). In any case, it would be useful for future experiments to analyze the relationship between kernel spectra and agreement between finite vs infinite-width networks, similar to what was done in \cite{Bahri} but with a focus on relating the decomposition of the target function in terms of the eigenmodes and the agreement with linearized approximations.
+
+\clearpage 
+\bibliographystyle{plainnat}
+\bibliography{references}
+	
+\clearpage 
+\begin{appendices}
+\section{Appendix}
+
+
+
+\subsection{Review: Single-Layer MLPs as Gaussian Processes}
+
+A review of the results presented in \cite{neal1996}. The results here will be foundational for my complete proof sketch in the following section. Let $\vec[\vec \theta]{f}: \R^{I} \to \R^{O}$, where $\vec\theta = \{ \vec a, \matr U, \vec b, \matr V \}$, be a neural network with one hidden layer of width $H$.
+\begin{align}
+	f_k(\vec x) 	
+	&= b_k + \sum_{j = 1}^{H} V_{kj} h_j(\vec x) \\
+	h_j(\vec x)
+	&= \tanh\lr{ a_j + \sum_{i = 1}^{I} U_{ji} x_i }
+\end{align}
+
+Assume $a_i \overset{i.i.d}{\sim} \Gauss{0, \sigma_b^2}$, and $V_{k,j} \overset{i.i.d.}{\sim} \Gauss{0, \sigma_v^2}$. For the moment, assume some fixed input $\vec x := \ivec[1]{x}$. Denote $\sigma_h^2 \triangleq \E{h_j(\vec[1]{x})^2}$, which is the same for all $1 \leq j \leq H$.
+\begin{align}
+	\E{f_k(\ivec[1]{x})} 
+	&= \E{b_k} + \sum_{j = 1}^{H} \E{V_{k,j} h_j(\ivec[1]{x})} \\ 
+	&= 0 + \sum_{j = 1}^{H} 0 \cdot \E{h_j(\ivec[1]{x})} \quad \mblue{V_{j,k} \perp \{a_{j'}, U_{j', i}\}} \\
+	&= 0 \\
+	\Var{f_k(\ivec[1]{x})} 
+	&= \sigma_b^2 + \sum_{j=1}^{H} \sigma_{v}^2 \Var{h_j(\ivec[1]{x})} \\
+	&= \sigma_b^2 + H \sigma_v^2 \sigma_h^2 \\
+	&= \sigma_b^2 + \omega_v^2 \sigma_h^2 \quad \text{where} \quad \sigma_v = \inv{\sqrt{H}} \omega_v
+\end{align}
+
+Note that we have not made any assumptions about the distribution of the hidden layer weights/biases $\matr V$ and $\vec a$, aside from the fact that they are drawn element-wise-i.i.d. and are independent of the output layer weights/biases $\matr V$ and $\vec b$. By the Central Limit Theorem, we can say that as $H \to \infty$,  $f_k(\vec[1]{x})$ converges to a random Gaussian variable with mean $0$ and variance $\sigma_b^2 + \omega_v^2 \sigma_h^2$. 
+
+Similarly, the joint prior of $f_k$ over a set of inputs, $\{ f_k(\ivec[1]{x}), \ldots, f_k(\ivec[n]{x}) \}$ itself converges to a multivariate Gaussian with mean zero and covariances 
+\begin{align}
+	\Sigma_{p,q} 
+	&= \E{f_k(\ivec[p]{x}) f_k(\ivec[q]{x}) } 
+	= \sigma_b^2 + \omega_v^2 C_{p,q} \\
+	\text{where } C_{p,q} &= \E{h_j(\ivec[p]{x}) h_j(\ivec[q]{x})}
+\end{align}
+
+This property of $f_k$, that we can treat any [finite] collection of its values for a set of inputs $\{\ivec[i]{x}\}$, and that collection is itself jointly Gaussian, is the definition of a \green{Gaussian process}. 
+
+% ====================================================
+% More Complete Proof Sketch
+% ====================================================
+\clearpage
+\section{Complete Proof of Theorem \ref{thm:lee-2.1}}\label{sec:proof-lee}
+
+Here I present the full derivation of theorem \ref{thm:lee-2.1}, including far more detail than provided by \cite{lee2019}. There were many gaps in the derivation (things the authors likely assumed the reader understood) that I had to re-derive/prove to myself, all of which are included below. First, I'll restate the key intermediate lemmas/theorems that are involved in the proof. An equation we'll reference often is the weight update for gradient descent: 
+
+\marginnote{
+	$$g(\theta_t) \in \R^{k|\mc X|}$$
+	$$J(\theta_t) \in \R^{k|\mc X| \times |\theta|}$$}
+\begin{align}
+	\theta_{t+1} - \theta_t 
+	&= - \eta J(\theta_t)^\top g(\theta_t) \label{eq:S45}
+\end{align}
+where $J(\theta_t) \triangleq \J$. 
+
+\begin{lemma}[Local Lipschitzness of the Jacobian]\label{lemma:lee-1}
+	$\exists \k > 0  $ s.t. $\forall \c > 0$, w.h.p. over random initialization (w.h.p.o.r.i), $\forall \theta, \tilde \theta \in B(\theta_0, \inv{\sqrt n} \c ) $:
+	\begin{align}
+		\inv{\sqrt n} \norm[F]{J(\theta)} 
+		&\leq \k  \label{eq:S47-1} \\
+		\inv{\sqrt n}\norm[F]{J(\theta) - J(\tilde \theta)} 
+		&\leq \k \norm{\theta - \tilde\theta} \label{eq:S47-2}
+	\end{align}
+	
+\end{lemma}
+
+\begin{theorem}[Gradient Descent]\label{thm:lee-g.1}
+	For $(\d > 0)( \eta_0 < \eta_{\text{critical}}) (\exists \r > 0, N \in \mathbb{N}, \k > 1)$ such that $\forall n \geq N$, w.p. at least $1 - \d$ over random initialization when applying GD with $\eta := \frac{\eta_0}{n}$:
+	\begin{align}
+		\norm{f(\theta_t) - \mc Y} 
+			&\leq \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t \r  \label{eq:S49-1} \\
+		\sum_{j = 1}^{t} \norm{\theta_j -  \theta_{j - 1}} 
+			&\leq \frac{\eta_0 \k \r}{\sqrt{n}} \sum_{j=1}^t \lr{1 -   \frac{\eta_0 \lambda_{\text{min}}}{3} }^{j-1} 
+				\leq \frac{ 3 \k \r }{\lambda_{\text{min}}} \inv{\sqrt n}
+				\label{eq:S49-2} \\
+		\sup_t \norm[F]{\hat\Theta_0 - \hat\Theta_t} 
+			&\leq \frac{6 \k^3 \r}{\lambda_{\text{min}}} \inv{\sqrt n} \label{eq:S50}
+	\end{align}
+\end{theorem}
+
+\begin{theorem}[Convergence to Linearized Network]\label{thm:lee-h.1}
+	For all $x \in \R^{n_0}$ with $\norm{x} \leq 1$, for $\d > 0$ arbitrarily small, $\exists \r > 0$ and $N \in \mathbb{N}$ s.t. $\forall n \geq N$, w.p. at least $1 - \d$ over random initialization,
+	\begin{align}
+		\sup_t \norm{g^{lin}(t) - g(t)}, ~ \sup_t \norm{g^{lin}(t, x) - g(t, x)} \lesssim \r^2 \inv{\sqrt n}
+	\end{align}
+\end{theorem}
+
+\bluesec{Assumptions}
+\begin{compactenum}
+	\item $n_1 = \cdots n_L = n$. 
+	\item The analytic NTK $\Theta$ is full-rank. 
+	\begin{align}
+		\hat\Theta_t \equiv \hat\Theta_t(\mc X, \mc X) = \inv{n} J(\theta_t) J(\theta_t)^\top 
+		\quad 
+		\text{and}
+		\quad 
+		\Theta \triangleq \text{plim}_{n \to \infty} \hat\Theta_0
+		\label{eq:S42}
+	\end{align}
+	\item $\mc D$ contained in some compact set and $x \neq \tilde x$ $\forall x, \tilde x \in \mc X$. 
+	\item The activation function $\phi$ satisfies 
+	\begin{align}
+		|\phi(0)|, ~
+		\inftynorm{\phi'}, ~
+		\sup_{x \neq \tilde x} \frac{\left|  \phi'(x) - \phi'(\tilde x) \right|}{|x - \tilde x|} < \infty 
+	\end{align}
+
+	\item We are using MSE loss $\mc L(t) = \onehalf \norm{\g}^2$. 
+\end{compactenum}
+
+\bluesec{Bounds for Wide Networks (Outputs) at Initialization}. Since $\f \overset{p}{\to} \Gauss{0, \mc K}$ (\cite{neal1996}) one can show that for $\d > 0$, $\exists  \r(\d, |\mc X|, \mc K) > 0$ and $\exists \n(\d, |\mc X|, \mc K)$ s.t. $\forall n \geq \n$, w.p. at least $1 - \d$ over random initialization,
+\begin{align}
+	\norm{\g[0]} < \r \label{eq:S53}
+\end{align}
+
+\bluesec{Per-Layer Parameter Convergence for Wide Networks}. \textbf{Prove \ref{eq:S49-2} by induction}: Choose $n_1 > \n$ such that $\forall n \geq n_1$ equation \ref{eq:S47-1}, \ref{eq:S47-2}, and \ref{eq:S53} hold w.p. at least $1 - \d / 5$. Assume \ref{eq:S49-1} and \ref{eq:S49-2} holds for some given $t$ \footnote{Note that they trivially satisfy the base induction case of $t := 0$}. From equation \ref{eq:S45}, we know
+\begin{align}
+	\norm{\theta_{t+1} - \theta_t} 	
+	&\leq \eta \norm[op]{J(\theta_t)} \norm{g(\theta_t)} \\
+	&\leq \eta \norm[op]{J(\theta_t)} \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t \r 
+		\qquad \mtgray{[\ref{eq:S49-1}]} \\
+	&\leq \eta \norm[F]{J(\theta_t)}  \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t \r 
+		\qquad \mgray{[\norm[op]{A} \leq \norm[F]{A}]} \\ 
+	&\leq \frac{\eta_0}{n} \k \sqrt{n}  \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t \r 
+		\qquad \mtgray{[\ref{lemma:lee-1}]}  \\
+	&=  \frac{\k \eta_0}{\sqrt n} \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t \r  \\
+	\implies 
+	\norm{\theta_{t+1} - \theta_0}
+		&\leq \sum_{j = 1}^{t+1} \norm{\theta_j - \theta_{j - 1}} 
+		\qquad \mtgray{[triangleq ineq.]} \\
+		&\leq \frac{\eta_0 \k \r }{\sqrt n} \sum_{j = 1}^{t+1}  \lr{1 -   \frac{\eta_0 \lambda_{\text{min}}}{3} }^{j-1} 
+			\qquad \mtgray{[\ref{eq:S49-2}]}
+\end{align}
+
+\bluesec{Bounds for Wide Networks (Outputs) at Arbitrary Step}. \textbf{Prove \ref{eq:S49-1} using the mean value theorem} and \ref{eq:S45}. Again, proceed with proof by induction, assuming it holds for some given $t$, and show it holds for $t +1$\footnote{Recall that we know it holds for $t = 0$ by \ref{eq:S53}.}:
+\begin{align}
+	\norm{g(\theta_{t+1})} 
+		&= \norm{g(\theta_{t+1}) - g(\theta_t) + g(\theta_t)} \\
+		&= \norm{J(\tilde\theta_t) (\theta_{t+1} - \theta_t) + g(\theta_t)} 
+			\qquad \mtgray{[MVT]} \\
+		&= \norm{-\eta J(\tilde\theta_t) J(\theta_t)^\top g(\theta_t) + g(\theta_t)} 
+			\qquad \mtgray{[\ref{eq:S45}]} \\
+		&=  \norm{(1 -\eta J(\tilde\theta_t) J(\theta_t)^\top) g(\theta_t) } \\ 
+		&\leq \norm[op]{1 - \eta J(\tilde\theta_t) J(\theta_t)^\top} \norm{g(\theta_t)}
+			\qquad \mgray{[ \norm{Av} \leq \norm[op]{A}\norm{v}  ]}  \\
+		&\leq \norm[op]{1 - \eta J(\tilde\theta_t) J(\theta_t)^\top} \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t \r 
+			\qquad \mtgray{[\ref{eq:S49-1}]}
+\end{align} 
+
+
+Therefore, all that's left for us to prove \ref{eq:S49-1} is to show that
+\begin{align}
+	 \norm[op]{1 - \eta J(\tilde\theta_t) J(\theta_t)^\top}
+	  	&\leq  1 - \frac{\eta_0 \lambda_{\text{min}}}{3}
+\end{align}
+
+Recall the definition of the analytic NTK:
+\begin{align}
+	\Theta &\triangleq \text{plim}_{n \to \infty} \hat\Theta_0 
+\end{align}
+It follows that $\exists n_2$ such that $\forall n \geq n_2$, w.p. at least $(1 - \d/5)$,\marginnote{Recall that $\eta := \frac{\eta_0}{n}$}[11em]
+\begin{align}
+	\norm[F]{\Theta - \hat\Theta_0} 
+		&\leq \frac{\eta_0 \lambda_{\text{min}}}{3} \\
+	\implies 
+	\norm[op]{1 - \eta_0 \Theta} 
+		&\leq 1 - \eta_0 \lambda_{\text{min}} \\
+	\implies 
+	\norm[op]{1 - \eta J(\tilde\theta_t) J(\theta_t)^\top} 
+		&= \norm[op]{1 - \eta J(\tilde\theta_t) J(\theta_t)^\top  - \eta_0 \Theta + \eta_0 \Theta - \eta_0 \hat\Theta_0+ \eta_0 \hat\Theta_0   } \\
+		&\leq \norm[op]{1 - \eta_0 \Theta} 
+			+ \eta_0 \norm[op]{\Theta - \hat\Theta_0} 
+			+ \norm[op]{\eta_0 \hat\Theta_0 - \eta J(\tilde \theta_t) J(\theta_t)} 
+			\qquad \mtgray{[triangle ineq.]} \\
+		&\leq \norm[op]{1 - \eta_0 \Theta} 
+		+ \eta_0 \norm[op]{\Theta - \hat\Theta_0} 
+		+ \norm[op]{\frac{\eta_0}{n} J(\theta_0) J(\theta_0)^\top - \eta J(\tilde \theta_t) J(\theta_t)} 
+		\qquad \mtgray{[\ref{eq:S42}]} \\ 
+		&\leq \lr{1 - \eta_0} \lambda_{\text{min}} +  \frac{\eta_0 \lambda_{\text{min}}}{3}
+			+ \eta \norm[op]{J(\theta_0) J(\theta_0)^\top - J(\tilde \theta_t) J(\theta_t)}  \\
+		&\leq 
+			 \lr{1 - \eta_0} \lambda_{\text{min}} +  \frac{\eta_0 \lambda_{\text{min}}}{3}
+			+	 \eta_0 \k^2 \lr{ \norm{\theta_t - \theta_0} + \norm{\tilde\theta_t - \theta_0} }
+			\qquad \mtgray{[\ref{lemma:lee-1}]} \\
+		&\leq 
+		 	\lr{1 - \eta_0} \lambda_{\text{min}} +  \frac{\eta_0 \lambda_{\text{min}}}{3}
+			+\eta_0 \k^2 2 \frac{3 \k \r}{\lambda_{\text{min}}} \inv{\sqrt{n}}
+			\qquad \mtgray{[\ref{eq:S49-2}]} \\
+		&= 1 - \frac{2}{3} \eta_0 \lambda_{\text{min}} + 6 \frac{\eta_0 \k^3 \r}{\lambda_{\text{min}} \sqrt{n}}
+\end{align}
+
+Remember, our goal was to show 
+\begin{align}
+	\norm[op]{1 - \eta J(\tilde\theta_t) J(\theta_t)^\top}
+		&\leq  1 - \frac{\eta_0 \lambda_{\text{min}}}{3}
+\end{align}
+and we have just shown that 
+\begin{align}
+	\norm[op]{1 - \eta J(\tilde\theta_t) J(\theta_t)^\top}
+	&\leq  1 - \frac{2}{3} \eta_0 \lambda_{\text{min}} + 6 \frac{\eta_0 \k^3 \r}{\lambda_{\text{min}} \sqrt{n}}
+\end{align}
+Therefore, we can solve the following inequality for $n$ 
+\begin{align}
+	1 - \frac{2}{3} \eta_0 \lambda_{\text{min}} + 6 \frac{\eta_0 \k^3 \r}{\lambda_{\text{min}} \sqrt{n}}	
+		&\leq  1 - \frac{\eta_0 \lambda_{\text{min}}}{3} \\
+	\implies n 
+		&\geq \lr{  \frac{18 \k^3 \r}{\lambda_{\text{min}}^2}   }^2
+\end{align}
+and we have thus proven \ref{eq:S49-1} for 
+\begin{align}
+	N := \max\left\{  \n, n_1, n_2,   \lr{  \frac{18 \k^3 \r}{\lambda_{\text{min}}^2}   }^2 \right\}
+\end{align}
+
+\bluesec{Stability of NTK under Gradient Descent}. All that's left is to prove \ref{eq:S50}, after which we will have proven all of \ref{thm:lee-g.1}, which was the first of two steps for proving our ultimate goal: theorem \ref{thm:lee-2.1}. 
+\begin{align}
+	\norm[F]{\hat\Theta_0 - \hat\Theta_t} 
+		&= \inv{n} \norm[F]{J(\theta_0) J(\theta_0)^\top  - J(\theta_t) J(\theta_t)^\top }
+			\qquad \mtgray{[\ref{eq:S42}]} \\
+		&= \inv{n} \norm[F]{ J(\theta_0) J(\theta_0)^\top - J(\theta_0)J(\theta_t)^\top + J(\theta_0)J(\theta_t)^\top - J(\theta_t) J(\theta_t)^\top  } \\
+		&= \inv{n} \norm[F]{ J(\theta_0) \lr{ J(\theta_0)^\top - J(\theta_t)^\top }    + \lr{J(\theta_0) - J(\theta_t)} J(\theta_t)^\top } \\
+		&\leq \inv{n} \lr{
+			\norm[op]{J(\theta_0)} \norm[F]{ J(\theta_0)^\top - J(\theta_t)^\top } 
+			+ \norm[op]{J(\theta_0) - J(\theta_t)} \norm[F]{J(\theta_t)^\top}
+		} \\
+		&\leq \inv{n} \lr{ 
+			\k \sqrt{n} \k \norm{\theta_0 - \theta_t} \sqrt{n}
+			+ \k \norm{\theta_0 - \theta_t} \sqrt{n} \k \sqrt{n}
+	  } \qquad \mtgray{[\ref{lemma:lee-1}]} \\
+  		&= 2\k^2 \norm{\theta_0 - \theta_t} \\
+  		&\leq \frac{6\k^3 \r}{\lambda_{\text{min}}} \inv{\sqrt n} 
+  			\qquad \mtgray{[\ref{eq:S49-2}]}
+\end{align}
+
+
+
+\bluesec{Bounding the Discrepancy Between the Original and Linearized Networks}. Thus far, we have proven both \ref{eq:lee-2.1-2} and \ref{eq:lee-2.1-3}. The only formula we have yet to prove in theorem \ref{thm:lee-2.1} is \ref{eq:lee-2.1-1}, which bounds the discrepancy between the network outputs in the outputs of its linearized counterpart $f^{lin}$, restated as follows for convenience:
+\begin{align}
+	\sup_{t \geq 0} \norm{f_t(x) - f^{lin}_t(x)} 
+	&= \mc O(\inv{\sqrt{n}}) 
+\end{align}
+
+The paper only proves this for the gradient flow case. Below I derive a bound on this discrepancy for the gradient descent case by utilizing our prior results, and I'm able to get a bound of the desired form $\lesssim \r^2 \inv{\sqrt n}$. First, recall the basic formulas for $f^{lin}$ and the change in outputs at step $t+1$ compared to step $t$:
+\begin{align}
+	f^{lin}(\theta_t)
+		&\triangleq f(\theta_t) + J(\theta_0) (\theta_t - \theta_0) \\
+	\implies f^{lin}(\theta_{t+1}) 
+		- f^{lin}(\theta_t)
+		&= J(\theta_0) (\theta_{t+1} - \theta_t) \\
+	\norm{f_{t+1} - f_t}
+		&\leq \norm{J(\theta_t)(\theta_{t+1} - \theta_t)} \label{eq:leap-of-faith}
+\end{align}
+where \ref{eq:leap-of-faith} uses the triangle inequality to discard higher order terms. 
+\begin{align}
+	\norm{g^{lin}(t+1) - g(t+1) -  (g^{lin}(t) - g(t))}	
+		&= \norm{ (J(\theta_0) - J(\theta_t))(\theta_{t+1} - \theta_t) } \\
+		&\leq \norm[op]{J(\theta_0) - J(\theta_t)} \norm{\theta_{t+1} - \theta_t} \\
+		&\leq \k \sqrt{n} \norm{\theta_t - \theta_0} \norm{\theta_{t+1} - \theta_t} 
+			\qquad \mtgray{[\ref{lemma:lee-1}]} \\
+		&\leq \k \sqrt{n}  \norm{\theta_t - \theta_0}  
+			\frac{\k \eta_0}{\sqrt{n}} \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t \r \\
+		&= \eta_0 \k^2 \r  \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t   \norm{\theta_t - \theta_0}   \\
+		&\leq  \eta_0 \k^2 \r  \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t  \frac{    3 \k \r   }{\lambda_{\text{min}}} \inv{\sqrt n} \\
+		&= 3 \frac{ \eta_0 \k^3 \r^2  }{ \lambda_{\text{min}}  } \lr{1 - \frac{\eta_0 \lambda_{\text{min}}}{3}}^t  \inv{\sqrt n}
+\end{align}
+which gives us an $\mc O(\inv{\sqrt n})$ bound on the \textit{change} in discrepancy between gradient descent steps. \\
+
+\textbf{Gradient Flow Case}:
+\begin{compactenum}
+	\item 
+	\begin{align}
+		\deriv{}{t}\lr{   \exp\lr{  \eta_0 \hat\Theta_0 t } \lr{ g^{lin}(t) - g(t) }    }
+		&= \eta_0 \hat\Theta_0  \exp\lr{  \eta_0 \hat\Theta_0 t } \lr{ g^{lin}(t) - g(t) }
+		+  \exp\lr{  \eta_0 \hat\Theta_0 t } \lr{ \dot g^{lin}(t) -\dot  g(t) } \\
+		&= \eta_0  \exp\lr{  \eta_0 \hat\Theta_0 t } \lr{\hat\Theta_t - \hat\Theta_0} g(t) \\
+		\int \mathrm{d}t \deriv{}{t} \lr{   \exp\lr{  \eta_0 \hat\Theta_0 t } \lr{ g^{lin}(t) - g(t) }    } 
+		&= \eta_0  \int_{0}^t \mathrm{d}s   \exp\lr{  \eta_0 \hat\Theta_0 s } \lr{\hat\Theta_s - \hat\Theta_0} g(s) \\
+		\exp\lr{  \eta_0 \hat\Theta_0 t } \lr{ g^{lin}(t) - g(t) } 
+		&= \eta_0  \int_{0}^t \mathrm{d}s   \exp\lr{  \eta_0 \hat\Theta_0 s } \lr{\hat\Theta_s - \hat\Theta_0} g(s) \\
+		g^{lin}(t) - g(t) 
+		&= \eta_0  \int_{0}^t \mathrm{d}s   \exp\lr{  \eta_0 \hat\Theta_0 (s - t) } \lr{\hat\Theta_s - \hat\Theta_0} g(s) 
+	\end{align}
+	
+	\item Let $\lambda_0 > 0$ be the smallest eigenvalue of $\hat\Theta_0$. Using the shorthand
+	\begin{align}
+		u(t) 
+		&\triangleq e^{\lambda_0 \eta_0 t} \norm{g^{lin}(t) - g(t)} \\
+		\alpha(t) 
+		&\triangleq \eta_0 \int_0^t \mathrm{d}s e^{\lambda_0 \eta_0 s} \norm[op]{\hat\Theta_s - \hat\Theta_0} \norm{g^{lin}(s)} \\
+		\beta(t)
+		&\triangleq \eta_0 \norm[op]{\hat\Theta_t - \hat\Theta_0}
+	\end{align}
+	we can express the previous step as 
+	\begin{align}
+		u(t) &\leq \alpha(t) + \int_0^t \mathrm{d}s \beta(s) u(s) \\
+		&\leq \alpha(t) \exp\lr{ \int_0^t \mathrm{d}s \beta(s)  }
+	\end{align}
+	where the second step is due to an integral form of the Gr\"{o}nwall's inequality. 
+	
+	\item $\norm{g^{lin}(t)} \leq e^{-\lambda_0 \eta_0 t} \norm{g^{lin}(0)}$
+	
+	\item Let $\sigma_t = \sup_{0 \leq s \leq t} \norm[op]{\hat\Theta_s - \hat\Theta_0}$. Then $\norm{g^{lin}(t) - g(t)} \lesssim \lr{  \eta_0 t \sigma_t e^{-\lambda_0 \eta_0 t + \sigma_t \eta_0 t}  } \norm{g^{lin}(0)}$ 
+	
+	\item From \ref{eq:S50} we know that 
+	\begin{align}
+		\sup_t \sigma_t \leq \sup_t \norm[F]{\hat\Theta_0 - \hat\Theta_t} \lesssim \r \inv{\sqrt n} \to 0
+	\end{align}
+	as $n_1 = \cdots = n_L = n \to \infty$. 
+\end{compactenum}
+
+
+\clearpage 
+\section{Extended Notes and Interpretations for \cite{simon2021}}\label{sec:simon}
+
+\bluesec{Review of the NTK}. Consider $\hat f_{\theta}: \mathcal X \to \R$. One step of gradient descent on training point (x, y) with small learning rate $\eta$
+\begin{align}
+	\ell_{\theta}(x, y)
+	&\triangleq (\hat f_{\theta}(x) - y)^2 \\
+	\theta
+	&\rightarrow \theta + \delta \theta \\
+	\delta \theta 
+	&= - \eta \nabla_{\theta} \ell_{\theta}(x, y) \\
+	&= -2 \eta (\hat f_{\theta}(x) - y) \nabla_{\theta} \hat f_{\theta}(x)
+\end{align}
+
+Note how the MSE has an elegant interpretation: If the prediction $\hat f_{\theta}(x)$ is larger (smaller) than $y$, that means we need to change $\theta$ s.t. $\hat f$ will decrease (increase). Therefore, move in the opposite (same) direction as $\nabla_{\theta} \hat f_{\theta}(x)$. We are interested in how much that single update changed the predictions of our network on some test input $x'$:
+\begin{align}
+	\hat f_{\theta + \delta \theta}(x')
+	&= \underbrace{\hat f_{\theta}(x')}_{\text{\tiny original prediction}} 
+	+ \underbrace{ \innerprod{\nabla_{\theta} \hat f_{\theta}(x')}{\delta \theta}}_{\text{\tiny linearized change in pred}} + \mathcal O(\delta \theta^2) \\
+	&= \hat f_{\theta}(x') 
+	- \eta (\hat f_{\theta}(x) - y) \innerprod{\nabla_{\theta} \hat f_{\theta}(x')  }{ \nabla_{\theta} \hat f_{\theta}(x) } + \mathcal O(\delta \theta^2) \\
+	&= \hat f_{\theta}(x) - \eta  (\hat f_{\theta}(x) - y) K(x, x') + \mathcal O(\delta \theta^2) 
+\end{align}
+
+The parameter update moved $\theta$ in the direction of steepest descent in the loss landscape \textit{for the given training input $x$}. Implications:
+\begin{compactitem}
+	\item If $\innerprod{\nabla_{\theta} \hat f_{\theta}(x')  }{ \nabla_{\theta} \hat f_{\theta}(x) } = 0$, then the \textit{test prediction is unchanged/unaffected} by the weight update. Consider that $\nabla_{\theta} \hat f_{\theta}(x)$ is a vector in the same space as $\theta$. If, for example, $\theta \in \R^p$, then there exists a set of $p-1$ orthonormal vectors $v_i$ that are orthogonal to this direction. In fact, these $p -1$ vectors span a $p-1$ dimensional subspace of $\R^p$ for which, if we had simply set $\delta \theta$ to any vector in that subspace, the prediction on the training point $x$ wouldn't have changed at all. There are a large number of changes to the parameters $\theta$ we can make that won't alter the predictions of the network on a given input $x$. 
+	
+	\item If $\innerprod{\nabla_{\theta} \hat f_{\theta}(x')  }{ \nabla_{\theta} \hat f_{\theta}(x) } = \norm{\nabla_{\theta} \hat f_{\theta}(x')} \norm{\nabla_{\theta} \hat f_{\theta}(x) }$ (i.e. perfectly parallel), that means the test prediction will be changed by the same exact amount as the training prediction was changed as a result of the weight update. A worst-case scenario of catastrophic forgetting would basically be if the ground truth for $x'$ is $-y$, since that means we just updated our weights in the worst possible direction for improving the test prediction on $x'$. Note the even bigger implication is that a ``perfect'' task/distribution for this network is when all inputs $\{\ival[i]{x} \}$ that share the same target $y$ have identical gradients $\nabla_{\theta} \hat f_{\theta}(\ival[i]{x})$, \textit{and} for which any other set of inputs $\{ \ival[j]{x} \}$ that have \textit{different} target values $y$ have orthogonal gradients $\nabla_{\theta} \hat f_{\theta}(\ival[j]{x})$ to the others. 
+\end{compactitem}
+
+
+\bluesec{Figures of Merit of $\hat f$}
+
+First, the inner product we'll be using is defined as 
+\begin{align}
+	\innerprod{f}{g} 
+	&\triangleq \inv{M} \sum_{x \in \mc X} g(x) h(x)
+\end{align}
+\graybox{
+	\mtgreen{[MSE]} \quad 
+	&\mc E^{\mc D}(f) \triangleq \innerprod{f - \hat f}{f - \hat f} 
+	\quad \text{and} \quad
+	\mathcal E(f) \triangleq \E[\mathcal D]{\mathcal E^{\mc D}(f) }  \\
+	\mtgreen{[Learnability]} \quad 
+	&\mc L^{\mc D}(f) \triangleq \frac{ \innerprod{f}{\hat f} }{ \innerprod{f}{f}  } 
+	\quad \text{and} \quad 
+	\mc L(f) \triangleq \E[\mc D]{\mc L^{(D)}(f)}
+}
+
+
+
+\bluesec{The Kernel Eigensystem}. NB: authors assume hereafter that $m = 1$ (scalar-output functions). The authors are basically treating the entire input space $\mathcal X$ like we usually do for just the training data. Let $M = |\mathcal X|$ denote the number of possible inputs $x$ to the network.
+
+\Needspace{10\baselineskip}
+\bluesec{Function-Space Perspective}. 
+
+
+
+By definition, any kernel function $K$ is \textit{symmetric} and \textit{positive-semidefinite}: Recall that the definition of a kernel function $K(x, x')$ is that it must be expressible as $\innerprod{\phi(x)}{\phi(x')}$ for some feature function $\phi: \mc X \to V$ where $V \subseteq \mc X$.
+
+\begin{compactenum}
+	\item Clearly, this is symmetric wrt the arguments $x,x'$. 
+	\item To show it is psd, notice that from the definition we see we can write $K = \Phi \Phi^\top$ for the matrix $\Phi$ defined as $\Phi_i \equiv \phi(\ival[i]{x})$. Therefore, for any function $f: \mc X \to\R$:
+	\begin{align}
+		\bra{f} K \ket{f}
+		&= \bra{f} \Phi \Phi^\top \ket{f} \\
+		&= \norm{\Phi^\top \ket{f}}^2 
+		\geq 0
+	\end{align}
+\end{compactenum} 
+
+
+
+
+Recall that any linear Hermitian operator $H$ has a set of orthonormal eigenfunctions that form a basis for the Hilbert space that the operator acts upon\footnote{Furthermore, $H$ admits a \textbf{spectral decomposition} in this eigenbasis
+	\begin{align}
+		H &= \sum_i \lambda_i \ket{\phi_i}\bra{\phi_i} \\
+		\implies \forall \psi \quad 
+		\bra{\psi} H \ket{\psi}
+		&= \sum_i \lambda_i \braket{\psi \mid \phi_i}\braket{\phi_i \mid \psi} = \sum_i \lambda_i \braket{\phi_i \mid \psi}^2
+	\end{align}
+	which implies that, if $\norm{\psi} = 1$, we have $\bra{\psi} H \ket{\psi} \geq \min_i \lambda_i$. 
+	\begin{align}
+		\bra{\phi_j} K \ket{\phi_i}
+		&= \bra{\phi_j} \lr{ \sum_{k} \lambda_k \ket{\phi_k}\bra{\phi_k} } \ket{\phi_i} 
+		= \lambda_i \ket{\phi_i} \qquad \mblue{[\braket{\phi_k \mid \phi_i} = \delta_{k,i}]}
+	\end{align}
+}. 
+\begin{align}
+	\innerprod{K(x, \cdot)}{\phi_i}
+	&= \inv{M} \sum_{x' \in \mc X} K(x, x') \phi_i(x') 
+	= \lambda_i \phi_i(x)
+\end{align}
+which is an equivalent way of saying ``$K$ is an operator on functions of $\vec x \in \mc X$ with eigenfunctions $\{\phi_i \}$ s.t. $K\ket{\phi_i} = \lambda_i \ket{\phi_i}$. Next, note that we can express both $f$ and $\hat f$ in the eigenbasis via 
+\begin{align}
+	\ket{f}
+	&= \sum_{i = 1}^{M} v_i \ket{\phi_i} \\
+	\ket{\hat f}
+	&= \sum_{i = 1}^M \hat v_i \ket{\phi_i}
+\end{align}
+It is straightforward to verify/check that $\innerprod{f}{\hat f} = \vec{v}^\top \vec{\hat v}$. Letting $\matr\Phi(\mc D) := \phi_i(\ivec[j]{x})$ denote the $M \times n$ matrix of eigenfunctions evaluated at the $n$ training points. Then we can write/define $K(\mc D, \mc D) = \matr{\Phi}^\top(\mc D) \matr\Lambda \matr{\Phi}(\mc D)$. Plugging this in directly:
+\begin{align}
+	\hat f(x)
+	&= K(x, \mc D) K(\mc D, \mc D)^{-1} f(\mc D) \\
+	&= \begin{bmatrix} \phi_1(x) & \cdots & \phi_M(x) \end{bmatrix}
+	\matr \Lambda \matr\Phi 
+	\lr{\matr{\Phi}^\top(\mc D) \matr\Lambda \matr{\Phi}(\mc D)}^{-1} \matr{\Phi(\mc D)}^\top \vec v \\
+	\innerprod{\phi_i}{f}
+	&\triangleq \inv{M} \sum_{x \in \mc X} \phi_i(x) f(x) \\
+	&= \inv{M} \sum_{x \in \mc X} \sum_{i' = 1}^{M}  \phi_i(x) \phi_{i'}(x) 
+	\lr{ \matr \Lambda \matr\Phi 
+		\lr{\matr{\Phi}^\top(\mc D) \matr\Lambda \matr{\Phi}(\mc D)}^{-1} \matr{\Phi(\mc D)}^\top \vec v }_{i'} \\
+	&= \inv{M} \sum_{x \in \mc X} \sum_{i' = 1}^{M}  \phi_i(x) \phi_{i'}(x)  \lambda_{i'}
+	\lr{ \matr\Phi 
+		\lr{\matr{\Phi}^\top(\mc D) \matr \Lambda \matr{\Phi}(\mc D)}^{-1} \matr{\Phi(\mc D)}^\top \vec v }_{i'} \\
+	&= \sum_{i'}  \lambda_{i'}
+	\lr{ \matr\Phi 
+		\lr{\matr{\Phi}^\top(\mc D) \matr \Lambda \matr{\Phi}(\mc D)}^{-1} \matr{\Phi(\mc D)}^\top \vec v }_{i'} \underbrace{  \inv{M}\sum_{x \in \mc X} \phi_i(x) \phi_{i'}(x)   }_{\delta_{i,i'}} \\
+	&=  \lambda_{i}
+	\lr{ \matr\Phi 
+		\lr{\matr{\Phi}^\top(\mc D) \matr \Lambda  \matr{\Phi}(\mc D)}^{-1} \matr{\Phi(\mc D)}^\top \vec v }_{i} \\
+	&= \lambda_i \underbrace{ \phi_i(\mc D)^\top }_{1 \times n} \underbrace{	\lr{\matr{\Phi}^\top(\mc D) \matr \Lambda  \matr{\Phi}(\mc D)}^{-1} \matr{\Phi(\mc D)}^\top \vec v }_{n \times 1}
+\end{align}
+and therefore
+\graybox{
+	\vec{\hat v}
+	&=  \underbrace{ \matr \Lambda \matr\Phi(\mc D)   \lr{ \matr{\Phi}^\top(\mc D) \matr \Lambda \matr\Phi(\mc D) }^{-1} \matr{\Phi}^\top (\mc D) }_{\triangleq \matr{T}^{(\mc D)}} \vec v 
+}
+where $\matr{T}^{(\mc D)}$ is the \green{learning transfer matrix}. 
+
+
+\bluesec{Exact Results} (2.4). 
+
+\begin{itemdefinition}{Lemma 1}{}
+	\item[(a)] $\mc L^{\mc D)(\phi_i)} = \matr[ii]{T}^{\mc D}$ and $\mc L(\phi_i) = \matr[ii]{T}$. 
+	\item[(e)] Let $\mc D_{+} = \mc D \cup x$, where $x \in \mc X$, $x \notin \mc D$ is a new data point. Then $\mc{L}^{\mc D_+} (f) \geq \mc L^{\mc D}(f)$
+\end{itemdefinition}
+
+\begin{example}[Proof Sketch: Property (e) of Lemma 1]
+	\begin{compactenum}
+		\item Rewrite $\matr{T}^{\mc D}$ with $\matr{\Lambda} \rightarrow \matr{\Lambda}^{1/2} \matr{\Lambda}^{1/2}$ and observe it is a bunch of products of the $m \times n$ matrix $\matr A \triangleq \matr\Lambda^{1/2} \matr\Phi$:
+		$$
+		\matr{T}^{\mc D} 
+		= \matr{\Lambda}^{\onehalf} \matr A \lr{\matr A^\top \matr A}^{-1} \matr A^\top \matr{\Lambda}^{\onehalf}
+		= \matr{\Lambda}^{\onehalf} (\matr A \matr A^\top) (\matr A \matr A^\top)^{+}  \matr{\Lambda}^{\onehalf}
+		$$
+		Note that the above implies that the $n \times n$ matrix $\matr A^\top \matr A$ is invertible (a consequence of the fact that $n \leq M$ and $\matr A$ has full column rank), but not necessarily $\matr A \matr A^\top$, hence our use of the pseudoinverse. 
+		
+		\item Notice that the effect of appending one more data point is appending one more column to $\matr \Phi$, which we will denote as the $M$-dimensional vector $\xi$. 
+		
+		\item The Sherman-Morrison formula tells us how we can evaluate an inverse of the form $(\matr B + u u^\top)^{-1}$ if $\matr B$ is invertible. Here, we'll set $\matr B := \matr A \matr A^\top + \delta \matr[M]{I}$ and $u := \matr{\Lambda}^{\onehalf} \xi$. Combining this with the limit definition of the pseudoinverse gives us 
+		$$
+		\matr{T}^{\mc D_+}
+		= \matr{T}^{\mc D}
+		+ \lim_{\delta \to 0^+} \delta \frac{ 
+			\minv{B} \xi \xi^\top \minv{B}
+		}{
+			1 + \xi^\top \minv{B} \xi}
+		$$ 
+		
+		\item Since 
+		\begin{align}
+			\mc L^{(\mc D_+)}(f) 
+			&\propto \vec v^\top \matr{T}^{(D_+)} \vec v \\
+			&= \mc{L}^{(\mc D)} + \lim_{\delta \to 0^+} \delta \vec v^\top (\cdots) \vec v
+		\end{align}
+		and the matrices inside the $(\cdots)$ are psd, we have the desired result. 
+	\end{compactenum}
+	
+	
+\end{example}
+
+\bluesec{Deriving a Closed-Form Expression for $\matr T$} (2.5). To motivate the following derivations, recall the resolution of the identity using Dirac notation:
+\begin{align}
+	\matr[M]{I} = \sum_{i = 1}^{M} \ket{\phi_i}\bra{\phi_i} = \matr{\Phi}^\top \matr{\Phi}
+\end{align}
+where it's important to emphasize that, for now, we should interpret the above solely from the perspective of some abstract Hilbert space with some orthonormal basis of eigenfunctions $\phi_i$, and to view $\matr \Phi$ as an associated linear operator. The point is that $\matr \Phi$ is [clearly] a \textit{unitary operator}. Now, if we restrict to the $n$ training points in some dataset $\mc D$, we should observe that things like the above become an \textit{approximation}, e.g. 
+\begin{align}
+	\braket{\phi_i \mid \phi_j} 
+	&\triangleq \inv{M} \sum_{x \in \mc X} \phi_i(x) \phi_j(x) = \delta_{i,j} \\
+	&\approx \inv{n} \sum_{x \in \mc D} \phi_i(x) \phi_j(x) \\
+	&= \phi_i^\top(\mc D) \phi_j(\mc D)
+\end{align}
+
+This motivates re-writing $\matr T \triangleq \E[\mc D]{\matr{T}^{(\mc D)}}$ as 
+\begin{align}
+	\matr T 
+	&= \lim_{n \to \infty} \E[\substack{\matr\Phi \sim \R^{M \times n} \\ \matr{\Phi}^\top \matr{\Phi} = \matr[n]{I}  }]{ \matr\Lambda \matr\Phi \lr{  \matr{\Phi}^\top \matr\Lambda \matr\Phi  }^{-1} \matr{\Phi}^\top   }
+\end{align}
+and thus we can \textit{approximate} $\matr T$ by computing the above expectation for some reasonably large value of $n$. 
+ 
+
+\clearpage 
+\section{Notes for \cite{canatar2021}}\label{sec:rkhs}
+
+A \green{reproducing kernel Hilbert space} (RKHS) $\mc H$ living on $\mc X \subset \R^D$ is a subset of \textit{square integrable functions}\footnote{$\int |f(x)|^2 \mathrm{d}x < \infty$}$L_2(\mc X, p)$ for measure p equipped with an inner product $\innerprod{\cdot}{\cdot}_{\mc H}$ and a kernel $K$ satisfying the \green{reproducing property}:
+\begin{align}
+	f(x) &= 
+	\innerprod{f(\cdot)}{K(\cdot, x)}_{\mc H}
+	\qquad 	(\forall x \in \mc X) (\forall f \in \mc H) 
+\end{align}
+Define the \green{integral operator} $T_K : L_2(\mc X, p) \to L_2(\mc X, p)$, which is a linear map from functions to functions:
+\begin{align}
+	T_K[f](x')
+		&\triangleq \int p(x) K(x, x') f(x) \mathrm{d}x 
+\end{align}
+	
+\begin{align}
+	\mtgreen{[Mercer Decomposition]}\qquad
+		K(x, x') 
+			&= \sum_{\ell = 0}^{\infty} \lambda_{\ell} \phi_{\ell}(x) \phi_{\ell}(x') \\
+	\mtgreen{[Eigenfunction Property]}\qquad
+		T_K[\mpurple{\phi_\ell}](\mgreen{x'})
+			&= \int p(x) K(x,\mgreen{x'})\mpurple{\phi_\ell}(x) \mathrm{d} x \\
+			&= \int p(x) \lr{ \sum_{\ell' = 0}^{\infty} \lambda_{\ell'} \phi_{\ell'}(x) \phi_{\ell'}(\mgreen{x'}) }\mpurple{\phi_\ell}(x) \mathrm{d} x \\ 
+			&=  \sum_{\ell' = 0}^{\infty} \lambda_{\ell'} \phi_{\ell'}(\mgreen{x'})  \int p(x) \phi_{\ell'}(x) \mpurple{\phi_\ell}(x) \mathrm{d} x \\ 
+			&= \sum_{\ell' = 0}^{\infty} \lambda_{\ell'} \phi_{\ell'}(\mgreen{x'}) \delta{\ell, \ell'} \\
+			&= \lambda_{\ell}  \mpurple{\phi_{\ell}}(\mgreen{x'})
+\end{align}
+
+A function $f$ is said to be a member of the RKHS $\mc H$ if and only if $\norm[\mc H]{f}^2 < \infty$, where
+\begin{align}
+	\norm[\mc H]{f}^2 = \innerprod{f}{f}_{\mc H} = \sum_{\ell, \ell'} a_{\ell} a_{\ell'} \innerprod{\phi_{\ell}}{\phi_{\ell'}}_{\mc H}
+	= \sum_{\ell = 0}^{\infty} \inv{\lambda_{\ell}} a_{\ell}^2
+\end{align}
+where the dimension of the RKHS equals the number of nonzero eigenvalues $\lambda_{\ell}$. 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+\end{appendices}
+
+	
+	
+\begin{comment}
+
+\subsection{Resolution-Limited Exponents}
+
+Let $L(f)$,$ f$, and $\mathcal F$ be Lipschitz with constants $K_L$, $K_f$, and $K_{\mathcal F}$, and let $\mathcal M_d$ denote a d-dimensional data manifold.
+
+\begin{theorem}[Over-Parameterized Dataset Scaling]
+Let $\mathcal D$ be a training dataset of size $D$ sampled i.i.d. from $\mathcal M_d$ and let $f(x) = \mathcal F(x)$ $(\forall x \in \mathcal D)$, where $f$ is a sufficiently smooth parametric model with $P$ parameters. Assume $P \gg D \gg 1$.  Then
+\graybox{
+L(D)
+&= \mathcal O\lr{ K_L \max\lr{K_f, K_{\mathcal F}} D^{-1/d} }
+}
+\end{theorem}
+
+\begin{theorem}[Under-Parameterized Parameter Scaling]
+Let $f(x) = \mathcal F(x)$ for $P$ points sampled i.i.d. from $\mathcal M_d$. Assume $D \gg P \gg 1$. Then
+\graybox{
+L(P)
+&=\mathcal O\lr{ K_L \max\lr{K_f, K_{\mathcal F}} P^{-1/d} }
+}
+\end{theorem}
+
+The authors also further postulate that in fact $L(D) = \Omega(D^{-c /d})$ for $c \geq 2$, and similarly for $L(P)$. In other words, rather than $\mathcal O$ in the above theorems, they believe (but cannot prove) that in reality it is $\Theta$. 
+
+\subsection{Kernel Realization}
+
+Let 
+\begin{compactitem}
+\item $P_T$ and $P_S$ denote the number of feature functions for the teacher and student, respectively.
+\item $\mathcal P$ denote a projector onto a $P_S$-dimensional subspace of the teacher features. 
+\item $\omega \sim \Gauss{0, \inv{P_T}}$.
+\end{compactitem}
+
+\begin{align}
+\mathcal T(x)
+&= \sum_{t=1}^{P_T} \omega_t F_t(x) \\
+\mathcal S(x)
+&= \sum_{s=1}^{P_S} \theta_s f_s(x) \\
+&= \sum_{s=1}^{P_S} \theta_s \sum_{t = 1}^{P_T} \mathcal{P}_{s,t} F_t(x)
+\end{align}
+
+\graybox{
+\hat L
+&= \inv{2D} \sum_{i=1}^{D} \lr{ \mathcal S(\ival[i]{x}) - \mathcal T(\ival[i]{x}) }^2 \\
+\lim_{D \to \infty} L(D, P_S)
+&= \inv{2P_T} \text{Tr}\left[ \mathcal C - \mathcal C \mathcal P^\top \lr{  \mathcal P \mathcal C \mathcal P^\top  }^{-1} \mathcal P \mathcal C \right] \\
+\lim_{P \to P_T} L(D, P_S)
+&= \onehalf \E[x]{\mathcal K(x, x) - \overrightarrow{\mathcal K}(x) \bar{\mathcal K}^{-1} \overrightarrow{\mathcal K}(x)}
+}
+
+where $\mathcal C \triangleq \E[x]{\mathcal T(x) \mathcal{T}^\top (x)}$, $\mathcal K(x, x') \triangleq \E[x]{X X^T}_{x, x'}$, $\overrightarrow{\mathcal K}$ indicates restricting one argument to the training dataset, and $\bar{\mathcal K}$ indicates restricting both $x$ and $x'$ to the training data. 
+
+\end{comment}
+	
+	
+\end{document}
+
+
+
+
+
+

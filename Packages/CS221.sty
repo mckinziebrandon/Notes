@@ -1,0 +1,175 @@
+% Note -- Need to put after other packages i guess.
+\ProvidesPackage{CS221}[2019/04/07 CS221]
+
+\RequirePackage{amssymb}
+\RequirePackage{amsmath}
+\RequirePackage{bm}
+\RequirePackage{dsfont} % \mathds{1} for indicator fn.
+\RequirePackage{xparse} % DeclareDocumentCommand
+\RequirePackage{tikz}
+
+\RequirePackage{wasysym}
+\ProcessOptions\relax
+
+% question
+\newcommand{\question}[1]{{\footnotesize\itshape#1}}
+
+% timestamp
+\newcommand\tstamp[1]{\purple{[#1]}}
+
+% ind
+\renewcommand\ind[1]{\mathds{1}\left[#1\right]}
+
+% sign
+\newcommand\sign[1]{\text{sign}\left(#1\right)}
+
+% ------------------------------------
+% MDP-related
+% ------------------------------------
+
+\DeclareDocumentCommand{\V}
+{ O{t} O{\pi} m }
+{ V_{#2}^{(#1)} \left( #3  \right) }
+
+% ------------------------------------
+% Environments
+% ------------------------------------
+
+% <><><><><><><> D E F I N I T I O N <><><><><><><> 
+\DeclareDocumentEnvironment{definition}
+{O{-1em} m} % <arg spec> 
+{ 	% <start code>
+	\IfNoValueTF{#2}{}{\textbf{#2}} \vspace*{#1}
+	\begin{quote}
+		\itshape\small
+	}{ % <end code>
+	\end{quote}
+}
+
+% <><><><><><><> I T E M  D E F I N I T I O N <><><><><><><> 
+\DeclareDocumentEnvironment{itemdefinition}
+{O{-1em} m} % <arg spec> 
+{ 	% <start code>
+	\IfNoValueTF{#2}{}{\textbf{#2}} \vspace*{#1}
+	\begin{quote}
+		\itshape\small
+		\begin{compactitem}[\gray{\RIGHTarrow}]
+	}{ % <end code>
+	\end{compactitem}
+	\end{quote}
+}
+
+
+
+% <><><><><><><> T A B L E <><><><><><><> 
+\definecolor{forgeblue}{HTML}{018C9F}
+% Table borders
+\makeatletter
+\def\rulecolor#1#{\CT@arc{#1}}
+\def\CT@arc#1#2{%
+	\ifdim\baselineskip=\z@\noalign\fi
+	{\gdef\CT@arc@{\color#1{#2}}}}
+\let\CT@arc@\relax
+\rulecolor{Gray}
+\makeatother
+
+\let\OldTable\table 
+\let\endOldTable\endtable
+\RenewDocumentEnvironment{table}{m m}
+{
+	\OldTable[h!]
+	\centering
+		\begin{tabular}{#1}
+			\toprule
+		}{
+			\bottomrule
+		\end{tabular}
+		\IfNoValueTF{#2}{}{\caption{#2}}
+	\endOldTable
+}
+
+		
+% BMAC NODE SON
+\tikzset{blight/.style={state, draw=none,
+		fill=gray!30!white,
+		text=blue!60!white}}
+\tikzset{bdark/.style={state, draw=none,
+		fill=gray!60!black,
+		text=blue!20!white}}
+\tikzset{bquery/.style={state, draw=none,
+		fill=gray!60!green,
+		text=white}}
+
+% <><><><><><><> D R A W I N G <><><><><><><> 
+\DeclareDocumentEnvironment{drawing}{}
+{
+	\begin{center}
+		\begin{tikzpicture}[font=\sffamily,node distance=1.cm,->,>=latex,auto,line width=0.4mm]
+}
+{
+	\end{tikzpicture}
+	\end{center}
+}
+
+
+
+% ------------------------------------
+% Tikz stuff
+% ------------------------------------
+
+% https://en.wikibooks.org/wiki/LaTeX/Fonts
+
+% triangle
+\tikzset{node triangle/.style={
+		regular polygon,
+		regular polygon sides=3, 
+		draw=gray!60!white, 
+		text=white,
+        node distance=2em,
+        font=\fontsize{6}{10}\selectfont}}
+% min
+\tikzset{node min/.style={
+		node triangle,
+		fill=green!60!black,
+		shape border rotate=180}}
+% max
+\tikzset{node max/.style={
+		node triangle,
+		fill=blue!40!gray}}
+% leaft
+\tikzset{node leaf/.style={
+		draw=gray!20!white,
+        node distance=2em,
+		fill=white}}
+
+
+% \edge [options] {inputs} {outputs}
+\newcommand{\cedge}[3][]{ %
+    % Connect all nodes #2 to all nodes #3.
+    % for x in inputs
+    \foreach \x in {#2} { %
+        % for y in outputs
+        \foreach \y in {#3} { %
+            \draw[draw=gray,#1] (\x) edge[-] node{} (\y) ;%
+        } ;
+    } ;
+}
+
+% \edge [options] {inputs} {outputs}
+\newcommand{\diredge}[3][]{ %
+	% Connect all nodes #2 to all nodes #3.
+	% for x in inputs
+	\foreach \x in {#2} { %
+		% for y in outputs
+		\foreach \y in {#3} { %
+			\path (\x) edge[->, draw=gray, #1] (\y) ;%
+		} ;
+	} ;
+}
+
+
+
+
+
+% ============ E N D ============  
+\endinput

@@ -1,0 +1,327 @@
+\documentclass[11pt]{article}
+\usepackage{fullpage,amsmath,amssymb,graphicx}
+
+\usepackage{bm}
+\usepackage{cancel}
+\usepackage{comment}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{lmodern} % Nice fonts?
+\usepackage{mathtools} 
+\usepackage{needspace}
+\usepackage{paralist}
+\usepackage{pifont}
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+
+% Muh packagez :)
+\usepackage{../../Packages/MathCommands}
+\usepackage{../../Packages/BrandonColors}
+\usepackage{../../Packages/BrandonBoxes}
+\usepackage{../../Packages/CS221}
+%\usepackage{../Packages/MachineLearningUtils}
+
+%\setlength{\parskip}{1pt}
+%\setlength{\columnseprule}{0.1pt}
+%\setlength{\columnsep}{0.6cm}
+%\setlength\tabcolsep{0.1cm}
+\renewcommand{\arraystretch}{1.2}
+\renewcommand\vec[2][]{\bm{#2}_{#1}}
+\newcommand\p{\noindent}
+
+\newcommand\myfig[2][0.3\textwidth]{\begin{figure}[h!]\centering\includegraphics[width=#1]{#2}\end{figure}}
+\newcommand\myspace[1][]{\vspace{#1\bigskipamount}\Needspace{10\baselineskip}}
+\newcommand\tlab[1]{\tag{#1}\label{#1}}
+\newcommand\Var[1]{\mathrm{Var}\left[#1\right]}
+
+
+\begin{document}
+
+\begin{center}
+	{\Large CS 236 Autumn 2019/2020 Homework 2}
+	
+	\begin{tabular}{rl}
+		SUNet ID: & 06009508 \\
+		Name: & Brandon McKinzie \\
+		Collaborators: & N/A
+	\end{tabular}
+\end{center}
+
+\p By turning in this assignment, I agree by the Stanford honor code and declare
+that all of this is my own work.
+
+\section*{Problem 1: Implementing the Variational Autoencoder (VAE)}
+
+3. \textit{Report the three numbers you obtain as part of the write-up}. \\
+
+\p My numbers for the log-likelihood lower bounds on the test subset are reported below. 
+
+\begin{itemize}
+	\item \textbf{NELBO}: 100.8358154296875
+	
+	\item \textbf{KL}: 19.305727005004883
+	
+	\item \textbf{Rec}: 81.53005981445312
+\end{itemize}
+
+\p 4. \question{Visualize 200 digits.} 
+
+\myfig[\textwidth]{hw2_1_3.png}
+
+
+
+
+
+\clearpage
+\section*{Problem 2: Implementing the Mixture of Gaussians VAE (GMVAE)}
+
+
+\p 2. My numbers for the log-likelihood lower bounds on the test subset are reported below. 
+
+\begin{itemize}
+	\item \textbf{NELBO}: 97.71849060058594
+	
+	\item \textbf{KL}: KL: 17.689722061157227
+	
+	\item \textbf{Rec}: 80.02876281738281
+\end{itemize}
+
+\p 3. \question{Visualize 200 digits.} 
+
+\myfig[\textwidth]{hw2_gmvae.png}
+
+
+
+\clearpage
+\section*{Problem 3: IWAE}
+
+1. \question{Prove that IWAE is a valid lower bound of the log-likelihood, and that the ELBO lower bounds IWAE
+	\begin{align}
+		\log p_{\theta}(\vec x)	
+			&\ge \mathcal{L}_m(\vec x)
+			\ge \mathcal{L}_1(\vec x)
+	\end{align}
+	for any $m \ge 1$}.\\
+
+\p The IWAE bound is defined as
+\begin{align}
+	\mathcal{L}_m(\vec x; \theta, \phi)
+		&= \E[\vec{z}^{(1)}, \ldots, \vec{z}^{(m)} \sim q_{\phi}(\vec z \mid \vec x)]{
+			\log \inv{m} \sum_{i=1}^m \frac{
+				p_{\theta}(\vec x, \vec{z}^{(i)})
+		}{
+			q_{\phi}(\vec{z}^{(i)} \mid \vec x)
+		}
+	} 
+\end{align}
+which for $m = 1$ reduces to the standard ELBo:
+\begin{align}
+\mathcal{L}_1(\vec x; \theta, \phi)
+&= \E[\vec{z}^{(1)} \sim q_{\phi}(\vec z \mid \vec x)]{
+	\log \frac{
+		p_{\theta}(\vec x, \vec{z}^{(1)})
+	}{
+		q_{\phi}(\vec{z}^{(1)} \mid \vec x)
+	}
+} 
+\end{align}
+
+\p Jensen's inequality tells us that
+\begin{align}
+	\log \lr{ \E{x} } \ge \E{\log x}
+\end{align}
+and more generally, that the logarithm of any \textit{convex combination} of $x$ is greater than or equal to that convex combination over the logarithm of $x$. Any simple average, such as the average over the $m$ unnormalized densities above, is a convex combination.\\
+
+\p First, note that an expectation, taken over $m$ i.i.d. samples, of an average over those samples, is equal to the expectation taken over single samples of the quantity being averaged over. Formally,
+\begin{align}
+	\E[x^1, x^2, \ldots, x_m \sim p(x)]{\inv{m} \sum_{i=1}^m f(x^i)}
+		&= \E[x \sim p(x)]{f(x)}
+\end{align}
+which is really just another way of stating the fact that the Monte-Carlo average is an unbiased estimator. \\ 
+
+\Needspace{20\baselineskip}
+\p Next, we use Jensen's inequality to show that $\log p_{\theta}(\vec x) \ge \mathcal{L}_m(\vec x)$ for $m \ge 1$:
+\begin{align}
+	\log p_{\theta}(\vec x)
+		&= \log \E[\vec z \sim q_{\phi}(\vec z \mid \vec x)]{
+			\frac{ 
+			p_{\theta}(\vec x, \vec z)
+			}{ 
+			q_{\phi}(\vec z \mid \vec x)
+			}
+		} \\
+	&= \log \E[\vec{z}^{(1)}, \ldots, \vec{z}^{(m)} \sim q_{\phi}(\vec z \mid \vec x)]{
+		\inv{m} \sum_{i=1}^m
+		\frac{ 
+			p_{\theta}(\vec x, \ivec[i]{z})
+		}{ 
+			q_{\phi}(\ivec[i]{z} \mid \vec x)
+		}
+	} \\
+ 	&\ge \E[\vec{z}^{(1)}, \ldots, \vec{z}^{(m)} \sim q_{\phi}(\vec z \mid \vec x)]{
+ 		\log \inv{m} \sum_{i=1}^m \frac{
+ 			p_{\theta}(\vec x, \vec{z}^{(i)})
+ 		}{
+ 			q_{\phi}(\vec{z}^{(i)} \mid \vec x)
+ 		}
+ 	} \\
+ 	&= \mathcal{L}_m(\vec x; \theta, \phi)
+\end{align}
+which proves that $\log p_{\theta}(\vec x) \ge \mathcal{L}_m(\vec x)$ for $m \ge 1$. \\
+
+\p Next, we need to show that $\mathcal{L}_m(\vec x) \ge \mathcal{L}_1(\vec x)$ for $m \ge 1$. To do this, note that, by definition of the uniform distribution over integers $1 \le j \le m$,
+\begin{align}
+	\inv{m} \sum_{i=1}^m f(\ivec[i]{z})
+		&= \E[i \sim U(1..m)]{f(\ivec[i]{z})}
+\end{align}
+We can use this, combined with Jensen's inequality, to show
+\begin{align}
+	\mathcal{L}_m(\vec x; \theta, \phi)
+		&=  \E[\vec{z}^{(1)}, \ldots, \vec{z}^{(m)} \sim q_{\phi}(\vec z \mid \vec x)]{
+			\log \inv{m} \sum_{i=1}^m \frac{
+				p_{\theta}(\vec x, \vec{z}^{(i)})
+			}{
+				q_{\phi}(\vec{z}^{(i)} \mid \vec x)
+			}
+		} \\
+		&=  \E[\vec{z}^{(1)}, \ldots, \vec{z}^{(m)} \sim q_{\phi}(\vec z \mid \vec x)]{
+		\log \E[j \sim U(1..m)]{\frac{
+			p_{\theta}(\vec x, \vec{z}^{(j)})
+		}{
+			q_{\phi}(\vec{z}^{(j)} \mid \vec x)
+		}
+	} } \\
+	&\ge \E[\vec{z}^{(1)}, \ldots, \vec{z}^{(m)} \sim q_{\phi}(\vec z \mid \vec x)]{
+	 \E[j \sim U(1..m)]{\log \frac{
+				p_{\theta}(\vec x, \vec{z}^{(j)})
+			}{
+				q_{\phi}(\vec{z}^{(j)} \mid \vec x)
+			}
+	} } \\
+	&= \E[\vec{z}^{(1)} \sim q_{\phi}(\vec z \mid \vec x)]{
+	\log \frac{
+		p_{\theta}(\vec x, \vec{z}^{(1)})
+	}{
+		q_{\phi}(\vec{z}^{(1)} \mid \vec x)
+	}
+} \\
+	&= \mathcal{L}_1(\vec x; \theta, \phi)
+\end{align}
+which proves that $\mathcal{L}_m(\vec x) \ge \mathcal{L}_1(\vec x)$ for $m \ge 1$.
+
+\clearpage
+
+\p 3. My numbers for the log-likelihood lower bounds on the test subset are reported below.
+
+\begin{compactitem}
+	\item Negative IWAE-1: 100.11393737792969
+	\item Negative IWAE-10: 78.5806655883789
+	\item Negative IWAE-100: 46.388160705566406
+	\item Negative IWAE-1000: 45.54800796508789
+\end{compactitem}
+
+
+\myspace
+\p 4. My numbers for the log-likelihood lower bounds on the test subset are reported below.
+
+\begin{compactitem}
+	\item Negative IWAE-1: 97.7275619506836
+	\item Negative IWAE-10: 77.10411071777344
+	\item Negative IWAE-100: 43.673885345458984
+	\item Negative IWAE-1000: 43.121673583984375
+\end{compactitem}
+
+\myspace 
+\p The IWAE bounds for GMVAE have the same trend as VAE: increasing the number of importance samples $m$ decreases the NIWAE. The numbers above also confirm that, for $m = 1$, the NIWAE-1 values match the associated NELBo from the previous question. 
+
+
+
+
+\clearpage
+\section*{Problem 4: SSVAE}
+
+
+\p 1. My classification accuracy on the test set:  0.7531999945640564
+
+
+
+
+
+
+\myspace
+\p 3. My classification accuracy on the test set: 0.9271000027656555
+
+\clearpage
+\section*{Problem 5: SVHN}
+
+\renewcommand\elbo{\mathcal{L}(\vec x; \theta, \phi, y)}
+
+\question{Since fully-supervised VAE (FSVAE) always conditions on an observed y in order to generate the sample x, it is a special case of the conditional variational autoencoder. Derive the Evidence Lower Bound $\elbo$ of the conditional log probability $\log p_{\theta{}}(x|y)$. You are allowed to introduce the amortized inference model $q_{\phi}(z|x, y)$.}
+
+\p The model defines the distribution\footnote{I've written the prior $p(z)$ without dependence on $\theta$ because part 2 of the question defines it as such.}
+\begin{align}
+	p_{\theta}(\vec x \mid y) 
+		&= \int p_{\theta}  (\vec x, \vec z \mid y) \mathrm{d} \vec z \\
+		&= \int p(\vec z \mid y) p_{\theta}(\vec x \mid y, \vec z) \mathrm{d} \vec z \\
+		&= \int p(\vec z) p_{\theta}(\vec x \mid y, \vec z) \mathrm{d} \vec z \\
+		&= \E[\vec z \sim p(\vec z)]{p_{\theta}(\vec x \mid y, \vec z)}
+\end{align}
+Note that $p(\vec z \mid y) = p(\vec z)$ due to the independence assumptions defined by the graphical model. As in the original ELBo derivation, we proceed by acknowledging Jensen's inequality:
+\begin{align}
+	\log p_{\theta}(\vec x \mid y)
+		&= \log \E[\vec z \sim p(\vec z)]{p_{\theta}(\vec x \mid y, \vec z)} \\
+		&\ge \E[\vec z \sim p(\vec z)]{\log p_{\theta}(\vec x \mid y, \vec z)} \\
+		&= \elbo 
+\end{align}
+
+\p Although technically we have ``derived'' the ELBo as the question has asked, I'm going to assume the instructors actually want us to derive a form reminiscent of a VAE. There are many ways we can write $\elbo$, but the form most associated with VAEs can be derived by first acknowledging that, for any valid probability distribution $q(\vec z)$ over $\vec z$
+
+\newcommand\pt{p_{\theta}}
+\newcommand\pcond{p_{\theta}(\vec x \mid y)}
+\newcommand\dz{\mathrm{d}\vec z}
+
+\begin{align}
+	p_{\theta}(\vec x \mid y)
+		&= \int \pt (\vec x, \vec z \mid y) \dz \\
+		&= \int  \frac{ \pt (\vec x, \vec z \mid y) }{  q(\vec z)  } q(\vec z) \dz \\
+		&= \E[\vec z \sim q(\vec z)]{   \frac{ \pt (\vec x, \vec z \mid y) }{  q(\vec z)  }    }
+\end{align}
+Therefore, we can apply the exact same earlier derivation of $\elbo$ with Jensen's inequality to obtain an equivalent definition in a different form\footnote{Again, there are many ways of writing $\elbo$, but I'm providing a couple because I was docked severely on the last homework for ``insufficient analysis.''}:
+\begin{align}
+\log p_{\theta}(\vec x \mid y)
+	&= \log\E[\vec z \sim q(\vec z)]{   \frac{ \pt (\vec x, \vec z \mid y) }{  q(\vec z)  }    }\\
+	&\ge \E[\vec z \sim q(\vec z)]{\log     \frac{ \pt (\vec x, \vec z \mid y) }{  q(\vec z)  }       } \\
+	&= \elbo 
+\end{align}
+From basic definitions of probability\footnote{I'm assuming Bayes rule is obvious.}, logarithms\footnote{I'm assuming that monotonicity of $\log$ and the fact that $\log(1) = $ is obvious.}, expectation, and fractions, we know that the above is maximized when $q(\vec z) = p_{\theta}(\vec z \mid \vec x, y)$. Of course, this distribution is (potentially) different depending on $\vec x$ and $y$. Therefore, we use amortized inference as the question suggests and instead learn a parameterized $q_{\phi}(\vec z \mid \vec x, y)$ with parameters $\phi$ shared (i.e. not depending on) for all $\vec x, y$. Now we have the form 
+
+\newcommand\qp{q_{\phi}(\vec z \mid \vec x, y)}
+\begin{align}
+ \elbo 
+ 	&=  \E[\vec z \sim \qp ]{\log     \frac{ \pt (\vec x, \vec z \mid y) }{ \qp  }       } \\
+\end{align}
+Using the exact same derivations from the lectures, we know that we can also write this in the form 
+\begin{align}
+	\elbo 
+	    &=  \E[\vec z \sim \qp ]{\log \pt (\vec x \mid \vec z, y)  } 
+	    	- \dkl{\qp}{p(\vec z)} \\
+\end{align}
+which can interpreted from the VAE perspective with $ \pt (\vec x \mid \vec z, y) $ representing a decoder and $\qp$ representing an encoder.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}

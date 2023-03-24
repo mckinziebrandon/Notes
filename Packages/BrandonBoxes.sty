@@ -1,0 +1,250 @@
+% Note -- Need to put after other packages i guess.
+\ProvidesPackage{BrandonBoxes}[2016/10/19 BrandonBoxes]
+
+\RequirePackage{amssymb}
+\RequirePackage{amsmath}
+\RequirePackage{bm}
+\RequirePackage{dsfont} % \mathds{1} for indicator fn.
+\RequirePackage{xparse} % DeclareDocumentCommand
+\RequirePackage{tikz}
+\RequirePackage{wasysym}
+
+\RequirePackage[breakable, theorems, skins]{tcolorbox}
+\tcbset{enhanced}
+\tcbuselibrary{xparse}
+\RequirePackage{xcolor}
+\RequirePackage{paralist}
+% \RequirePackage{xparse} % DeclareDocumentCommand
+
+\ProcessOptions\relax
+
+% checkmark and X mark. 
+% https://tex.stackexchange.com/a/42620/199739
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+\DeclareRobustCommand{\mybox}[2][gray!20]{%
+	\begin{tcolorbox}[   %% Adjust the following parameters at will.
+		breakable,
+		left=0pt,
+		right=0pt,
+		top=-10pt,
+		bottom=0pt,
+		colback=#1,
+		colframe=#1,
+		width=0.9\dimexpr\textwidth\relax,
+		enlarge left by=0mm,
+		boxsep=1pt,
+		arc=0pt,outer arc=0pt,
+		]
+		#2
+	\end{tcolorbox}
+}
+\newcommand\graybox[1]{ \mybox[gray!20]{\begin{align}#1\end{align}} }
+
+\DeclareRobustCommand{\textbox}[2][gray!20]{%
+	\begin{tcolorbox}[   %% Adjust the following parameters at will.
+		breakable,
+		left=0pt,
+		right=0pt,
+		top=-1pt,
+		bottom=0pt,
+		colback=#1,
+		colframe=gray!50,
+		% width=0.9\dimexpr\textwidth\relax,
+		enlarge left by=0mm,
+		boxsep=3pt,
+		%arc=0pt,outer arc=0pt,
+		]
+		#2
+	\end{tcolorbox}
+}
+\newcommand\importantbox[1]{\textbox[Maroon!40]{#1}}
+\newcommand\insightbox[1]{\textbox[Cerulean!40]{#1}}
+
+% ___________________ GREEN BOX __________________________
+\newcommand\greenbox[2][Equation]{\begin{tcolorbox}[enhanced,
+		colback=green!40!gray,
+		colframe=green!75!black,
+		colbacktitle=gray!20!black,fonttitle=\bfseries,
+		frame hidden,
+		title=\textsc{#1},
+		boxrule=0pt,titlerule=1mm,
+		titlerule style=gray!50!black,
+		width=0.7\dimexpr\textwidth\relax,
+		top=-13pt,
+		enlarge left by=0mm,
+		boxsep=1pt ]
+		#2
+	\end{tcolorbox}}
+
+% __________________ EXAMPLE ________________________
+\DeclareTColorBox{example}{o}{frame hidden, fontupper=\scriptsize, fontlower=\scriptsize,
+	IfValueTF={#1}{title=#1, fonttitle=\small\bfseries, coltitle=black, colbacktitle=blue!10!white}{}}
+
+% __________________ ALGORITHM ________________________
+% REMINDER: a!40!b means "use 40 percent of a and 60 percent of b"
+\DeclareTColorBox{algorithm}{o}{frame hidden, 
+     fontupper=\footnotesize, fontlower=\footnotesize,
+     colback=gray!5!white,
+ 	 IfValueTF={#1}{
+        title=#1, 
+        fonttitle=\small\bfseries, 
+        coltitle=black, colbacktitle=orange!70!white}{}}
+
+% ___________________ RBOX ________________________________
+\DeclareTColorBox{rbox}{o}{colframe=red!75!black,colback=red!5!white,
+	IfValueTF={#1}{title=#1,fonttitle=\bfseries, beamer}{}}
+
+\newcommand\redbox[2][]{\begin{rbox}[#1] #2 \end{rbox}}
+
+% <><><><><><><> D E F I N I T I O N <><><><><><><> 
+\DeclareDocumentEnvironment{definition}{ O{-1em} m } % <arg spec> 
+{ 	% <start code>
+	\IfNoValueTF{#2}{}{\textbf{#2}} \vspace*{#1}
+	\begin{quote}
+		\itshape\small
+	}{ % <end code>
+	\end{quote}
+}
+
+% <><><><><><><> I T E M  D E F I N I T I O N <><><><><><><> 
+%\begin{itemdefinition}[1em]{title text stuff}{}
+%	\item blah
+% \end{itemdefinition}
+\DeclareDocumentEnvironment{itemdefinition}
+{O{-1em} m m} % <arg spec> 
+{ 	% <start code>
+	\IfNoValueTF{#2}{}{\textbf{#2}} \vspace*{#1}
+	\begin{quote}
+		\itshape\small
+		\IfValueTF{#3}{#3}{}
+		\begin{compactitem}[\gray{\RIGHTarrow}]
+		}{ % <end code>
+		\end{compactitem}
+	\end{quote}
+}
+
+
+% <><><><><><><> T A B L E <><><><><><><> 
+\definecolor{forgeblue}{HTML}{018C9F}
+% Table borders
+\makeatletter
+\def\rulecolor#1#{\CT@arc{#1}}
+\def\CT@arc#1#2{%
+	\ifdim\baselineskip=\z@\noalign\fi
+	{\gdef\CT@arc@{\color#1{#2}}}}
+\let\CT@arc@\relax
+\rulecolor{Gray}
+\makeatother
+
+% \begin{table}{c | c}{caption}
+\let\OldTable\table 
+\let\endOldTable\endtable
+\RenewDocumentEnvironment{table}{m m}
+{
+	\OldTable[h!]
+	\centering
+	\begin{tabular}{#1}
+		\toprule
+	}{
+		\bottomrule
+	\end{tabular}
+	\IfValueTF{#2}{\caption{#2}}{}
+	\endOldTable
+}
+
+% <><><><><><><> Q U O T E <><><><><><><> 
+\DeclareDocumentEnvironment{myquote}{O{-1em}}{
+	\vspace*{#1}
+	\begin{quote}
+		\itshape\small
+		}{
+	\end{quote}
+}
+
+
+
+% BMAC NODE SON
+\tikzset{blight/.style={state, draw=none,
+		fill=gray!30!white,
+		text=blue!60!white}}
+\tikzset{bdark/.style={state, draw=none,
+		fill=gray!60!black,
+		text=blue!20!white}}
+\tikzset{bquery/.style={state, draw=none,
+		fill=gray!60!green,
+		text=white}}
+
+% <><><><><><><> D R A W I N G <><><><><><><> 
+\DeclareDocumentEnvironment{drawing}{}
+{
+	\begin{center}
+		\begin{tikzpicture}[font=\sffamily,node distance=1.cm,->,>=latex,auto,line width=0.4mm]
+		}
+		{
+		\end{tikzpicture}
+	\end{center}
+}
+
+
+
+% ------------------------------------
+% Tikz stuff
+% ------------------------------------
+
+% https://en.wikibooks.org/wiki/LaTeX/Fonts
+
+% triangle
+\tikzset{node triangle/.style={
+		regular polygon,
+		regular polygon sides=3, 
+		draw=gray!60!white, 
+		text=white,
+		node distance=2em,
+		font=\fontsize{6}{10}\selectfont}}
+% min
+\tikzset{node min/.style={
+		node triangle,
+		fill=green!60!black,
+		shape border rotate=180}}
+% max
+\tikzset{node max/.style={
+		node triangle,
+		fill=blue!40!gray}}
+% leaft
+\tikzset{node leaf/.style={
+		draw=gray!20!white,
+		node distance=2em,
+		fill=white}}
+
+
+% \edge [options] {inputs} {outputs}
+\newcommand{\cedge}[3][]{ %
+	% Connect all nodes #2 to all nodes #3.
+	% for x in inputs
+	\foreach \x in {#2} { %
+		% for y in outputs
+		\foreach \y in {#3} { %
+			\draw[draw=gray,#1] (\x) edge[-] node{} (\y) ;%
+		} ;
+	} ;
+}
+
+% \edge [options] {inputs} {outputs}
+\newcommand{\diredge}[3][]{ %
+	% Connect all nodes #2 to all nodes #3.
+	% for x in inputs
+	\foreach \x in {#2} { %
+		% for y in outputs
+		\foreach \y in {#3} { %
+			\path (\x) edge[->, draw=gray, #1] (\y) ;%
+		} ;
+	} ;
+}
+
+
+
+
+
+\endinput

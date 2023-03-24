@@ -1,0 +1,707 @@
+\documentclass[11pt]{article}
+\usepackage{fullpage,amsmath,amssymb,graphicx}
+
+\usepackage{bm}
+\usepackage{cancel}
+\usepackage{comment}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage[top=1in, bottom=1in, left=0.8in, right=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{lmodern} % Nice fonts?
+\usepackage{mathtools} 
+\usepackage{needspace}
+\usepackage{paralist}
+\usepackage[parfill]{parskip} % no indents on new paragraphs.
+\usepackage{pifont}
+\usepackage[compact]{titlesec} 		% compact shrinks whitespace around section headings.
+\usepackage{tocloft}
+\usepackage{xparse} % DeclareDocumentCommand
+
+\usepackage{enumitem}
+
+\begin{comment}
+\usepackage{fullpage,enumitem,amsmath,amssymb,graphicx}
+
+% Some macros for your convenience
+\newcommand\bbR{\ensuremath{\mathbb{R}}} % Real numbers
+\newcommand\bbZ{\ensuremath{\mathbb{Z}}} % Integers
+\newcommand\bbE{\ensuremath{\mathbb{E}}} % Expectation
+\DeclareMathOperator*{\tr}{tr} % Trace
+\DeclareMathOperator*{\diag}{diag} % Diagonal matrix
+\DeclareMathOperator*{\sign}{sign} % Sign
+\DeclareMathOperator*{\var}{Var} % Variance
+\DeclareMathOperator*{\cov}{Cov} % Covariance
+\newcommand{\1}{\mathbb{I}} % Indicator
+%\newcommand{\newproblem}[1]{\newpage \section*{Problem #1}}
+\end{comment}
+
+% Muh packagez :)
+\usepackage{../../../Packages/MathCommands}
+\usepackage{../../../Packages/BrandonColors}
+\usepackage{../../../Packages/BrandonBoxes}
+\usepackage{../../../Packages/NoteTaker}
+
+\newcommand{\bx}{{\boldsymbol{x}}}
+\newcommand{\by}{{\boldsymbol{y}}}
+\newcommand{\bz}{{\boldsymbol{z}}}
+\newcommand{\bmu}{{\boldsymbol{\mu}}}
+\newcommand{\bb}{{\boldsymbol{b}}}
+\newcommand{\abs}[1]{\left| #1\right|}
+
+\newcommand{\points}[1]{{\textbf{[#1 points]}}}
+\newcommand{\ruleskip}{\bigskip\hrule\bigskip}
+\newcommand{\nodify}[1]{{\sc #1}} 
+\newcommand{\Size}[2]{{\rm SIZE}_{#1}(#2)}
+\newcommand{\KL}[0]{D_{\mathrm{KL}}}
+\newcommand{\csisep}[4]{\emph{CSI-sep}_{#1}({#2};{#3} \mid {#4})}
+
+
+\renewcommand{\arraystretch}{1.5}
+
+
+\begin{document}
+	
+	\begin{center}
+		{\Large STATS 214 Autumn 2021 Homework 2}
+		
+		\begin{tabular}{rl}
+			SUNet ID: & 06009508 \\
+			Name: & Brandon McKinzie \\
+			Collaborators: & N/A
+		\end{tabular}
+	\end{center}
+	
+	\p By turning in this assignment, I agree by the Stanford honor code and declare
+	that all of this is my own work.
+	
+	\rule{\linewidth}{0.4pt}
+	
+\section*{Problem 1(a) Relation between covering and packing number}
+	
+We need to show that $\forall x \in \Omega$, $\exists x' \in P$ such that $\rho(x, x') \leq \epsilon$. We can proceed with a proof by contradiction:
+\begin{enumerate}
+	\item Assume $\exists x \in \Omega$ such that $\nexists x' \in P$ with $\rho(x, x') \leq \epsilon$. 
+	
+	\item Let $P' = P \cup \{ x \}$. 
+	
+	\item By construction, $P'$ must also be an $\epsilon$-packing of $\Omega$. 
+	
+	\item This contradicts the premise that $P$ was a maximal $\epsilon$-packing, though, since $P'$ strictly contains $P$. 
+	
+	\item Therefore, it must be true that $\forall x \in \Omega$, $\exists x' \in P$ such that $\rho(x, x') \leq \epsilon$, and thus $P$ is also an $\epsilon$-cover  of $\Omega$. 
+\end{enumerate}
+
+
+\clearpage
+\section*{Problem 1(b) Packing number upper bound}
+\question{Show that 
+	\begin{align}
+		|B_{\epsilon} | \leq \lr{ 1 + \frac{2}{\epsilon} }^d
+	\end{align}
+}
+
+We can relate the cardinality of $B_{\epsilon}$ to $B_2^2$, followed by relating it to the volume of a $d$-dimensional hypercube to obtain the desired result. First note that since $B_{\epsilon} \subset B_2^d$, 
+\begin{align}
+	|B_{\epsilon} | \leq |B_2^d|
+\end{align}
+where $B_2^d$ is the d-dimensional unit hypersphere. Next, note that the volume of a d-dimensional hyper\textit{cube} is larger than the volume of a d-dimensional hypersphere. The maximal number of points we can pack into a d-dimensional hypercube, accomplished by arranging them in a d-dimensional grid with spacing $\epsilon$, is $(  \lfloor 1 + \frac{2}{\epsilon} \rfloor )^d$. Therefore, 
+\begin{align}
+	|B_\epsilon| 
+		&\leq \text{Vol}[B_2^d] \\
+		&< \lr{ \left\lfloor   1 + \frac{2}{\epsilon  } \right\rfloor }^d \\
+		&\leq  \lr{    1 + \frac{2}{\epsilon  } }^d
+\end{align}
+
+
+\clearpage
+\section*{Problem 1(c) Covering number upper bound}
+\question{Argue that for $\epsilon < 1$, we have $N(B_2^d, \epsilon) \leq (1 + 2/\epsilon)^d$. }
+
+\begin{enumerate}
+	\item Let $B_{\epsilon}'$ be a maximal packing of $B_2^d$. 
+	
+	\item From part (a), we know that $B_{\epsilon}'$ is also an $\epsilon$-cover. 
+	
+	\item Also, since $B_{\epsilon}$ is an $\epsilon$-packing, from part (b) we know that $B_{\epsilon}' \leq (1 + 2/\epsilon)^d$. 
+	
+	\item If we were to remove any $x \in B_{\epsilon}'$, then that point $x$ would be a point in $B_2^d$ for which 
+	\begin{align}
+		\rho(x, x') \geq \epsilon \qquad (\forall x' \in \{ B_{\epsilon}' / x \})
+	\end{align}
+	which means $\{ B_{\epsilon}' / x \}$ would not be an $\epsilon$-covering. 
+	
+	\item Therefore, $|B_{\epsilon}'| = N(B_2^d, \epsilon) \leq (1 + 2/\epsilon)^d$. 
+\end{enumerate}
+
+
+\clearpage
+\section*{Problem 1(d) Covering $\ell_1$ ball}
+\question{For any $d \geq 1$ and $1 > \epsilon > 0$, show that the $\epsilon$-covering number of $B_1^d$ wrt $\ell_2$ distance is at most 
+$$
+\min\left\{     
+	\lr{ 10d }^{   \frac{ 5 }{\epsilon^2}}, ~ \lr{ \frac{10}{\epsilon} }^{  2d  }
+\right\}
+$$
+}
+
+First, note that since $B_1^d \subseteq B_2^d$,  we know from part (c) that $N(B_1^d, \epsilon) \leq (1 + 2/\epsilon)^d$. Furthermore, since $0 \leq \epsilon \leq 1$, 
+\begin{align}
+	1 + \frac{2}{\epsilon} = \frac{\epsilon + 2}{\epsilon} \leq \frac{10}{\epsilon}
+\end{align}
+we have that $N(B_1^d, \epsilon)  \leq \lr{ \frac{10}{\epsilon} }^{  O(d)  }$. \\
+
+
+We now consider the case where $\epsilon > \sqrt{5/d}$ and derive the term on the left inside the $\min$. Let $t := \lceil 5 / \epsilon^2 \rceil$ and 
+\begin{align}
+	S 
+		&= \left\{ \lr{ \frac{k_1}{t}, \ldots, \frac{k_d}{t} } \in B_1^d \bigg| (k_i \in \mathbb Z)  \right\} \\
+	S' 
+		&= \left\{ \lr{ \frac{k_1}{t}, \ldots, \frac{k_d}{t} } \in \R^d \bigg| \sum_{i=1}^{d} k_i \leq t ~ (k_i \in \mathbb N)  \right\}
+\end{align}
+Note that $|S| \leq 2^t |S'|$, since for all $x' \in S'$, there are $2^t$ pre-images ($x \in S$) for a mapping from $S \to S'$. This leads  to
+\begin{align}
+	|S| \leq 2^t {d+t \choose d} \leq 2^t (d + t)^t \leq (2d)^t \leq (2d)^{5/\epsilon^2}  \leq (10d)^{5/\epsilon^2}
+\end{align}
+
+Therefore, if we can show that $S$ is an $\epsilon$-cover of $B_1^d$ wrt $\ell_2$, then we'll have shown the other half of the desired result and thus completed the proof. For any given $x \in B_1^d$, let 
+\begin{align}
+	x' := \lr{  \frac{ \lfloor x_1 t \rfloor   }{t}, \ldots, \frac{ \lfloor x_d t \rfloor   }{t}  }
+\end{align}
+Note that $x'$ has the same form as the elements of $S$, but with $k_i := \lfloor x_i t \rfloor$. Since $x \in B_1^d$, these still sum to a number less than or equal to $t$. By construction of $x$', along with Holder's inequality, we can state
+\begin{align}
+	||x - x'||_{2}^{2} 	
+		&\leq ||x - x'||_{\infty} ||x - x'||_1 \\
+		&\leq \lr{\inv{t}} \lr{1 - (-1)} \\
+	||x - x'||_2 
+		&\leq \sqrt{2/t} \leq \epsilon
+\end{align}
+Therefore, for $\epsilon \geq \sqrt{5 /d}$, $S$ is an $\epsilon$-cover of $B_1^d$ and thus
+\begin{align}
+N(B_1^d, \epsilon) \leq |S| \leq (10d)^{5/\epsilon^2}
+\end{align}
+
+Combining these two bounds for $N$ yields the desired result. 
+
+\clearpage 
+\section*{Problem 2(a) Risk Concentrates for Good Predictors}
+\question{Suppose we have a fixed predictor $h$ that achieves $L(h) \leq E$. Show that 
+	\begin{align}
+		\Prob{ \hat{L}(h) - L(h) \geq \epsilon  } &\leq \exp\lr{  \frac{-n \epsilon^2}{2 (E + \epsilon/3)}   }
+	\end{align}
+}
+
+As we've seen throughout the course, the empirical risk $\hat L$ can be viewed as an average of i.i.d. random variables $\ell_i$\footnote{Throughout the homework, I'll use the shorthand $\ell_i$ to denote the loss on the $i$th training example under the current model $h$.}, and that $L(h) = \E[(x,y) \sim p^*]{\hat L}$ by definition. Therefore, we can apply Bernstein's inequality
+\begin{align}
+	\Prob{ \hat{L}(h) - L(h) \geq \epsilon } 
+		&\leq  \exp\lr{  \frac{-n \epsilon^2}{2 (\sigma^2 + (b -a ) \epsilon / 3 ) } }
+\end{align}
+
+Since we're told that $\ell(y, p) \in [0, 1]$, it follows that $b - a \leq 1$. Similarly, since $L(h) = \E{\ell_i} \leq E$, and $L(h) \leq 1$, we know that $\E{\ell_i^2} \leq \E{\ell_i} \leq E$. Therefore
+\begin{align}
+	\sigma^2 
+		&= \E{\ell_i^2} - L(h)^2 
+		\leq E - L(h)^2
+		\leq E 
+\end{align}
+
+Plugging these inequalities back in yields the desired result:
+\begin{align}
+	\Prob{ \hat{L}(h) - L(h) \geq \epsilon } 
+	 	&\leq \exp\lr{  \frac{-n \epsilon^2}{2 (\sigma^2 + (b -a ) \epsilon / 3 ) } } \\
+	 	&\leq \exp\lr{  \frac{-n \epsilon^2}{2 (E  +  \epsilon / 3 ) } } 
+\end{align}
+
+
+\clearpage 
+\section*{Problem 2(b) Bad Predictors Look Bad}
+\question{Suppose that instead we now have another fixed predictor $h'$ with expected risk at least $E' + e$:
+	\begin{align}
+		L(h') \geq E' + \epsilon
+	\end{align}
+	Show that 
+	\begin{align}
+		\Prob{ \hat{L}(h') \leq E' } \leq \exp\lr{  \frac{ -n \epsilon^2 }{ 2(E' + 4\epsilon/3) }}
+	\end{align}
+}
+
+It will be easiest if we first derive a bound in terms of $\epsilon' = L(h') - E'$ using the same kind of logic in part (a). 
+\begin{align}
+	\Prob{\hat L(h') \leq E'} 
+		&= \Prob{\hat L(h') \leq L(h') - \epsilon'} \\
+	&= \Prob{\hat L(h') - L(h') \leq - \epsilon'} \\
+	&= \Prob{-\hat L(h') + L(h') \geq \epsilon'}
+\end{align}
+
+We can use Bernstein's inequality here since the random variable $(- \hat L(h'))$ can still be represented as a sum over i.i.d. bounded random variables $-\ell_i$. Not that these random variables have the same $\sigma^2$ as they did for $\hat L(h')$, since $\Var{X} = \Var{-X}$.Recall from part (a) that $\sigma^2 \leq \E{\ell_i^2} \leq \E{\ell_i} = L(h')$. Bernstein's inequality gives us
+\begin{align}
+	\Prob{-\hat L(h') + L(h') \geq \epsilon'}
+	&\leq \exp\lr{  \frac{-n \epsilon'^2}{2 (\sigma^2 + \epsilon' / 3 ) } } \\
+	&\leq  \exp\lr{  \frac{-n (L(h') - E')^2}{2 (L(h') + (L(h') - E') / 3 ) } } 
+\end{align}
+
+Notice that, if we can show the following inequality is true, we'd achieve the desired result:
+\begin{align}
+	 \frac{(L(h') - E')^2}{L(h') + (L(h') - E') / 3  }
+	 	&\geq \frac{\epsilon^2}{E' + 4\epsilon/3}
+\end{align}
+
+Let 
+\begin{align}
+	g(x) &= \frac{  (x - E')^2 }{ x + (x - E')/3 } \\
+	\deriv{}{x} g(x)
+		&=  \frac{  2 (x - E') \lr{  x + (x - E')/3 }  - \frac{4}{3} (x - E')^2 }{ \lr{ x + (x - E')/3}^2 } \\
+		&=  \frac{ x - E' }{ \lr{ x + (x - E')/3}^2 } \lr{  2x + 2 (x - E')/3  - \frac{4}{3} (x - E')}   \\
+		&=  \frac{ x - E' }{ \lr{ x + (x - E')/3}^2 } \lr{ \inv{3} \lr{ 4x + 2E' } } 
+\end{align}
+
+Note that this derivative is positive, and increases with $|x - E'|$. For our constraint that $x = L(h') \geq E' + \epsilon$, this means the minimum of $g$ is achieved when $L(h') = E' + \epsilon$. In other words, 
+\begin{align}
+	\min_{x \geq E' + \epsilon} g(x) = g( E' + \epsilon) =  \frac{\epsilon^2}{E' + 4\epsilon/3}
+\end{align}
+Plugging this back in yields the desired result:
+\begin{align}
+	\Prob{\hat L(h') \leq E'} = \Prob{-\hat L(h') + L(h') \geq \epsilon'} \leq 
+		 \exp\lr{  \frac{ -n \epsilon^2 }{ 2(E' + 4\epsilon/3) }}
+\end{align}
+
+
+\clearpage
+\section*{Problem 2(c) Bounding Excess Risk}
+\question{Suppose finite $\mathcal H$. Use the preceding parts to conclude that
+	\begin{align}
+		\Prob{ L(\hat h) - L(h^*) \geq 2 \epsilon }
+			&\leq 2 | \mathcal H | \exp\lr{ 
+				- \frac{n \epsilon^2}{2 (E + 7\epsilon / 3) }
+			}
+	\end{align}
+}
+
+Recapping what we learned from parts (a) and (b) for the context of this problem:
+\begin{align}
+	\mtgreen{(a)}\qquad 
+	\lr{ \exists h \text{ s.t. } L(h) \leq A } 
+	&\implies \Prob{ \hat L (h) - L(h) \geq \epsilon }
+	\leq \exp\lr{   \frac{ -n\epsilon^2  }{ 2(A + \epsilon/ 3) }  } \\
+	\mtgreen{(b)} \qquad 
+	\lr{ \exists h \text{ s.t. } L(h) \geq B + 2\epsilon } 
+	&\implies 
+	\Prob{\hat L(h) \leq B + \epsilon } \leq \exp\lr{   \frac{ -n\epsilon^2  }{ 2(B +7 \epsilon/ 3) }  } 
+\end{align}
+
+We can use part (a) for the case of $h := h^*$, since $L(h^*) = E$, to assert unconditionally that
+\begin{align}
+	\Prob{ \hat L(h^*) \geq E + \epsilon }
+	&\leq \exp\lr{   \frac{ -n\epsilon^2  }{ 2(E + \epsilon/ 3) }  } 
+\end{align}
+
+\begin{comment}
+Henceforth, let 
+\begin{align}
+	P_a &= \Prob{ \hat L(h^*) \geq E + \epsilon } \\
+	P_b &= \Prob{ \hat L(h) \leq E + \epsilon \mid L(h) \geq E + 2\epsilon}
+\end{align}
+	
+We can then relate the excess risk probability with $P_a$ and $P_b$ as follows. First note that $\{ L(\hat h) - L(h^*) \geq 2\epsilon \} \subseteq A \cup B$, since if $L(\hat h) \geq E + 2\epsilon$, then either $\hat L(h^*) \geq E + \epsilon$ (part (a))  OR  $\hat L(\hat h) \leq E + \epsilon$ (part (b)). 
+\end{comment}
+
+Next, to relate with the result for part $(b)$, let $\mathcal Q \subset \mathcal H$ denote the hypotheses that satisfy $L(h) \geq E + 2\epsilon$. Note that this set has at most $|\mathcal H| - 1$ members, since we know that $h^* \notin \mathcal Q$. 
+\begin{align}
+	\Prob{ \exists h \in \mathcal Q \text{ s.t. } \hat L(h)   \leq E + \epsilon  }
+		&\leq \sum_{h \in \mathcal Q} \Prob{ \hat L(h)   \leq E + \epsilon  } \\
+		&\leq \lr{ | \mathcal H| - 1 }\exp\lr{   \frac{ -n\epsilon^2  }{ 2(E +7 \epsilon/ 3) }  } 
+\end{align}
+
+Then we take a union over the hypothesis space consisting of $\{ h^*\}$ and $\mathcal Q$ to obtain the desired result. 
+\begin{align}
+	\Prob{ L(\hat h) - L(h^*) \geq 2 \epsilon } 
+		&\leq \Prob{ \hat L(h^*) \geq E + \epsilon } 
+			+ \Prob{ \exists h \in \mathcal Q \text { s.t. } \hat L (h) \leq E + \epsilon } \\
+		&\leq \exp\lr{   \frac{ -n\epsilon^2  }{ 2(E + \epsilon/ 3) }  }  
+			+  \lr{ | \mathcal H| - 1 }\exp\lr{   \frac{ -n\epsilon^2  }{ 2(E +7 \epsilon/ 3) }  } \\
+		&\leq 2 | \mathcal H | \exp\lr{ 
+			- \frac{n \epsilon^2}{2 (E + 7\epsilon / 3) }
+		}
+\end{align}
+
+\begin{comment}
+For compactness, let $\Delta(h) = L(h) - \hat L(h)$. Then
+\begin{align}
+	\Prob{L(\hat h) - L(h^*) \geq 2 \epsilon}
+	&\leq \Prob{ |\Delta(h^*)| + \sup_{h \in \mathcal H} \Delta(h)  \geq 2 \epsilon } \\
+	&\leq \Prob{ |\Delta(h^*)| \geq \epsilon  } + \Prob{  \sup_{h \in \mathcal H} \Delta(h)  \geq  \epsilon  } \\
+	&\leq  \Prob{ |\Delta(h^*)| \geq \epsilon  }  + \sum_{h \in \mathcal H} \Prob{ \hat L(h)  \leq E + \epsilon  } \\
+	&\leq P_a + P_b
+\end{align}
+\end{comment}
+
+
+
+\clearpage 
+\section*{Problem 2(d) Comparison with Hoeffding}
+
+Below are the bounds obtained in part (c) and from Hoeffding's inequality, respectively:
+\begin{align}
+	\mtgreen{[part (c)]}\qquad 
+		\Prob{ L(\hat h) - L(h^*) \geq 2 \epsilon } 
+		&\leq 2 | \mathcal H | \exp\lr{ 
+			- \frac{n \epsilon^2}{2 (E + 7\epsilon / 3) } } \label{eq:2c}  \\
+		\mtgreen{[Hoeffding]}\qquad 
+	\Prob{ L(\hat h) - L(h^*) \geq 2\epsilon  }
+&\leq 2 | \mathcal H | \exp \lr{  -2n\epsilon^2  } \label{eq:2d}
+\end{align}
+
+\begin{align}
+	\Delta 
+		&= \inv{4} - \frac{7}{6} \epsilon 
+\end{align}
+When $E \leq \Delta(\epsilon)$, the RHS of \ref{eq:2c} is less than or equal to the RHS of \ref{eq:2d}, i.e. the result for part (c) is stronger. If we consider $\epsilon \leq 0.05$, then $\Delta(\epsilon) \geq \inv{20}\lr{ 5 - 7/6 } \approx 0.19$.
+
+
+\clearpage 
+\section*{Problem 3(a) Point Mass}
+
+\question{Suppose that $k = 1$, in which case $P$ is a point mass at some point $v$. Show that 
+\begin{align}
+	R_n(F) \leq \inv{\sqrt{n}}
+\end{align}
+}
+
+\begin{align}
+	R_n(\mathcal F)
+		&\triangleq \E[z_1, \ldots, z_n]{ \E[\sigma_1, \ldots, \sigma_n]{ \sup_{f \in \mathcal F} \inv{n} \insum \sigma_i f(z_i)  } } \\
+		&=  \E[\sigma_1, \ldots, \sigma_n]{ \sup_{f \in \mathcal F} \inv{n} \insum \sigma_i f(v)  } \qquad \mblue{P(v) = 1}\\
+		&=   \E[\sigma_1, \ldots, \sigma_n]{  \left| \inv{n} \insum \sigma_i \right | } \qquad \mblue{f(v) \in \{-1, 1\}} \\
+		&\leq \inv{\sqrt{n}} \qquad  \mtblue{Sec. 4.4.3 of scribe notes}
+\end{align}
+where in the last step we've applied the derivation starting from equation 4.67 of the scribe notes, section 4.4.3 (Dependence of Rademacher complexity on P). 
+
+
+\clearpage 
+\section*{Problem 3(b) Expected Max of Sub-Gaussian Variables}
+\question{Let $X_1, \ldots, X_m$ be sub-Gaussian variables with mean zero and variance proxy $\sigma^2$. Show that
+	\begin{align}
+		\E{\max_{1 \leq i \leq m}  X_i } \leq \sqrt{2 \sigma^2 \log m}
+	\end{align}
+}
+
+We'll apply the definitions of sub-Gaussian variables, with the simplification that we'll only consider strictly positive $\lambda \in \R^+$: 
+\begin{align}
+	\E{ \exp \lr{ \lambda \max_i X_i } } 
+		&\leq \E{ \imsum \exp \lr{ \lambda X_i } } \\
+		&\leq m \exp{\onehalf \lambda^2 \sigma^2}
+\end{align}
+
+We can use Jensen's inequality 
+\begin{align}
+	\E{\exp\lr{\lambda \max_i X_i)}  }
+		&\geq \exp\lr{   \E{ \lambda \max_i X_i}  } \\
+	\log \E{\exp\lr{\lambda \max_i X_i)}  }
+	&\geq   \E{ \lambda \max_i X_i}  \label{eq:3b-1}
+\end{align}
+
+Next, we can use the original inequality we obtained and minimize with respect to $\lambda$:
+\begin{align}
+	\inv{\lambda} \log \E{\exp\lr{\lambda \max_i X_i)}  } 
+		&\leq \inv{\lambda} \log \lr{ m \exp{\onehalf \lambda^2 \sigma^2} } \\
+		&= \inv{\lambda} \log m + \onehalf \lambda \sigma^2 
+\end{align}
+
+We then compute the derivative and set to zero:
+\begin{align}
+	0 &= - \inv{\lambda^2} \log m + \onehalf \sigma^2
+\end{align}
+Which yields $\lambda = \sqrt{\frac{2 \log m}{\sigma^2}}$. Plugging this back in, combined with \ref{eq:3b-1}, yields the desired result:
+\begin{align}
+	\E{\max_i X_i} 
+		&\leq \frac{\sigma}{\sqrt{2 \log m}} \log m + \onehalf \frac{\sqrt{2 \log m}}{\sigma} \sigma^2 \\
+		&= \sqrt{2 \sigma^2 \log m}
+\end{align}
+
+
+
+\clearpage 
+\section*{Problem 3(c) Massart's Finite Lemma}
+\question{Show $\exists C > 0$ s.t. $\forall P$,
+	\begin{align}
+		R_n(G) \triangleq \E{ \sup_{g \in G} \inv{n} \insum \sigma_i g(z_i) } \leq C \sqrt{   \frac{\log|G|}{n}    }
+	\end{align}
+}
+
+Denote $A_i := \sigma_i g(\ival[i]{z})$.
+\begin{enumerate}
+	\item Note that since $\sigma_i g(\ival[i]{z}) \overset{d}{=} g(\ival[i]{z})$, we have that $\E{A_i} = 0$.
+	
+	\item Furthermore, since $-1 \leq A_i \leq 1$, $A_i$ is bounded and this is sub-Gaussian with variance proxy $\sigma_i^2 = (1 - (-1))^2 / 4 = 1$. 
+	
+	\item The sum of independent sub-Gaussian random variables is itself sub-Gaussian. Since $A_i \perp A_{j \neq i}$, we have that $\insum A_i$ is sub-Gaussian with variance proxy $\sigma^2 = \insum \sigma_i^2 = n$. 
+	
+	\item Let $\mathcal A = \{ (x, \sigma_1, \ldots, \sigma_n) \mapsto \insum \sigma_i g(x) = \insum A_i  \mid g \in G  \}$. Note that, by definition, $|\mathcal A| \leq |G|$. We can apply the previous steps, in conjunction with the result from part (b), to obtain the desired result:
+	\begin{align}
+		R_n(G)
+			&\triangleq \E{\sup_{g \in G} \inv{n} \insum \sigma_i g(\ival[i]{z}) } \\
+			&= \inv{n} \E{\sup_{a \in \mathcal A} a(\ival[i]{z}, \sigma_1, \ldots, \sigma_n) } \\
+			&\leq \inv{n} \sqrt{2n \log |\mathcal A|} \qquad \mtgreen{[part (b)]} \\
+			&\leq \inv{n} \sqrt{2n \log |G|} \qquad \mgreen{|\mathcal A| \leq |G|} \\
+			&= C \sqrt{\frac{\log |G|}{n}}
+	\end{align}
+\end{enumerate}
+ with (at least for this derivation) $C = \sqrt{2}$. 
+
+\begin{comment}
+Similar to 3(b), we can prove this using moment generating functions. 
+\begin{align}
+	\exp\lr{ \lambda R_S(G)  }
+		&= \exp\lr{ \lambda  \E[\sigma]{ \sup_{g \in G}  \inv{n} \insum \sigma_i g(z_i) } } \\
+		&\leq \E[\sigma]{   \exp\lr{ \lambda  \sup_{g \in G}  \inv{n} \insum \sigma_i g(z_i) }  } \qquad \mtgreen{[Jensen's Ineq.]} \\
+		&= \E[\sigma]{  \sup_{g \in G}  \exp\lr{ \frac{\lambda}{n} \insum \sigma_i g(z_i) } }    \qquad 
+			\mgreen{[ e^{\max \cdot } = \max e^{\cdot} ]} \\
+		&\leq \sum_{g \in G} \E[\sigma]{  \exp\lr{ \frac{\lambda}{n} \insum \sigma_i g(z_i) }   } 
+			\qquad \mtgreen{[finite G, exp non-negative]} \\
+		&= \sum_{g \in G} \prod_{i=1}^{n} \E[\sigma_i]{ \exp\lr{    \frac{\lambda}{n}  \sigma_i g(z_i)} }
+\end{align}
+
+Next, we note that 
+\begin{align}
+	\E[\sigma_i]{ \exp \lr{ \lambda \sigma_i x } } 
+		&= \onehalf \lr{ \exp\lr{  \lambda x }  +  \exp\lr{  - \lambda x }       } \\
+		&= \cosh(\lambda x )
+\end{align}
+
+\red{ASK: how to utilize part (b) for this...?}
+\end{comment}
+
+
+\clearpage 
+\section*{Problem 3(d) General Discrete Distributions}
+\question{Suppose $k > 1$, show that 
+	\begin{align}
+		R_n(F) = \E{  \sup_{f \in \mathcal F} \inv{n} \insum \sigma_i f(z_i)  } \leq C \sqrt{\frac{k}{n}}
+	\end{align}
+	for some universal constant $C > 0$.
+}
+
+Define $G$ as a constrained version of $\mathcal F$, where the functions  $f$ are constrained to be applied only on the support vectors $V = \{ v_i \}_{i=1}^k$:
+\begin{align}
+	G = \{ \lr{  f(v_1), \ldots, f(v_k) }  \mid f \in \mathcal F  \}
+\end{align}
+
+
+This makes $G$ finite, since $G \subset \{ \pm 1 \}^{k}$ (and thus $|G| \leq 2^k$). Therefore, we can use the result from part (c) to obtain the desired inequality as follows. Note that since $g \in G$ are each vectors of size $k$ (and not functions over $\R^d$), I'll need to denote $g(z_i \in V)$, i.e. the element of $g$ corresponding to $f(z_i)$, as $ \sum_{v \in V}  \ind\{  z_i = v  \} g_v   $. 
+
+\begin{align}
+	\E{\sup_{f \in \mathcal F}  \inv{n} \insum \sigma_i f(z_i)  } 
+		&= \E{\sup_{g \in G} \inv{n} \insum \sigma_i \sum_{v \in V}  \ind\{  z_i = v  \} g_v   } \\
+		&\leq C \sqrt{  \frac{\log |G| }{ n } } \qquad \mtgreen{[part (c)]} \\
+		&\leq C \sqrt{ \frac{k}{n}  } \qquad \mgreen{[G \subset \{ \pm 1 \}^{k}]}
+\end{align}
+
+
+
+
+
+
+\clearpage 
+\section*{Problem 3(e) Generalization Error Bound}
+\question{Show that for $\delta \in (0, 1/3)$, there exists a universal constant $C > 0$ s.t. w.p. at least $1 - \delta$ over the training data
+	\begin{align}
+		L(\hat h) - L(h^*) \leq C \lr{
+			\sqrt{  \frac{k}{n} } + \sqrt{   \frac{\log1/\delta}{n}  }
+	}
+	\end{align}
+}
+
+
+From remark 4.20 of the scribe notes, we know that $\forall h \in \mathcal H$,
+\begin{align}
+	L(h) - \hat L(h) \leq 2R_n(\mathcal H) + \sqrt{   \frac{ \log{2/\delta} }{2n}   }
+\end{align}
+
+Furthermore, we know that the excess risk is bounded by the generalization gap like
+\begin{align}
+	L(\hat h) - L(h^*) \leq 2 \sup_{h \in \mathcal H}\lr{ L(h) - \hat L(h) }
+\end{align}
+
+Therefore, we can obtain the desired result by plugging in the inequality from part (d) and simplifying as follows. 
+\begin{align}
+	R_n(\mathcal H) &\leq C \sqrt{  \frac{k}{n} } \qquad (C > 0) \\
+	L(\hat h) - L(h^*) 
+		&\leq 4 R_n(\mathcal H) + 2 \sqrt{   \frac{ \log{2/\delta} }{2n}   } \\
+		&\leq C_1  \sqrt{  \frac{k}{n} }  + C_2 \sqrt{   \frac{ \log{2/\delta} }{n}   }  \\
+		&\leq C_3 \lr{   \sqrt{  \frac{k}{n} }  + \sqrt{   \frac{ \log{2/\delta} }{n}   } }
+\end{align}
+For some $C_3 = \max (C_1, C_2) > 0$.  
+
+
+
+\clearpage 
+\section*{Problem 4(a) Two Functions}
+\question{
+Let $f :\mathcal X \to \R$ be a function, and let $\mathcal F := \{-f , f \}$ be a function class containing only two functions. Upper bound $R_n(\mathcal F)$ using a function of $n$ and $\E[X \sim p^*]{f(X)^2}$, where the expectation is taken over $X \sim p^*$. 
+}
+
+
+\begin{align}
+	R_n(\mathcal F)
+		&= \E{ \sup \inv{n} \left\{     \insum \sigma_i f(z_i), - \jnsum \sigma_j f(z_j)  \right\}  } \\
+		&= \E{  \left|   \inv{n} \insum \sigma_i f(z_i) \right| } \\
+		&\leq \lr{  \E{  \left|   \inv{n} \insum \sigma_i f(z_i) \right|^2}    }^{1/2} \qquad \mtgreen{[Jensen's Ineq.]}
+\end{align}
+
+As usual, we can decompose this sum over $\sigma_i$ like
+\begin{align}
+	\lr{ \insum \sigma_i f(z_i)  }^2 
+		&= \insum \jnsum \sigma_i \sigma_j f(z_i) f(z_j) \\
+		&= \insum \sigma_i^2 f(z_i)^2 + \insum \sum_{j \neq i} \sigma_i \sigma_j f(z_i) f(z_j)
+\end{align}
+
+Noting that $\E{\sigma_i \sigma_{j \neq i} } = \E{\sigma_i}  \E{\sigma_{j  \neq i } } = 0$ since the $\sigma$ are drawn i.i.d.: 
+\begin{align}
+	\E{\insum \jnsum \sigma_i \sigma_j f(z_i) f(z_j)}
+		&= \E{\insum \sigma_i^2 f(z_i)^2 } \\
+		&= \insum \E{f(z_i)^2} \\
+		&= n \E[X \sim p^*]{f(X)^2}
+\end{align}
+
+Therefore 
+\begin{align}
+	R_n(\mathcal F) 
+		&\leq \inv{n} \sqrt{n \E[X \sim p^*]{f(X)^2}} \\
+		&= \sqrt{\frac{\E[X \sim p^*]{f(X)^2}}{n}}
+\end{align}
+
+
+
+\clearpage 
+\section*{Problem 4(b) Sparse Features, Dense Weights}
+\question{Define the class of linear functions whose coefficients have bounded $L_{\infty}$ norm:
+	\begin{align}
+		\mathcal F = \{ x \mapsto w \dotp x  :  \inftynorm{w}  \leq B \}
+	\end{align}
+	The domain of $p^*$ is $\{x \in \{0, 1\}^d \mid \text{x has at most k non-zero entries} \}$. Compute an upper bound on the Rademacher complexity $R_n{\mathcal F}$ as a function of $B, k, d, n$. 
+}
+
+First, note that the dual of the $\ell_{\infty}$-norm is the $\ell_1$-norm, i.e.
+\begin{align}
+	\sup_{\inftynorm{w} \leq B} \langle w, x \rangle 
+		&= B \norm[1]{x}
+\end{align}
+
+\begin{align}
+	R_n(\mathcal  F)
+		&= \E[\substack{ \ival[i]{z}  \sim p^* \\ \sigma_i \sim \{ \pm 1\}}]{\sup_{ ||w||_{\infty} \leq B  } \inv{n} \insum \sigma_i \langle w, z^{(i)} \rangle } \\
+		&= \E[\substack{ \ival[i]{z}  \sim p^* \\ \sigma_i \sim \{ \pm 1\}}]{\sup_{ ||w||_{\infty} \leq B  } \inv{n}\langle w,  \insum  \sigma_i z^{(i)} \rangle } \\
+		&= \E[\substack{ \ival[i]{z}  \sim p^* \\ \sigma_i \sim \{ \pm 1\}}]{ \inv{n} B \norm[1]{  \insum  \sigma_i z^{(i)}  } } \\
+		&=  \E[\substack{ \ival[i]{z}  \sim p^* \\ \sigma_i \sim \{ \pm 1\}}]{ \frac{B}{n} \sum_{j=1}^{d}  \left| \insum  \sigma_i z^{(i)}_j  \right| }  \\
+		&\leq \E[z^{(i)} \sim p^*]{ \frac{B}{n} \sum_{j=1}^{d}  \left| \insum z^{(i)}_j  \right| }  \\
+		&\leq \frac{B}{n} \E[z^{(i)} \sim p^*]{\insum ||z^{(i)}||_1 } \\
+		&\leq \frac{B}{n} \E[z^{(i)} \sim p^*]{\insum \min\{ d, k \}  } \\
+		&= B \min\{ d, k\}
+\end{align}
+
+\clearpage 
+\section*{Problem 4(c)  Sparse Weights, Dense Features}
+\question{Now the domain of $p^*$ is $\{ z \in \R^d \mid \inftynorm{z} \leq B  \}$, and the class of linear functions is 
+	\begin{align}
+		\mathcal F = \{ x \mapsto w \dotp x \mid \inftynorm{w} \leq 1, \text{ w  has at most s non-zero entries } \}
+	\end{align}
+	Show that for some universal constant $c > 0$
+	\begin{align}
+		R_n(\mathcal F) \leq c B s \sqrt{  \frac{\log 2d}{n} }
+	\end{align}
+}
+
+\begin{align}
+	R_n(\mathcal F)
+		&= \E[\substack{z^{(i)} \sim p^* \\ \inftynorm{z} \leq B \\ \sigma_i \sim \{\pm 1\}}]{   \sup_{\substack{\inftynorm{w} \leq 1 \\  \text{at most }s \text{ non-zero} } } \inv{n} \insum \sigma_i \langle w, z^{(i)} \rangle  }
+\end{align}
+
+Let $G = \{ x \mapsto \langle w, x \rangle \mid ||w||_1 \leq s \}$. Note that $G \supset \mathcal F$. We can then apply Theorem 5.7 of the scribe notes, with $B := s$ and $C := B$, to obtain 
+\begin{align}
+	R_S(G) \leq s B \sqrt{\frac{2\log 2d}{n}}
+\end{align}
+
+Let $c = \sqrt{2}$ to obtain the desired result.
+
+
+
+
+
+
+
+\clearpage 
+\section*{Problem 4(d) Continuous Functions with Bounded Local Minima}
+\question{Let $\mathcal F$ be the class of all continuous functions $f: \R[0, 1] \to \R[0, 1]$ with at most $k$ local maxima. Prove that the Rademacher complexity of $\mathcal F$ is at most $O\lr{  \sqrt{  \frac{k \log n}{n}  }  }$. }
+
+For bounding $R_S(\mathcal F)$ for a function class $\mathcal F$ of continuous functions, we can use Dudley's theorem:
+\begin{align}
+	R_S(\mathcal F) 	
+		&\leq 12 \int_0^{\infty} \mathrm{d}\epsilon \dfrac{  \log N\lr{ \epsilon, \mathcal F, L_2(P_n) }  }{ n  } \\
+		&= 12 \int_0^{1} \mathrm{d}\epsilon \dfrac{  \log N\lr{ \epsilon, \mathcal F, L_2(P_n) }  }{ n  } 
+\end{align}
+where the second step follows from the fact that the image of each $f$ is in $[0, 1]$. Since there are at most $k$ local maxima, there are also at most $k-1$ local minima. If we have $n$ total points $z_i$, then there are ${n + 2k - 1 \choose n} = {n + 2k - 1 \choose 2k - 1}$ ways to arrange the points relative the extrema. 
+
+
+ In between each extremum, $f$ is a monotonic (either non-increasing or non-decreasing) function. We can get a bound on the covering number for monotonic functions in $\mathcal F' = \{f: [a, b] \to [0, 1] \mid f \in \mathcal F\} $. 
+ \begin{enumerate}
+ 	\item  Discretize the output space into $1/\epsilon$ intervals $\mathcal Y = \{ [0, \epsilon], [\epsilon, 2\epsilon], \ldots, [(\inv{\epsilon} - 1)\epsilon, 1]  \}$. 
+ 	
+ 	\item For any given $f \in \mathcal F'$, note that every output $f(z_i)$ falls within an interval in $\mathcal Y$. Denote the upper bound of that interval as $\mathcal Y[z_i]$\footnote{By ``upper bound of interval'' here I'm referring to the value $b$ for a given interval $[a, b]$.}. Define the piecewise function $g$ for each of the $z_i$ as 
+ 	\begin{align}
+ 		g(z_i) = \mathcal Y[z_i] \label{eq:4d-g}
+ 	\end{align}
+ 
+ 	\item Then, by construction
+ 	\begin{align}
+ 		L_2(P_n)(f, g) 
+ 			&= \sqrt{ \inv{n} \sum_{i=1}^{n'} (f(z_i) - g(z_i))^2  } \\
+ 			&= \sqrt{ \inv{n} \sum_{i=1}^{n'} (f(z_i) - \mathcal Y[z_i])^2  } \\
+ 			&\leq \sqrt{ \inv{n} \sum_{i=1}^{n'} \epsilon^2 } \\
+ 			&= \epsilon 
+ 	\end{align}
+ 	where $n' \leq n$ denotes the number of points $z_i$ that are in the current monotonic interval $[a, b]$ being considered. Therefore,$\forall f \in \mathcal F'$,  there exists \textit{some} function $g$ (specifically, the one defined by \ref{eq:4d-g}) for which $L_2(P_n)(f, g) \leq \epsilon$. 
+ 	
+ 	\item Therefore, we can get the covering number for monotonic functions $f: [a, b] \to [0, 1]$ by counting the number of such functions $g$. Note that for each $z_i$, there are only $1/\epsilon$ unique possible values for $g(z_i)$. Therefore, 
+ 	\begin{align}
+	 	N(\epsilon, \mathcal F', L_2(P_n)) = O\lr{ n^{\inv{\epsilon}} }
+ 	\end{align}
+ \end{enumerate}
+
+Recapping, we've now shown two main points:
+\begin{enumerate}
+	\item There are ${n + 2k - 1 \choose 2k -1}$ possible arrangements of the $n$ points relative to the $2k -1$ extrema of any $f \in \mathcal F$. 
+	
+	\item For each region $[a, b]$ in the input space between two extrema (minimum or maximum), the covering number for the functions in $\mathcal F$ evaluated over the points within that region, denoted as $\mathcal F'$, is
+	\begin{align}
+		N(\epsilon, \mathcal F', L_2(P_n)) = O\lr{ n^{\inv{\epsilon}} }
+	\end{align}
+\end{enumerate}
+Therefore, the covering number over the full input space of $[0, 1]$ is
+\begin{align}
+	N(\epsilon, \mathcal F, L_2(P_n))
+		&= O\lr{ n^{2k -1} n^{\frac{k}{\epsilon}} } \\
+	\log N(\epsilon, \mathcal F, L_2(P_n))
+		&= O\lr{ (k/\epsilon) \log n } 
+\end{align}
+and we can now apply Dudley's theorem to obtain the desired result:
+\begin{align}
+	R_S(\mathcal F)
+		&\leq 12 \inv{\sqrt{n}}  \int_{0}^{1} \mathrm{d}{\epsilon} \sqrt{ O\lr{ (k/\epsilon) \log n }    } \\
+		&= O\lr{ \sqrt{ \frac{k \log n}{n} } }
+\end{align}
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
